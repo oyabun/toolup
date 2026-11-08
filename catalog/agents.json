@@ -1,0 +1,91 @@
+[
+  {
+    "id": "claude-code",
+    "k": "cc",
+    "name": "Claude Code",
+    "chip": "Claude Code",
+    "by": "Anthropic",
+    "ds": "Agentic coding in your terminal.",
+    "color": "#d97757",
+    "bin": "claude",
+    "paths": [],
+    "method": "claude",
+    "skills": "claude-code",
+    "skillsDir": "$HOME/.claude/skills",
+    "icon": "lobe:claude-color"
+  },
+  {
+    "id": "codex",
+    "k": "cx",
+    "name": "Codex CLI",
+    "chip": "Codex",
+    "by": "OpenAI",
+    "ds": "OpenAI's coding agent for the terminal.",
+    "color": "#10a37f",
+    "bin": "codex",
+    "paths": [],
+    "method": "codex",
+    "skills": "codex",
+    "icon": "lobe:codex-color"
+  },
+  {
+    "id": "gemini",
+    "k": "gm",
+    "name": "Gemini CLI",
+    "chip": "Gemini CLI",
+    "by": "Google",
+    "ds": "Open-source agent with Gemini models.",
+    "color": "#4f7cf7",
+    "bin": "gemini",
+    "paths": [],
+    "method": "gemini",
+    "config": [
+      "$HOME/.gemini/settings.json"
+    ],
+    "serversKey": "mcpServers",
+    "skills": "gemini-cli",
+    "icon": "lobe:gemini-color"
+  },
+  {
+    "id": "cursor",
+    "k": "cu",
+    "name": "Cursor",
+    "chip": "Cursor",
+    "by": "Anysphere",
+    "ds": "AI-first editor. Servers merged into ~/.cursor/mcp.json.",
+    "color": "#222222",
+    "bin": null,
+    "paths": [
+      "/Applications/Cursor.app",
+      "$HOME/.cursor"
+    ],
+    "method": "json",
+    "config": [
+      "$HOME/.cursor/mcp.json"
+    ],
+    "serversKey": "mcpServers",
+    "urlKey": "url",
+    "skills": "cursor",
+    "icon": "lobe:cursor"
+  },
+  {
+    "id": "vscode",
+    "k": "vs",
+    "name": "VS Code + Copilot",
+    "chip": "VS Code",
+    "by": "Microsoft",
+    "ds": "Agent mode in VS Code, wired with code --add-mcp.",
+    "color": "#0e7ad3",
+    "bin": "code",
+    "paths": [],
+    "method": "vscode",
+    "config": [
+      "$HOME/Library/Application Support/Code/User/mcp.json",
+      "$HOME/.config/Code/User/mcp.json"
+    ],
+    "serversKey": "servers",
+    "urlKey": "url",
+    "skills": "github-copilot",
+    "icon": "lu:code-xml#0e7ad3"
+  }
+]

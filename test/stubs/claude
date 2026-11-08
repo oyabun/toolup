@@ -1,0 +1,9 @@
+#!/bin/bash
+# Stand-in for the claude CLI: keeps its servers as files under $STUB_STATE/claude.
+echo "claude $*" >> "$STUB_STATE/calls.log"
+[ "${1:-}" = mcp ] || exit 0
+case "$2" in
+  get) [ -e "$STUB_STATE/claude/$3" ] ;;
+  add) shift 2; while [ $# -gt 0 ]; do case "$1" in --scope|--transport) shift 2 ;; -*) shift ;; *) break ;; esac; done
+       mkdir -p "$STUB_STATE/claude"; echo "$*" > "$STUB_STATE/claude/$1" ;;
+esac

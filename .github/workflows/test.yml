@@ -1,0 +1,26 @@
+# Runs the tests (npm test) on every push and pull request: the catalog checks, the installer against stand-in
+# agent CLIs (including shellcheck), and the page in jsdom. Also checks that the committed public/ files are current.
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: shellcheck --version
+      - run: npm run build
+      - name: public/ is up to date with catalog/ and src/
+        run: git diff --exit-code -- public/catalog.json public/catalog.tsv public/install.sh
+      - run: npm test

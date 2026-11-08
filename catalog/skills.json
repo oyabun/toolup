@@ -1,0 +1,84 @@
+{
+  "categories": {
+    "plan": "Planning & workflow",
+    "code": "Code quality & debugging",
+    "design": "Frontend & design",
+    "backend": "Backend, data & cloud",
+    "media": "Docs, slides & video",
+    "meta": "Meta"
+  },
+  "owners": {
+    "anthropics": "lobe:claude-color",
+    "vercel-labs": "si:vercel",
+    "supabase": "si:supabase",
+    "neondatabase": "si:neon",
+    "prisma": "si:prisma",
+    "openai": "lobe:openai",
+    "remotion-dev": "lu:film#0b84f3",
+    "heygen-com": "lu:clapperboard#6a4cff",
+    "helmcode": "lu:layers#0f9d7a",
+    "_default": "si:github"
+  },
+  "repos": [
+    {"repo":"anthropics/skills","ds":"Anthropic's reference skills","color":"#d97757"},
+    {"repo":"obra/superpowers","ds":"Brainstorm → plan → TDD → review","color":"#7a4fd6"},
+    {"repo":"mattpocock/skills","ds":"The most-installed engineering set","color":"#2f74c0"},
+    {"repo":"vercel-labs/agent-skills","ds":"React, Next.js and UI guidelines","color":"#111111"},
+    {"repo":"addyosmani/agent-skills","ds":"Production-grade lifecycle skills","color":"#1a73e8"},
+    {"repo":"helmcode/community-skills","ds":"Borja's skills, built at Helmcode","color":"#0f9d7a","badge":"helmcode"},
+    {"repo":"openai/skills","ds":"OpenAI's curated Codex skills","color":"#10a37f"},
+    {"repo":"emilkowalski/skills","ds":"Design engineering and motion","color":"#e5484d"}
+  ],
+  "skills": [
+    {"id":"find-skills","k":"fk","repo":"vercel-labs/skills","cat":"plan","name":"Find Skills","ds":"Lets your agent search skills.sh and install the right skill on demand."},
+    {"id":"grill-me","k":"gr","repo":"mattpocock/skills","cat":"plan","name":"Grill Me","ds":"A relentless interview that sharpens a plan or design before any code."},
+    {"id":"to-spec","k":"ts","repo":"mattpocock/skills","cat":"plan","name":"To Spec","ds":"Turns a conversation into a written spec the agent can build from."},
+    {"id":"prototype","k":"pt","repo":"mattpocock/skills","cat":"plan","name":"Prototype","ds":"Builds a throwaway prototype to answer one design question fast."},
+    {"id":"handoff","k":"ho","repo":"mattpocock/skills","cat":"plan","name":"Handoff","ds":"Compacts the session into a doc another agent can pick up."},
+    {"id":"brainstorming","k":"bs","repo":"obra/superpowers","cat":"plan","name":"Brainstorming","ds":"Turns a rough idea into a validated design before building starts."},
+    {"id":"writing-plans","k":"wp","repo":"obra/superpowers","cat":"plan","name":"Writing Plans","ds":"Breaks a spec into small, verifiable implementation steps."},
+    {"id":"spec-driven-development","k":"sd","repo":"addyosmani/agent-skills","cat":"plan","name":"Spec-Driven Dev","ds":"Addy Osmani's spec → plan → build loop with quality gates."},
+
+    {"id":"tdd","k":"td","repo":"mattpocock/skills","cat":"code","name":"TDD","ds":"Red-green-refactor: build features and fix bugs test-first."},
+    {"id":"diagnosing-bugs","k":"db","repo":"mattpocock/skills","cat":"code","name":"Diagnosing Bugs","ds":"A diagnosis loop for hard bugs and performance regressions."},
+    {"id":"code-review","k":"cr","repo":"mattpocock/skills","cat":"code","name":"Code Review","ds":"Reviews changes since a commit on standards and correctness."},
+    {"id":"improve-codebase-architecture","k":"ia","repo":"mattpocock/skills","cat":"code","name":"Improve Architecture","ds":"Finds deepening opportunities and reports them as visual HTML."},
+    {"id":"domain-modeling","k":"dm","repo":"mattpocock/skills","cat":"code","name":"Domain Modeling","ds":"Builds and sharpens the project's glossary and domain model."},
+    {"id":"triage","k":"tr","repo":"mattpocock/skills","cat":"code","name":"Triage","ds":"Moves issues and PRs through triage, verification and labels."},
+    {"id":"systematic-debugging","k":"sy","repo":"obra/superpowers","cat":"code","name":"Systematic Debugging","ds":"Hypothesis, isolate, test — before touching any code."},
+    {"id":"verification-before-completion","k":"vb","repo":"obra/superpowers","cat":"code","name":"Verify Before Done","ds":"Makes the agent run checks before it claims anything works."},
+    {"id":"code-simplification","k":"cs","repo":"addyosmani/agent-skills","cat":"code","name":"Code Simplification","ds":"Reduces complexity without changing behaviour."},
+    {"id":"security-and-hardening","k":"sh","repo":"addyosmani/agent-skills","cat":"code","name":"Security & Hardening","ds":"Threat-aware checklist for code that ships to users."},
+    {"id":"gh-fix-ci","k":"ci","repo":"openai/skills","cat":"code","name":"Fix CI","ds":"Reads failing GitHub Actions logs and fixes the build."},
+
+    {"id":"frontend-design","k":"fd","repo":"anthropics/skills","cat":"design","name":"Frontend Design","ds":"Distinctive, non-generic UI from the first draft."},
+    {"id":"webapp-testing","k":"wt","repo":"anthropics/skills","cat":"design","name":"Webapp Testing","ds":"Tests local web apps with Playwright scripts."},
+    {"id":"impeccable","k":"im","repo":"pbakaus/impeccable","cat":"design","name":"Impeccable","ds":"Design, critique, polish and harden interfaces with a high bar."},
+    {"id":"emil-design-eng","k":"ee","repo":"emilkowalski/skills","cat":"design","name":"Emil's Design Eng","ds":"Emil Kowalski's taste for UI polish, components and motion."},
+    {"id":"review-animations","k":"ra","repo":"emilkowalski/skills","cat":"design","name":"Review Animations","ds":"Audits motion code against a design-engineering craft bar."},
+    {"id":"design-taste-frontend","k":"dt","repo":"leonxlnx/taste-skill","cat":"design","name":"Design Taste","ds":"Steers the agent away from generic AI-looking frontends."},
+    {"id":"web-design-guidelines","k":"wd","repo":"vercel-labs/agent-skills","cat":"design","name":"Web Interface Guidelines","ds":"Reviews UI for accessibility, UX and interface best practice."},
+    {"id":"vercel-react-best-practices","k":"rb","repo":"vercel-labs/agent-skills","cat":"design","name":"React Best Practices","ds":"React and Next.js performance rules from Vercel Engineering."},
+    {"id":"vercel-composition-patterns","k":"vp","repo":"vercel-labs/agent-skills","cat":"design","name":"Composition Patterns","ds":"Scalable React component APIs without boolean-prop soup."},
+    {"id":"agent-browser","k":"ab","repo":"vercel-labs/agent-browser","cat":"design","name":"Agent Browser","ds":"A browser CLI the agent drives to click, fill and screenshot."},
+
+    {"id":"supabase-postgres-best-practices","k":"sp","repo":"supabase/agent-skills","cat":"backend","name":"Postgres Best Practices","ds":"Supabase's rules for schemas, queries and RLS on any Postgres."},
+    {"id":"neon-postgres","k":"np","repo":"neondatabase/agent-skills","cat":"backend","name":"Neon Postgres","ds":"Serverless Postgres setup, branching and connection patterns."},
+    {"id":"prisma-cli","k":"pc","repo":"prisma/skills","cat":"backend","name":"Prisma CLI","ds":"Prisma 7 migrations, generate and studio, done right."},
+    {"id":"finops","k":"fn","repo":"helmcode/community-skills","cat":"backend","name":"FinOps","ds":"Cloud cost analysis, anomaly detection and spend reports."},
+    {"id":"mcp-builder","k":"mb","repo":"anthropics/skills","cat":"backend","name":"MCP Builder","ds":"A guide for building good MCP servers."},
+    {"id":"claude-api","k":"ca","repo":"anthropics/skills","cat":"backend","name":"Claude API","ds":"Build apps on the Claude API and Agent SDK."},
+
+    {"id":"building-a-beatdeck","k":"bd","repo":"helmcode/community-skills","cat":"media","name":"Beatdeck","ds":"Talks as a 1920×1080 React stage — one click, one beat, presenter view."},
+    {"id":"remotion-product-video","k":"rv","repo":"helmcode/community-skills","cat":"media","name":"Remotion Product Video","ds":"Voiceover, music, subtitles and camera moves for launch videos."},
+    {"id":"remotion-best-practices","k":"rm","repo":"remotion-dev/skills","cat":"media","name":"Remotion","ds":"Official best practices for videos in React with Remotion."},
+    {"id":"hyperframes","k":"hf","repo":"heygen-com/hyperframes","cat":"media","name":"HyperFrames","ds":"Make, animate and render video from HTML."},
+    {"id":"pdf","k":"pd","repo":"anthropics/skills","cat":"media","name":"PDF","ds":"Read, fill, merge and create PDFs."},
+    {"id":"docx","k":"dx","repo":"anthropics/skills","cat":"media","name":"Word","ds":"Create and edit .docx with tracked changes."},
+    {"id":"xlsx","k":"xl","repo":"anthropics/skills","cat":"media","name":"Excel","ds":"Spreadsheets with real formulas."},
+    {"id":"pptx","k":"pp","repo":"anthropics/skills","cat":"media","name":"PowerPoint","ds":"Build and edit slide decks."},
+
+    {"id":"skill-creator","k":"sc","repo":"anthropics/skills","cat":"meta","name":"Skill Creator","ds":"Write, test and tune your own skills."},
+    {"id":"caveman","k":"cm","repo":"juliusbrussee/caveman","cat":"meta","name":"Caveman","ds":"Terse replies that keep every fact — fewer tokens, less fluff."}
+  ]
+}

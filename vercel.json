@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "header", "key": "user-agent", "value": "(?i)^(curl|wget)/.*" }],
+      "destination": "/install.sh"
+    }
+  ],
+  "headers": [
+    { "source": "/install.sh", "headers": [{ "key": "Content-Type", "value": "text/x-shellscript; charset=utf-8" }, { "key": "Cache-Control", "value": "public, max-age=300" }] },
+    { "source": "/catalog.tsv", "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }] }
+  ]
+}

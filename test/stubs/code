@@ -1,0 +1,14 @@
+#!/bin/bash
+# Stand-in for the VS Code launcher: --add-mcp merges into the user mcp.json like the real one.
+echo "code $*" >> "$STUB_STATE/calls.log"
+[ "${1:-}" = --add-mcp ] || exit 0
+f="$HOME/.config/Code/User/mcp.json"; mkdir -p "$(dirname "$f")"
+python3 -I - "$f" "$2" <<'PY'
+import json, sys
+path, entry = sys.argv[1:3]
+try: d = json.load(open(path))
+except Exception: d = {}
+e = json.loads(entry); name = e.pop("name")
+d.setdefault("servers", {})[name] = e
+json.dump(d, open(path, "w"), indent=2)
+PY

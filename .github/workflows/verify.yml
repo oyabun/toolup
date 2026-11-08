@@ -1,0 +1,25 @@
+# The network checks: every skill id exists in its repo (`npx skills add <repo> --list`) and every remote MCP URL
+# answers. Remote URLs change often, so this also runs weekly, not just when the catalog changes.
+name: Verify catalog
+
+on:
+  push:
+    paths: ["catalog/**", "scripts/verify.mjs"]
+  pull_request:
+    paths: ["catalog/**", "scripts/verify.mjs"]
+  schedule:
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/verify.mjs

@@ -1,0 +1,17 @@
+#!/bin/bash
+# Stand-in for npx: only `skills add` does anything. Universal agents share ~/.agents/skills; Claude Code is symlinked.
+echo "npx $*" >> "$STUB_STATE/calls.log"
+args=" $* "
+case "$args" in *" skills add "*) ;; *) exit 0 ;; esac
+claude=0; skills=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -a) [ "$2" = claude-code ] && claude=1; shift ;;
+    --skill) skills+=("$2"); shift ;;
+  esac
+  shift
+done
+for s in "${skills[@]}"; do
+  mkdir -p "$HOME/.agents/skills/$s"; echo "# $s" > "$HOME/.agents/skills/$s/SKILL.md"
+  if [ "$claude" = 1 ]; then mkdir -p "$HOME/.claude/skills"; ln -sfn "$HOME/.agents/skills/$s" "$HOME/.claude/skills/$s"; fi
+done

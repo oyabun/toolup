@@ -1,0 +1,23 @@
+# The installer for real, in a clean container with the real claude, codex and gemini CLIs: run once to install
+# the servers and skills, run again to prove it changes nothing. Weekly too, since the agent CLIs change often.
+name: End to end
+
+on:
+  push:
+    paths: ["src/install.sh", "public/install.sh", "public/catalog.tsv", "catalog/**", "test/e2e/**"]
+  pull_request:
+    paths: ["src/install.sh", "public/install.sh", "public/catalog.tsv", "catalog/**", "test/e2e/**"]
+  schedule:
+    - cron: "11 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f test/e2e/Dockerfile -t kitem-e2e .
+      - run: docker run --rm kitem-e2e

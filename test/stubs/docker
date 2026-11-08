@@ -1,0 +1,11 @@
+#!/bin/bash
+# Stand-in for docker with the MCP Toolkit: enabled servers are files under $STUB_STATE/docker.
+echo "docker $*" >> "$STUB_STATE/calls.log"
+[ "${1:-}" = mcp ] || exit 0
+case "${2:-}" in
+  --help) exit 0 ;;
+  server) case "$3" in
+            ls) for f in "$STUB_STATE"/docker/*; do [ -e "$f" ] && basename "$f"; done; exit 0 ;;
+            enable) shift 3; mkdir -p "$STUB_STATE/docker"; for n in "$@"; do : > "$STUB_STATE/docker/$n"; done ;;
+          esac ;;
+esac

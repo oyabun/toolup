@@ -1,0 +1,72 @@
+agent	claude-code	Claude Code	claude	-	claude	claude-code	$HOME/.claude/skills	-	-	-
+agent	codex	Codex CLI	codex	-	codex	codex	-	-	-	-
+agent	gemini	Gemini CLI	gemini	-	gemini	gemini-cli	-	$HOME/.gemini/settings.json	mcpServers	-
+agent	cursor	Cursor	-	/Applications/Cursor.app|$HOME/.cursor	json	cursor	-	$HOME/.cursor/mcp.json	mcpServers	url
+agent	vscode	VS Code + Copilot	code	-	vscode	github-copilot	-	$HOME/Library/Application Support/Code/User/mcp.json|$HOME/.config/Code/User/mcp.json	servers	url
+mcp	github	GitHub	http	https://api.githubcopilot.com/mcp/	github-official	-
+mcp	context7	Context7	http	https://mcp.context7.com/mcp	context7	-
+mcp	figma	Figma	http	https://mcp.figma.com/mcp	-	-
+mcp	notion	Notion	http	https://mcp.notion.com/mcp	-	-
+mcp	linear	Linear	http	https://mcp.linear.app/mcp	-	-
+mcp	sentry	Sentry	http	https://mcp.sentry.dev/mcp	-	-
+mcp	supabase	Supabase	http	https://mcp.supabase.com/mcp	-	-
+mcp	vercel	Vercel	http	https://mcp.vercel.com	-	-
+mcp	stripe	Stripe	http	https://mcp.stripe.com	-	-
+mcp	neon	Neon	http	https://mcp.neon.tech/mcp	-	-
+mcp	netlify	Netlify	http	https://mcp.netlify.com/mcp	-	-
+mcp	atlassian	Atlassian	http	https://mcp.atlassian.com/v1/mcp	-	-
+mcp	cloudflare-docs	Cloudflare Docs	http	https://docs.mcp.cloudflare.com/mcp	-	-
+mcp	deepwiki	DeepWiki	http	https://mcp.deepwiki.com/mcp	-	-
+mcp	huggingface	Hugging Face	http	https://huggingface.co/mcp	-	-
+mcp	playwright	Playwright	stdio	npx -y @playwright/mcp@latest	playwright	node
+mcp	chrome-devtools	Chrome DevTools	stdio	npx -y chrome-devtools-mcp@latest	-	node
+mcp	fetch	Fetch	stdio	uvx mcp-server-fetch	fetch	uv
+mcp	git	Git	stdio	uvx mcp-server-git	git	uv
+mcp	filesystem	Filesystem	stdio	npx -y @modelcontextprotocol/server-filesystem $HOME	-	node
+mcp	memory	Memory	stdio	npx -y @modelcontextprotocol/server-memory	memory	node
+mcp	sequential-thinking	Sequential Thinking	stdio	npx -y @modelcontextprotocol/server-sequential-thinking	sequentialthinking	node
+skill	find-skills	vercel-labs/skills
+skill	grill-me	mattpocock/skills
+skill	to-spec	mattpocock/skills
+skill	prototype	mattpocock/skills
+skill	handoff	mattpocock/skills
+skill	brainstorming	obra/superpowers
+skill	writing-plans	obra/superpowers
+skill	spec-driven-development	addyosmani/agent-skills
+skill	tdd	mattpocock/skills
+skill	diagnosing-bugs	mattpocock/skills
+skill	code-review	mattpocock/skills
+skill	improve-codebase-architecture	mattpocock/skills
+skill	domain-modeling	mattpocock/skills
+skill	triage	mattpocock/skills
+skill	systematic-debugging	obra/superpowers
+skill	verification-before-completion	obra/superpowers
+skill	code-simplification	addyosmani/agent-skills
+skill	security-and-hardening	addyosmani/agent-skills
+skill	gh-fix-ci	openai/skills
+skill	frontend-design	anthropics/skills
+skill	webapp-testing	anthropics/skills
+skill	impeccable	pbakaus/impeccable
+skill	emil-design-eng	emilkowalski/skills
+skill	review-animations	emilkowalski/skills
+skill	design-taste-frontend	leonxlnx/taste-skill
+skill	web-design-guidelines	vercel-labs/agent-skills
+skill	vercel-react-best-practices	vercel-labs/agent-skills
+skill	vercel-composition-patterns	vercel-labs/agent-skills
+skill	agent-browser	vercel-labs/agent-browser
+skill	supabase-postgres-best-practices	supabase/agent-skills
+skill	neon-postgres	neondatabase/agent-skills
+skill	prisma-cli	prisma/skills
+skill	finops	helmcode/community-skills
+skill	mcp-builder	anthropics/skills
+skill	claude-api	anthropics/skills
+skill	building-a-beatdeck	helmcode/community-skills
+skill	remotion-product-video	helmcode/community-skills
+skill	remotion-best-practices	remotion-dev/skills
+skill	hyperframes	heygen-com/hyperframes
+skill	pdf	anthropics/skills
+skill	docx	anthropics/skills
+skill	xlsx	anthropics/skills
+skill	pptx	anthropics/skills
+skill	skill-creator	anthropics/skills
+skill	caveman	juliusbrussee/caveman

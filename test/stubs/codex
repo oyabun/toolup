@@ -1,0 +1,8 @@
+#!/bin/bash
+# Stand-in for the codex CLI. Like the real one, `add --url` saves the server and then waits for a browser sign-in.
+echo "codex $*" >> "$STUB_STATE/calls.log"
+[ "${1:-}" = mcp ] || exit 0
+case "$2" in
+  get) [ -e "$STUB_STATE/codex/$3" ] ;;
+  add) mkdir -p "$STUB_STATE/codex"; echo "$*" > "$STUB_STATE/codex/$3"; case "$*" in *--url*) sleep 60 ;; esac ;;
+esac
