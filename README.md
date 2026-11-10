@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="public/favicon.svg" width="72" alt="Tool up!">
+  <img src="public/images/logo.svg" width="96" alt="Tool up!">
 </p>
 
 <h1 align="center">Tool up!</h1>
 
 <p align="center">
-  <img src="public/images/toolbox-closed.png" width="320" alt="A toolbox">
+  <img src="public/images/hero-closed.webp" width="480" alt="Tool up!">
 </p>
 
 One line to tool up your AI agents with MCP servers and skills: [toolup.sh](https://toolup.sh)
