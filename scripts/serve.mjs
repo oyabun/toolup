@@ -24,4 +24,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end("not found");
   }
-}).listen(port, "0.0.0.0", () => console.log(`Kit'Em! on http://localhost:${port}`));
+}).listen(port, "0.0.0.0", () => console.log(`Tool up! on http://localhost:${port}`));

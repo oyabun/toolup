@@ -1,16 +1,16 @@
-# Kit'Em!
+# Tool up!
 
-**Kit your agents in one line.** Pick MCP servers and skills at [kitenm.sh](https://kitenm.sh) and get one Terminal line that installs them into every AI coding agent on your machine. A sibling of [Get'Em!](https://getem.sh), which installs the agents themselves.
+**Tool up your agents in one line.** Pick MCP servers and skills at [toolup.sh](https://toolup.sh) and get one Terminal line that installs them into every AI coding agent on your machine. A sibling of [Get'Em!](https://getem.sh), which installs the agents themselves.
 
 ```sh
-curl -fsSL kitenm.sh | bash -s -- github playwright grill-me tdd frontend-design
+curl -fsSL toolup.sh | bash -s -- github sentry grill-me tdd frontend-design
 ```
 
 Positional arguments are catalog ids (servers and skills share one id namespace).
 
 | Option | |
 | --- | --- |
-| `--to claude-code,cursor` | only kit these agents (default: every supported agent found) |
+| `--to claude-code,cursor` | only tool up these agents (default: every supported agent found) |
 | `--docker` | route servers that have a Docker MCP Catalog entry through the Docker MCP Gateway (one `MCP_DOCKER` entry per agent) |
 | `--dry-run` | print every action without changing anything |
 | `--update` | re-install the chosen skills at their latest version |
@@ -22,9 +22,9 @@ Agents (v1): Claude Code, Codex CLI, Gemini CLI, Cursor, VS Code + GitHub Copilo
 
 ```
 catalog/agents.json    the agent table: how to detect each agent and how to wire it (add an agent = add an entry)
-catalog/mcp.json       MCP servers: remote URL or local command, auth, Docker catalog name, runtime needed
+catalog/mcp.json       MCP servers: remote URL and how it signs in (OAuth or none)
 catalog/skills.json    skills (owner/repo + category), the featured repos, the categories
-catalog/packs.json     the role kits
+catalog/packs.json     the role packs
 catalog/installs.json  skills.sh install counts (refreshed daily by a job)
 src/install.sh         the installer: one readable bash script, bash 3.2 safe, set -uo pipefail
 scripts/build.mjs      catalog/*.json → public/catalog.json, catalog.tsv, install.sh
@@ -59,6 +59,6 @@ docker build -f test/e2e/Dockerfile -t kitem-e2e . && docker run --rm kitem-e2e 
 
 ## Deploy
 
-`curl -fsSL kitenm.sh | bash` needs the bare domain to answer curl with the script and browsers with the page, which a plain static host (GitHub Pages) can't do. `vercel.json` does it with a rewrite on curl/wget's User-Agent; `/install.sh` works on any host. Set `SITE_URL` (default `https://kitenm.sh`) at build time if the domain differs: it is baked into `install.sh` for the catalog download.
+`curl -fsSL toolup.sh | bash` needs the bare domain to answer curl with the script and browsers with the page, which a plain static host (GitHub Pages) can't do. `vercel.json` does it with a rewrite on curl/wget's User-Agent; `/install.sh` works on any host. Set `SITE_URL` (default `https://toolup.sh`) at build time if the domain differs: it is baked into `install.sh` for the catalog download.
 
 CI: `test.yml` (every push), `verify.yml` (catalog changes and weekly), `e2e.yml` (installer in a clean container), `installs.yml` (daily counts).

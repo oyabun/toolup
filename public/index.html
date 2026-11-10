@@ -4,87 +4,157 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
-  <title>Kit'Em! — kit your AI agents in one line</title>
+  <title>Tool up! — tool up your AI agents in one line</title>
   <meta name="description" content="Pick MCP servers and skills, get one line that installs them into Claude Code, Codex, Gemini CLI, Cursor and VS Code.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <meta name="theme-color" content="#7c6df0">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#7d22d8">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Kit'Em!: kit your AI agents in one line">
+  <meta property="og:title" content="Tool up!: tool up your AI agents in one line">
   <meta property="og:description" content="Pick MCP servers and skills, get one line that installs them into every agent on your machine.">
   <meta name="twitter:card" content="summary">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <a class="skip" href="#kit">Skip to the picker</a>
+<header>
+  <div class="hdr-in">
+    <a class="home" href="./" aria-label="Tool up!, home">
+      <svg class="logo" viewBox="0 0 704 576" fill="currentColor" role="img" aria-label="Tool up!" shape-rendering="crispEdges"><path d="M64 320H192V384H64V448H256V384H448V448H640V384H512V320H640V256H448V320H256V256H64V320ZM256 128H448V64H256V128ZM704 512H640V576H64V512H0V128H192V0H512V128H704V512Z"/></svg>
+      <span class="brand">Tool up!</span>
+    </a>
+    <span class="beta">beta</span>
+    <div class="hdr-tools" id="site-nav">
+      <label class="tb-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search servers and skills…" aria-label="Search servers and skills" autocomplete="off"></label>
+      <div class="tb-sel dd2" data-dd="show-pick">
+        <button class="tb-box dd2-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Show"><span class="dd2-ic" aria-hidden="true"></span><span class="dd2-lbl"></span><svg class="dd2-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button class="dd2-x" type="button" aria-label="Clear the list filter" title="Clear" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <div class="dd2-list" role="listbox" aria-label="Show" hidden></div>
+        <select id="show-pick" aria-label="Show" tabindex="-1" aria-hidden="true" hidden><option value="all" data-tab="all" data-short="All">All</option><option value="mcp" data-tab="mcp" data-short="MCP servers">MCP servers</option><option value="skills" data-tab="skills" data-short="Skills">Skills</option></select>
+      </div>
+      <div class="tb-sel dd2" data-dd="cat-pick">
+        <button class="tb-box dd2-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Categories"><span class="dd2-ic" aria-hidden="true"></span><span class="dd2-lbl"></span><svg class="dd2-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button class="dd2-x" type="button" aria-label="Clear categories" title="Clear" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <div class="dd2-list" role="listbox" aria-label="Categories" hidden></div>
+        <select id="cat-pick" aria-label="Categories" tabindex="-1" aria-hidden="true" hidden></select>
+      </div>
+    </div>
+      <button class="theme" id="theme" type="button" aria-label="Switch between light and dark" title="Light / dark">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+      <svg viewBox="0 0 5 5" shape-rendering="crispEdges" aria-hidden="true"><path class="m-open" d="M0 0h5v1H0zM0 2h5v1H0zM0 4h5v1H0z"/><path class="m-close" d="M0 0h1v1H0zM4 0h1v1H4zM1 1h1v1H1zM3 1h1v1H3zM2 2h1v1H2zM1 3h1v1H1zM3 3h1v1H3zM0 4h1v1H0zM4 4h1v1H4z"/></svg>
+    </button>
+  </div>
+</header>
+
 <div class="wrap">
-  <header>
-    <span class="logo" aria-hidden="true">K!/</span><span class="brand">Kit'Em!</span><span class="beta">beta</span>
-    <nav aria-label="Site">
-      <a href="#faq">FAQ</a>
-      <button class="theme" id="theme" type="button" aria-label="Switch between light and dark"><span aria-hidden="true">◐</span></button>
-    </nav>
-  </header>
-
   <main id="kit">
-    <h1>Kit your agents in <em>one line</em>.</h1>
-    <p class="lede">Pick the MCP servers and skills you want. Kit'Em! gives you one line that installs them into every agent on your machine: Claude Code, Codex, Gemini CLI, Cursor and VS Code. Re-run it any time; it only adds what's missing.</p>
-    <noscript><p class="lede">This page builds your command from a catalog, so it needs JavaScript. Without it, run <code>curl -fsSL kitenm.sh | bash -s -- --list</code> to see every id.</p></noscript>
-
-    <section aria-labelledby="h-agents">
-      <h2 id="h-agents"><span class="n">01</span> Kit which agents? <small>Leave on “All” to kit every agent the script finds</small></h2>
-      <div class="targets" id="targets" role="group" aria-labelledby="h-agents"></div>
+    <section class="hero" aria-labelledby="h-hero">
+      <canvas id="field" aria-hidden="true"></canvas>
+      <div class="hero-art" aria-hidden="true"><img class="ha ha-closed" src="images/hero-closed.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-open" src="images/hero-open.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-skills" src="images/hero-skills.webp" alt="" width="380" height="331" decoding="async"></div>
+    <p class="eyebrow" id="hero-meta">MCP servers · Skills · One line</p>
+      <h1 id="h-hero">Tool up your agents in <em>one line</em>.</h1>
+      <p class="lede">Pick the MCP servers and skills you want and get one line that installs them into Claude Code, Codex, Gemini CLI, Cursor and VS Code. Re-run it any time; it only adds what's missing.</p>
+      <div class="hero-pick">
+        <span class="pick-lbl" aria-hidden="true">For</span>
+        <div class="dd-wrap" id="targets">
+          <button class="dd" id="agent-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="agent-list" aria-labelledby="agent-lbl agent-main">
+            <span class="dd-logos" id="agent-logos"></span>
+            <span class="dd-main"><span class="vh" id="agent-lbl">Which agents: </span><span id="agent-main">All agents</span></span>
+            <svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="dd-menu" id="agent-list" hidden>
+            <div class="dd-head" id="agent-head"><b>Which agents?</b><span>Leave on “All” to tool up every agent the script finds.</span></div>
+            <div class="dd-opts" role="listbox" aria-multiselectable="true" aria-labelledby="agent-head" id="agent-opts"></div>
+            <div class="dd-foot"><span id="agent-flag"></span></div>
+          </div>
+        </div>
+      </div>
     </section>
+    <noscript><p class="lede">This page builds your command from a catalog, so it needs JavaScript. Without it, run <code>curl -fsSL toolup.sh | bash -s -- --list</code> to see every id.</p></noscript>
 
-    <section aria-labelledby="h-kits">
-      <h2 id="h-kits"><span class="n">02</span> Start from a kit <small>or pick à la carte below</small></h2>
+    <div class="layout">
+    <div class="lmain">
+    <section aria-labelledby="h-packs">
+      <h2 id="h-packs"><span class="n">01</span> Start from a pack <small>or pick à la carte below</small></h2>
       <div class="packs" id="packs"></div>
-      <div class="toolbar">
-        <input class="search" id="q" type="search" placeholder="Search servers and skills…" aria-label="Search servers and skills" autocomplete="off">
+      <div class="pk-tools">
         <button class="clear" id="clear" type="button">Clear selection</button>
       </div>
     </section>
 
     <div id="cat"></div>
+    </div>
+    </div>
 
     <section class="faq" id="faq" aria-labelledby="h-faq">
+      <canvas class="heat-rule" id="faq-rule" aria-hidden="true"></canvas>
       <h2 id="h-faq">Questions, answered</h2>
-      <details><summary>What does the line actually do?</summary><p>It finds the agents on your machine (or just the ones you chose with <code>--to</code>), installs any runtime a server needs (Node.js, uv), registers each MCP server with every agent using that agent's own CLI where it has one (<code>claude mcp add</code>, <code>codex mcp add</code>, <code>gemini mcp add</code>, <code>code --add-mcp</code>) and merges JSON config for the rest (<code>~/.cursor/mcp.json</code>). Skills install through the open <code>skills</code> CLI from skills.sh, globally, into every agent you kit.</p></details>
-      <details><summary>Does it install the agents themselves?</summary><p>No. Kit'Em! kits the agents you already have. Install them first (or grab them with <a href="https://getem.sh/">Get'Em!</a>), then run your line. Agents installed later get kitted the next time you run it.</p></details>
+      <details><summary>What does the line actually do?</summary><p>It finds the agents on your machine (or just the ones you chose with <code>--to</code>), registers each MCP server with every agent using that agent's own CLI where it has one (<code>claude mcp add</code>, <code>codex mcp add</code>, <code>gemini mcp add</code>, <code>code --add-mcp</code>) and merges JSON config for the rest (<code>~/.cursor/mcp.json</code>). Skills install through the open <code>skills</code> CLI, globally, into every agent you tool up.</p></details>
+      <details><summary>Does it install the agents themselves?</summary><p>No. Tool up! works on the agents you already have. Install them first (or grab them with <a href="https://getem.sh/">Get'Em!</a>), then run your line. Agents installed later get tooled up the next time you run it.</p></details>
       <details><summary>Is it safe?</summary><p>The script is plain bash you can read before running it: hit “View script”, or add <code>--dry-run</code> to print every action without changing anything. Remote servers are just URLs; nothing is sent anywhere until you sign in to them from your agent. Skills are instructions your agent follows, so skim the ones you add.</p></details>
-      <details><summary>Where do tokens and API keys go?</summary><p>Never in the line, the share link or the script. Servers marked <code>oauth</code> open a sign-in the first time your agent uses them, and the agent keeps the credentials. Kit'Em! never sees them.</p></details>
-      <details><summary>What's “Route through Docker MCP Gateway”?</summary><p>Servers that exist in the Docker MCP Catalog are enabled in Docker's gateway and run in containers, and each agent gets one <code>MCP_DOCKER</code> entry instead of many. Fewer configs to keep in sync, servers isolated from your machine. It needs Docker Desktop with the MCP Toolkit; servers that aren't in the catalog are still wired directly.</p></details>
+      <details><summary>Where do tokens and API keys go?</summary><p>Never in the line, the share link or the script. Servers marked <code>oauth</code> open a sign-in the first time your agent uses them, and the agent keeps the credentials. Tool up! never sees them.</p></details>
       <details><summary>Does re-running it duplicate things?</summary><p>No. Every step checks first: servers an agent already has are skipped and skills already on disk are left alone, so only what's missing is added. Add <code>--update</code> to re-install the skills you picked at their latest version.</p></details>
-      <details><summary>How do I remove something?</summary><p>Use the agent's own command: <code>claude mcp remove playwright -s user</code>, <code>codex mcp remove playwright</code>, <code>gemini mcp remove -s user playwright</code>. For Cursor and VS Code delete the entry from their <code>mcp.json</code>. Skills: <code>npx skills remove -g tdd</code>.</p></details>
-      <details><summary>How were the skills picked?</summary><p>High signal over volume: from the skills.sh leaderboard, the repos most recommended across 2026 roundups (Anthropic, obra/superpowers, Matt Pocock, Vercel, Addy Osmani, OpenAI) and hand-picked community repos like Helmcode's. Clones and look-alike forks are left out. Install counts come from skills.sh and refresh daily, and a check runs against every repo to confirm each skill exists.</p></details>
+      <details><summary>How do I remove something?</summary><p>Use the agent's own command: <code>claude mcp remove sentry -s user</code>, <code>codex mcp remove sentry</code>, <code>gemini mcp remove -s user sentry</code>. For Cursor and VS Code delete the entry from their <code>mcp.json</code>. Skills: <code>npx skills remove -g tdd</code>.</p></details>
+      <details><summary>How were the servers picked, and why isn't Postgres here?</summary><p>This is a short list on purpose, not a directory: official servers, from the tools' own makers, that a developer or a team would really use with an agent. Narrow or overlapping ones (one product's docs, one more web search) stay out. Every remote URL is called each week, so a server that stops answering drops out.</p><p>Nothing here needs a secret. Servers that want an API key, a token or a connection string, like Postgres, MongoDB or Firecrawl, are not listed, because a secret must never end up in a command, a link or a script. Servers that sign you in with your browser (OAuth), like GitHub or Slack, are fine. For the others, add them yourself with your agent's own <code>mcp add</code> and keep the key in an environment variable.</p></details>
+      <details><summary>How were the skills picked?</summary><p>High signal over volume: the skills people actually install and keep, from the official repos of the tools they belong to and a few hand-picked community ones. Clones and look-alike forks are left out. Install counts refresh daily, and a check makes sure every skill still exists in its repo.</p></details>
       <details><summary>Can I share my setup?</summary><p>Yes. “Copy link” encodes your selection in the URL, and anyone who opens it gets the same picks and the same line. “Download .sh” gives you a script with the picks baked in that works without this site.</p></details>
     </section>
-    <footer>Kit'Em! · A curated list, built to get your agents ready quickly. · From the maker of <a href="https://getem.sh/">Get'Em!</a></footer>
+    <footer>
+      <a class="fbrand" href="./" aria-label="Tool up!, home"><svg class="logo flogo" viewBox="0 0 704 576" fill="currentColor" role="img" aria-label="Tool up!" shape-rendering="crispEdges"><path d="M64 320H192V384H64V448H256V384H448V448H640V384H512V320H640V256H448V320H256V256H64V320ZM256 128H448V64H256V128ZM704 512H640V576H64V512H0V128H192V0H512V128H704V512Z"/></svg><span>Tool up! 2026</span></a>
+      <p>A curated list, built to get your agents ready quickly. · From the maker of <a href="https://getem.sh/">Get'Em!</a></p>
+    </footer>
   </main>
 </div>
 
 <div class="bar">
   <div class="bar-in">
-    <div class="term">
-      <div class="term-h" aria-hidden="true"><i></i><i></i><i></i><span id="host">kitenm.sh — zsh</span></div>
-      <div class="cmd"><span class="p" aria-hidden="true">$</span><code id="cmd" tabindex="0" aria-label="The command"></code></div>
-      <div class="term-f">Paste into Terminal. Click <button class="flag" id="dryflag" type="button" aria-pressed="false">--dry-run</button> to add it and preview first.</div>
+    <div class="term-wrap">
+      <div class="term">
+        <div class="term-h" aria-hidden="true"><i></i><i></i><i></i><span id="host">toolup.sh — zsh</span></div>
+        <div class="cmd"><span class="p" aria-hidden="true">$</span><code id="cmd" tabindex="0" aria-label="The command"></code>
+          <div class="split">
+            <button class="btn pri" id="copy" type="button">Copy<span class="long"> command</span></button>
+            <button class="btn pri split-more" id="more" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="more-menu" aria-label="More ways to get it: copy a link, download the script or preview it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
+            <div class="more-menu" id="more-menu" role="menu" aria-label="More ways to get it" hidden>
+              <button class="mi" id="link" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span><b>Copy link</b><small>A link that restores exactly this selection</small></span></button>
+              <button class="mi" id="dl" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg><span><b>Download .sh</b><small>A script with your picks built in; works offline</small></span></button>
+              <button class="mi" id="view" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg><span><b>Preview script</b><small>Read the exact script before you run it</small></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="term-f">Paste into Terminal. Click <button class="flag" id="dryflag" type="button" aria-pressed="false">--dry-run</button> to add it and preview first.</p>
     </div>
-    <div class="row">
-      <span class="count" id="count" aria-live="polite"></span>
-      <label class="tog"><input type="checkbox" id="dock"> Route through Docker MCP Gateway</label>
-      <button class="btn" id="view" type="button">View script</button>
-      <button class="btn" id="dl" type="button">Download .sh</button>
-      <button class="btn" id="link" type="button">Copy link</button>
-      <button class="btn pri" id="copy" type="button">Copy command</button>
-    </div>
+    <button class="folder" id="review" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="drawer" title="Your toolbox" disabled>
+      <span class="fo-h" aria-hidden="true"><svg class="logo" viewBox="0 0 704 576" fill="currentColor" shape-rendering="crispEdges"><path d="M64 320H192V384H64V448H256V384H448V448H640V384H512V320H640V256H448V320H256V256H64V320ZM256 128H448V64H256V128ZM704 512H640V576H64V512H0V128H192V0H512V128H704V512Z"/></svg>your toolbox</span>
+      <span class="fo-body">
+        <span class="fo-txt fo-in"><span class="fo-n" id="fo-n">0 picks</span><span class="fo-sub" id="fo-sub">nothing yet</span></span>
+        <span class="fo-pages" id="fo-pages" aria-hidden="true"></span>
+        <svg class="fo-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
+    
+      </span>
+    </button>
+    <p class="fo-line" aria-hidden="true"><b class="fo-n2">0 picks</b> <span class="fo-sub2">nothing yet</span></p>
   </div>
 </div>
+
+<aside class="drawer" id="drawer" aria-label="Your picks" hidden>
+  <div class="dr-h"><strong>Your picks</strong><button class="btn" type="button" data-rmall>Clear all</button><button class="dr-x" id="drawer-close" type="button" aria-label="Close the list">×</button></div>
+  <p class="count" id="count" aria-live="polite"></p>
+  <div class="dr-ag"><span class="dr-cap">Tool up these agents</span><div class="dr-agents" id="dr-agents" role="group" aria-label="Agents to tool up"></div></div>
+  <ul class="chips" id="chips" aria-label="Picked items"></ul>
+</aside>
 
 <div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="app.js"></script>
+<script src="field.js"></script>
 </body>
 </html>

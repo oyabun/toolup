@@ -1,0 +1,1159 @@
+[
+  {
+    "slug": "ahrefs-mcp-server",
+    "name": "Ahrefs",
+    "ds": "Official Ahrefs MCP server that lets AI agents securely access Ahrefs SEO data, site metrics, keyword research, and competitor analysis through the Ahrefs API.",
+    "url": "https://api.ahrefs.com/mcp/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [
+      "biz",
+      "web"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "asana-mcp",
+    "name": "Asana",
+    "ds": "Asana is a collaborative work management platform for planning, assigning, and tracking tasks across projects and workspaces. Its official remote MCP server gives assistants account-backed project context, including task status, ownership, and workspace activity from the same system teams already use.",
+    "url": "https://mcp.asana.com/v2/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "atlassian-mcp-server",
+    "name": "Atlassian",
+    "ds": "Official Atlassian MCP server for connecting AI agents to Jira, Confluence, Opsgenie, and other Atlassian products.",
+    "url": "https://mcp.atlassian.com/v1/mcp/authv2",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "canva-mcp",
+    "name": "Canva",
+    "ds": "Canva is a visual communication platform for creating presentations, social graphics, documents, and brand assets. Its remote MCP server connects assistants to Canva designs, assets, exports, and comments so creative work can be discussed, revised, and prepared from conversation.",
+    "url": "https://mcp.canva.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [
+      "design"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "cloudflare-mcp",
+    "name": "Cloudflare Code Mode",
+    "ds": "Cloudflare is an application, security, and developer platform spanning Workers, storage, networking, DNS, and account APIs. Its official MCP server gives assistants structured Cloudflare context for inspecting resources, planning infrastructure changes, and working across Cloudflare services.",
+    "url": "https://mcp.cloudflare.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [
+      "cloud"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "figma-mcp",
+    "name": "Figma",
+    "ds": "The Figma MCP server brings Figma directly into your workflow by providing important design information and context to AI agents generating code from Figma design files.",
+    "url": "https://mcp.figma.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "github-mcp-server",
+    "name": "GitHub",
+    "ds": "Official GitHub MCP server for repository search, issues, pull requests, code context, and GitHub workflows in MCP-compatible AI clients.",
+    "url": "https://api.githubcopilot.com/mcp/",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "hubspot-mcp",
+    "name": "HubSpot",
+    "ds": "HubSpot is a customer platform for CRM, marketing, sales, service, and operations teams. Its MCP server connects assistants to HubSpot CRM records. The general-purpose endpoint requires a HubSpot MCP auth app and OAuth with PKCE; configure the client credentials and redirect URL as described in the official documentation.",
+    "url": "https://mcp.hubspot.com",
+    "official": true,
+    "featured": true,
+    "cats": [
+      "biz"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "linear-mcp",
+    "name": "Linear",
+    "ds": "Linear is built for product and engineering teams that track software issues, projects, comments, and cycles. Its remote MCP server gives assistants planning context for priorities, project status, feedback, and the work moving through a team's roadmap.",
+    "url": "https://mcp.linear.app/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "mercury-mcp",
+    "name": "Mercury",
+    "ds": "Mercury MCP lets you ask questions about your banking balances, transactions, cards/recipients, and more",
+    "url": "https://mcp.mercury.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "neondatabase/mcp-server-neon",
+    "name": "Neon",
+    "ds": "Interact with the Neon serverless Postgres platform",
+    "url": "https://mcp.neon.tech/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "notion-mcp-server",
+    "name": "Notion",
+    "ds": "Official Notion MCP server for searching, reading, creating, and updating Notion pages, databases, and workspace content from AI agents.",
+    "url": "https://mcp.notion.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "parallel-mcp",
+    "name": "Parallel Search",
+    "ds": "Parallel Search provides real-time web search and content extraction for search-grounded AI workflows. Its remote MCP server helps assistants retrieve current web context, inspect pages, and use extracted content when answering questions or researching topics that require fresh information.",
+    "url": "https://search.parallel.ai/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "railway-mcp",
+    "name": "Railway",
+    "ds": "The Railway MCP Server enables natural language interaction with your Railway projects and infrastructure. Ask your IDE or AI assistant to create projects, deploy templates, manage environments, pull variables, redeploy services, and more.",
+    "url": "https://mcp.railway.com",
+    "official": true,
+    "featured": true,
+    "cats": [
+      "cloud"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "slack-mcp",
+    "name": "Slack",
+    "ds": "Slack is a collaboration hub for team messages, channels, users, and shared canvases. Its remote MCP server brings workspace communication context into assistant workflows, helping users find decisions, summarize discussions, and understand activity across channels.",
+    "url": "https://mcp.slack.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [
+      "work"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "stripe-mcp-server",
+    "name": "Stripe",
+    "ds": "Official Stripe MCP server and agent toolkit for working with Stripe customers, payments, subscriptions, refunds, invoices, and billing operations.",
+    "url": "https://mcp.stripe.com",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "supabase-mcp-server",
+    "name": "Supabase",
+    "ds": "Official Supabase MCP server for managing Supabase projects, databases, auth, storage, edge functions, and SQL workflows from AI agents.",
+    "url": "https://mcp.supabase.com/mcp",
+    "official": true,
+    "featured": true,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "yahoo-finance-mcp",
+    "name": "Yahoo Finance",
+    "ds": "Community-hosted Yahoo Finance data gateway operated at gateway.mcpservers.org. Not an official Yahoo MCP server.",
+    "url": "https://gateway.mcpservers.org/yahoo-finance/mcp",
+    "official": false,
+    "featured": true,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "www-activepieces-com",
+    "name": "Activepieces",
+    "ds": "",
+    "url": "https://cloud.activepieces.com/mcp/platform",
+    "official": false,
+    "featured": false,
+    "cats": [
+      "work"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "attio-mcp",
+    "name": "Attio",
+    "ds": "Attio is a flexible, data-driven CRM for managing contacts, companies, deals, and workflows. Its remote MCP server gives assistants direct access to CRM records, notes, and tasks so customer context can be looked up, logged, and updated from conversation.",
+    "url": "https://mcp.attio.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "biz",
+      "work"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "calendly-mcp",
+    "name": "Calendly",
+    "ds": "Calendly is a scheduling platform for booking meetings without back-and-forth email. Its remote MCP server lets assistants check availability, look up scheduled events, and manage booking links using the calendar setup users already maintain in Calendly.",
+    "url": "https://mcp.calendly.com",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "circleback-mcp",
+    "name": "Circleback",
+    "ds": "Circleback is an AI meeting assistant that produces structured notes, transcripts, and action items. Its remote MCP server brings that meeting context into assistant workflows so past conversations, decisions, and follow-ups can be searched and referenced.",
+    "url": "https://circleback.ai/api/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "clerk-mcp",
+    "name": "Clerk",
+    "ds": "Clerk provides authentication, organization management, and billing implementation support for application developers. Its connector brings current SDK snippets, route-protection patterns, B2B organization examples, and framework-specific guidance into assistant coding workflows.",
+    "url": "https://mcp.clerk.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "cloud"
+    ],
+    "include": false,
+    "note": "OAuth discovery not published: cannot verify it needs no key",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "clickup-mcp",
+    "name": "ClickUp",
+    "ds": "ClickUp is a project management and collaboration platform for tasks, docs, Chat, and team workflows. Its MCP connector gives assistants secure, real-time workspace context so AI agents can work with ClickUp data and support automation.",
+    "url": "https://mcp.clickup.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "work"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "close-mcp",
+    "name": "Close",
+    "ds": "Close is a CRM built for inside sales teams, combining leads, calls, email, and pipeline management. Its remote MCP server gives assistants direct access to CRM data so leads can be looked up, activity summarized, and records updated from conversation.",
+    "url": "https://mcp.close.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "cloudflare/mcp-server-cloudflare",
+    "name": "Cloudflare",
+    "ds": "Deploy, configure & interrogate your resources on the Cloudflare developer platform (e.g. Workers/KV/R2/D1)",
+    "url": "https://bindings.mcp.cloudflare.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "cloudinary/mcp-servers",
+    "name": "Cloudinary",
+    "ds": "Interact with Cloudinary's media management platform using natural language.",
+    "url": "https://asset-management.mcp.cloudinary.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "cloud",
+      "design"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "docusign-mcp",
+    "name": "Docusign",
+    "ds": "Docusign is an agreement management platform for preparing, signing, and tracking contracts. Its remote MCP server connects assistants to envelopes and agreement data so documents can be located, statuses checked, and signing workflows moved forward from conversation.",
+    "url": "",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "down",
+    "probed": "no url"
+  },
+  {
+    "slug": "dovetail/dovetail-mcp",
+    "name": "Dovetail",
+    "ds": "Connect AI tools to the Dovetail API for user research and customer feedback analysis.",
+    "url": "https://dovetail.com/api/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "mcp-elmah-io",
+    "name": "elmah.io",
+    "ds": "The elmah.io MCP server allows AI assistants to interact directly with your error logs, deployments, and organization statistics. Debug production issues faster than ever before.",
+    "url": "https://mcp.elmah.io/mcp",
+    "official": false,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "eraser-mcp",
+    "name": "Eraser",
+    "ds": "Eraser helps teams generate, manage, and update diagrams and technical files. Its connector lets assistants create and revise visual system artifacts so architecture, product, and engineering ideas can be captured from conversation.",
+    "url": "https://app.eraser.io/api/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "design",
+      "docs"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "fal-ai-mcp",
+    "name": "fal",
+    "ds": "Generate images, videos, audio and 3D with fal. Discover models, inspect schemas and pricing, and run jobs through a hosted MCP connection with browser OAuth.",
+    "url": "https://mcp.fal.ai/mcp-relay",
+    "official": false,
+    "featured": false,
+    "cats": [
+      "ai",
+      "design"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "fathom-mcp",
+    "name": "Fathom",
+    "ds": "Fathom connects meeting recordings, transcripts, and summaries to assistant workflows. Its connector helps users bring meeting context into conversations for follow-ups, decisions, action items, and team knowledge.",
+    "url": "https://api.fathom.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "fireflies-mcp",
+    "name": "Fireflies",
+    "ds": "Fireflies is an AI notetaker that records, transcribes, and summarizes meetings across conferencing platforms. Its remote MCP server lets assistants search past conversations, pull transcripts and summaries, and act on meeting knowledge stored in Fireflies.",
+    "url": "https://api.fireflies.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "work",
+      "ai"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "gamma-mcp",
+    "name": "Gamma",
+    "ds": "Gamma is an AI-native tool for creating presentations, documents, and simple websites from prompts. Its remote MCP server lets assistants generate and edit Gamma content directly, turning ideas and outlines into polished, shareable decks and pages.",
+    "url": "https://mcp.gamma.app/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "design"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "gitlab-mcp",
+    "name": "GitLab",
+    "ds": "GitLab connects AI tools securely to repository, issue, merge request, and DevSecOps data. Its connector gives assistants GitLab project context for understanding code work, collaboration, security workflows, and delivery status.",
+    "url": "https://gitlab.com/api/v4/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "code"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "gocardless-mcp",
+    "name": "GoCardless",
+    "ds": "GoCardless helps developers build payment API integrations for bank payments and payment workflows. Its connector brings GoCardless documentation and integration context into assistant workflows for implementation planning and troubleshooting.",
+    "url": "https://mcp.gocardless.com",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "pay",
+      "code"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "godaddy-mcp",
+    "name": "GoDaddy",
+    "ds": "GoDaddy helps users search domains and check availability. Its connector gives assistants domain-discovery context so naming ideas, availability checks, and domain decisions can be explored conversationally.",
+    "url": "https://api.godaddy.com/v1/domains/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "granola-mcp",
+    "name": "Granola",
+    "ds": "Connect Claude, ChatGPT, and other AI tools to your Granola meeting notes via MCP. Query your notes, search transcripts, and get meeting insights in your favorite AI assistants.",
+    "url": "https://mcp.granola.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "work",
+      "ai"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "hex-mcp",
+    "name": "Hex",
+    "ds": "Hex is a data workspace for analysis, notebooks, and collaborative analytics. Its connector lets assistants answer questions with Hex agent context, helping users reason over data projects and analytical workflows.",
+    "url": "https://app.hex.tech/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "cloud",
+      "work"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "hugging-face-mcp",
+    "name": "Hugging Face",
+    "ds": "Hugging Face connects assistants to the Hugging Face Hub and thousands of Gradio apps. Its connector brings model, dataset, Space, and app context into AI workflows for discovery, experimentation, and machine-learning research.",
+    "url": "https://huggingface.co/mcp?login",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "ifttt-mcp",
+    "name": "IFTTT",
+    "ds": "IFTTT connects and automates more than a thousand apps, services, and devices. Its connector lets assistants control applets, trigger automations, and reason over connected service workflows from conversation.",
+    "url": "https://ifttt.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "incident-io/incidentio-mcp-golang",
+    "name": "incident.io",
+    "ds": "An MCP server for interacting with the incident.io V2 API for incident management.",
+    "url": "https://mcp.incident.io/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "test",
+      "work"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "jotform-mcp",
+    "name": "Jotform",
+    "ds": "An MCP server which brings Jotform to your AI client or LLM",
+    "url": "https://mcp.jotform.com/mcp-app",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "key",
+    "probed": 401
+  },
+  {
+    "slug": "krisp-mcp",
+    "name": "Krisp",
+    "ds": "Krisp brings meeting transcripts and notes into assistant workflows. Its connector gives AI systems meeting context for summaries, follow-ups, decisions, and collaboration history.",
+    "url": "https://mcp.krisp.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "integromat/make-mcp-server",
+    "name": "Make",
+    "ds": "Turn your Make scenarios into callable tools for AI assistants.",
+    "url": "https://mcp.make.com",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "work",
+      "biz"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "mdn-mcp",
+    "name": "MDN",
+    "ds": "MDN provides documentation for open web technologies including HTML, CSS, JavaScript, Web APIs, and browser compatibility data. Its experimental remote MCP server gives assistants current web platform context for answering implementation and browser-support questions.",
+    "url": "https://mcp.mdn.mozilla.net/",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "docs",
+      "design"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "mem-mcp",
+    "name": "Mem",
+    "ds": "Mem is an AI notebook for notes, thoughts, and personal knowledge. Its connector gives assistants notebook context for recalling information, organizing ideas, and building a persistent knowledge workspace.",
+    "url": "https://mcp.mem.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "mermaid-chart-mcp",
+    "name": "Mermaid Chart",
+    "ds": "Mermaid Chart validates Mermaid syntax and renders diagrams as high-quality SVGs with interactive previews. Its connector gives assistants diagramming context for previewing, correcting, and iterating on Mermaid diagrams.",
+    "url": "https://chatgpt.mermaid.ai/anthropic/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "mintlify-mcp",
+    "name": "Mintlify",
+    "ds": "Mintlify helps teams search, read, and edit documentation. Its connector gives assistants documentation context for answering docs questions, maintaining content, and updating developer-facing knowledge bases.",
+    "url": "https://mcp.mintlify.com",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "monte-carlo-mcp",
+    "name": "Monte Carlo",
+    "ds": "Monte Carlo provides data and AI observability for monitoring data reliability. Its connector gives assistants observability context for investigating data incidents, understanding quality signals, and supporting trusted analytics workflows.",
+    "url": "https://mcp.getmontecarlo.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "motherduckdb/mcp-server-motherduck",
+    "name": "MotherDuck",
+    "ds": "Query and analyze data with MotherDuck and local DuckDB",
+    "url": "https://api.motherduck.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "cloud"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "motion-mcp",
+    "name": "Motion Creative Analytics",
+    "ds": "Motion Creative Analytics helps teams analyze Meta ad creative and competitor ad libraries. Its connector gives assistants creative-performance context for reviewing ads, comparing competitors, and planning paid-social strategy.",
+    "url": "https://projects.motionapp.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "netlify/netlify-mcp",
+    "name": "Netlify",
+    "ds": "Create, build, deploy, and manage Netlify resources using natural language.",
+    "url": "https://netlify-mcp.netlify.app/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "apolloio/apollo-mcp-plugin",
+    "name": "Official Apollo.io",
+    "ds": "Find buyers and book more meetings without your AI Assistant",
+    "url": "https://mcp.apollo.io/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "openrouter-mcp",
+    "name": "OpenRouter",
+    "ds": "OpenRouter is a unified API gateway for accessing hundreds of LLMs from a single endpoint. Its remote MCP server gives assistants live access to OpenRouter data, including model catalogs, pricing, benchmarks and rankings, and account credits, and lets them send test messages to any model without leaving the editor.",
+    "url": "https://mcp.openrouter.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "ai"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "otter-ai-mcp",
+    "name": "Otter.ai",
+    "ds": "Otter.ai provides meeting intelligence through transcripts, summaries, and conversation records. Its connector gives assistants meeting context for extracting decisions, action items, and follow-up information.",
+    "url": "https://mcp.otter.ai/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "work",
+      "ai"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "paypal/agent-toolkit",
+    "name": "PayPal",
+    "ds": "The PayPal Model Context Protocol server allows you to integrate with PayPal APIs through function calling. This protocol supports various tools to interact with different PayPal services.",
+    "url": "https://mcp.paypal.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "pay"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "pendo-mcp",
+    "name": "Pendo",
+    "ds": "Pendo is a product experience platform combining analytics, in-app guides, and feedback. Its remote MCP server gives assistants access to visitor, account, and usage data so product questions can be answered from real behavioral analytics.",
+    "url": "https://app.pendo.io/mcp/v0/shttp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "planetscale-mcp",
+    "name": "PlanetScale",
+    "ds": "PlanetScale provides authenticated access to Postgres and MySQL databases. Its connector gives assistants database context for inspecting schema, understanding environments, and planning data-related work with connected database systems.",
+    "url": "https://mcp.pscale.dev/mcp/planetscale",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "cloud"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "PostHog/mcp",
+    "name": "PostHog",
+    "ds": "Integrates with PostHog for feature flag management and error tracking.",
+    "url": "https://mcp.posthog.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "test"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "postmanlabs/postman-api-mcp",
+    "name": "Postman API",
+    "ds": "An MCP server for interacting with the Postman API, requiring an API key.",
+    "url": "https://mcp.postman.com/minimal",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "code",
+      "test"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "process-street-mcp-server",
+    "name": "Process Street",
+    "ds": "Process Street MCP Server. Connect AI agents to workflows, tasks, runs, datasets, and form fields via a hosted OAuth endpoint. Trigger compliance checklists, complete approvals, and pull audit-grade operational data. Works with Claude, Cursor, ChatGPT, Windsurf, Cline, and any MCP-compatible client. SOC 2, HIPAA, GDPR.",
+    "url": "https://mcp.process.st",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "pylon-mcp",
+    "name": "Pylon",
+    "ds": "Pylon helps teams search and manage support issues. Its connector gives assistants support-workflow context for finding customer issues, tracking status, and coordinating responses across support operations.",
+    "url": "https://mcp.usepylon.com/",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "razorpay-mcp",
+    "name": "Razorpay",
+    "ds": "Razorpay is a full-stack payments platform for businesses in India. Its remote MCP server lets assistants query payments, orders, refunds, and settlement data directly from a merchant account for support and finance workflows.",
+    "url": "https://mcp.razorpay.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "pay"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "sanity-io/sanity-mcp-server",
+    "name": "Sanity",
+    "ds": "",
+    "url": "https://mcp.sanity.io",
+    "official": false,
+    "featured": false,
+    "cats": [
+      "cloud"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "semrush-mcp",
+    "name": "Semrush",
+    "ds": "Semrush provides SEO, market data, traffic analytics, keyword intelligence, and brand visibility insight. Its connector gives assistants marketing data context for analysts, strategists, and growth teams working through natural-language questions.",
+    "url": "https://mcp.semrush.com/claude/v1/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "biz",
+      "web"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "sentry-mcp-server",
+    "name": "Sentry",
+    "ds": "Official Sentry MCP server for investigating issues, error reports, traces, and performance monitoring data from AI coding agents.",
+    "url": "https://mcp.sentry.dev/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "sevalla/mcp",
+    "name": "Sevalla",
+    "ds": "",
+    "url": "https://mcp.sevalla.com/mcp",
+    "official": false,
+    "featured": false,
+    "cats": [
+      "cloud"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "shopify-mcp",
+    "name": "Shopify",
+    "ds": "Shopify helps merchants build, manage, and analyze online stores. Its connector brings store-management context into assistant workflows for products, inventory, discounts, orders, customers, and performance analytics.",
+    "url": "",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "down",
+    "probed": "no url"
+  },
+  {
+    "slug": "similarweb-mcp",
+    "name": "Similarweb",
+    "ds": "Similarweb provides real-time web, mobile app, and market intelligence data. Its connector gives assistants competitive context for traffic sources, keyword rankings, audience demographics, and industry benchmarking.",
+    "url": "https://mcp.similarweb.com",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "spotify-mcp",
+    "name": "Spotify",
+    "ds": "Spotify helps users discover music and podcasts based on personal taste, activity, mood, or topic. Its connector gives assistants music-discovery context for recommending songs, artists, albums, playlists, podcasts, and listening experiences.",
+    "url": "https://mcp-gateway-external-pilot.spotify.net/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "stytch-mcp",
+    "name": "Stytch",
+    "ds": "Stytch is an authentication and identity platform for applications. Its remote MCP server lets assistants manage project configuration such as redirect URLs and email templates, bringing common workspace administration tasks into development workflows.",
+    "url": "https://mcp.stytch.dev/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "cloud"
+    ],
+    "include": false,
+    "note": "removed from the catalog by the maintainer",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "supermetrics-mcp",
+    "name": "Supermetrics",
+    "ds": "Supermetrics is a marketing data platform that unifies advertising, analytics, CRM, and ecommerce data from over 150 sources. Its remote MCP server gives assistants direct access to that cross-channel data for reporting and performance analysis.",
+    "url": "https://mcp.supermetrics.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "surveymonkey-mcp",
+    "name": "SurveyMonkey",
+    "ds": "SurveyMonkey helps teams design surveys, collect responses, analyze feedback, and uncover trends. Its connector brings survey-building and response-analysis context into assistant workflows so feedback can become clear next steps.",
+    "url": "https://mcp.surveymonkey.com/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "tldraw-mcp",
+    "name": "tldraw",
+    "ds": "tldraw is a collaborative whiteboard and canvas SDK. Its remote MCP server lets assistants draw and edit diagrams — flowcharts, architecture sketches, wireframes — on a live tldraw canvas while you work.",
+    "url": "https://tldraw-mcp-app.tldraw.workers.dev/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "design"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "Doist/todoist-mcp",
+    "name": "Todoist",
+    "ds": "Manage your Todoist tasks and projects directly from your LLM.",
+    "url": "https://ai.todoist.net/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "work"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "twilio-mcp",
+    "name": "Twilio Docs",
+    "ds": "Twilio provides APIs for voice, email, SMS, RCS, identity, customer data, contact center, and conversational AI workflows. Its connector surfaces specs and code patterns so assistants can support communications and customer-engagement development.",
+    "url": "https://mcp.twilio.com/docs",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "none",
+    "probed": 200
+  },
+  {
+    "slug": "uber-mcp",
+    "name": "Uber",
+    "ds": "Uber provides real-time ride-option estimates, fares, ETAs, and product details for trips in the United States. Its connector gives assistants transportation context for comparing ride choices before handing booking actions to the official Uber app.",
+    "url": "",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": false,
+    "note": "",
+    "auth": "down",
+    "probed": "no url"
+  },
+  {
+    "slug": "umami-mcp",
+    "name": "Umami",
+    "ds": "Connect your AI assistant to Umami and ask questions about your website analytics in plain language.",
+    "url": "https://cloud.umami.is/mcp",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "test"
+    ],
+    "include": false,
+    "note": "OAuth discovery not published: cannot verify it needs no key",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "vercel-mcp",
+    "name": "Vercel",
+    "ds": "Vercel is a cloud platform for deploying and scaling web applications, home of Next.js. Its official remote MCP server lets assistants search Vercel documentation, manage projects and deployments, and analyze logs from the account teams already ship with.",
+    "url": "https://mcp.vercel.com",
+    "official": true,
+    "featured": false,
+    "cats": [],
+    "include": true,
+    "note": "already in the catalog",
+    "auth": "oauth",
+    "probed": 401
+  },
+  {
+    "slug": "wordpress-com-mcp",
+    "name": "WordPress.com",
+    "ds": "WordPress.com lets users manage and create site content through an assistant conversation. Its connector gives permission-scoped access to posts, stats, drafts, pages, and comments while keeping site access limited to approved resources.",
+    "url": "https://public-api.wordpress.com/wpcom/v2/mcp/v1",
+    "official": true,
+    "featured": false,
+    "cats": [
+      "web"
+    ],
+    "include": true,
+    "note": "",
+    "auth": "oauth",
+    "probed": 401
+  }
+]

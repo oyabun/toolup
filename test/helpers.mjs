@@ -7,11 +7,14 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const script = fileURLToPath(new URL("../src/install.sh", import.meta.url));
-export const catalogUrl = new URL("../public/catalog.tsv", import.meta.url).href;
+// The installer still knows local (npx / uvx) servers and Docker, though the site now lists only remote ones, so its tests run
+// against a small catalog of their own that includes a few of each.
+export const catalogUrl = new URL("./fixtures/catalog.tsv", import.meta.url).href;
 const stubs = fileURLToPath(new URL("./stubs", import.meta.url));
 
 // A machine with the given agents installed ("claude", "codex", "gemini", "code", "cursor").
-export function machine(agents = ["claude", "codex", "gemini", "code", "cursor"]) {
+export const realCatalogUrl = new URL("../public/catalog.tsv", import.meta.url).href;
+export function machine(agents = ["claude", "codex", "gemini", "code", "cursor"], { real = false } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "kitem-"));
   const home = join(dir, "home"), state = join(dir, "state"), bin = join(dir, "bin");
   spawnSync("mkdir", ["-p", home, state, bin]);
@@ -23,7 +26,7 @@ export function machine(agents = ["claude", "codex", "gemini", "code", "cursor"]
     const t = Date.now();
     const r = spawnSync("bash", [script, ...args], {
       encoding: "utf8", timeout: 60000,
-      env: { PATH: path, HOME: home, STUB_STATE: state, CATALOG_URL: catalogUrl, NO_COLOR: "1", LANG: "C.UTF-8" },
+      env: { PATH: path, HOME: home, STUB_STATE: state, CATALOG_URL: real ? realCatalogUrl : catalogUrl, NO_COLOR: "1", LANG: "C.UTF-8" },
     });
     return { code: r.status, out: r.stdout + r.stderr, stdout: r.stdout, ms: Date.now() - t };
   };

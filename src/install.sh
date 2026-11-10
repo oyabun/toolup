@@ -1,9 +1,9 @@
 #!/bin/bash
-# Kit'Em! — kit your AI agents: install MCP servers and skills into every agent on this machine.
+# Tool up! — kit your AI agents: install MCP servers and skills into every agent on this machine.
 #
 #   curl -fsSL __SITE_HOST__ | bash -s -- github playwright grill-me tdd frontend-design
 #
-# Options: --to claude-code,cursor  only kit these agents (default: every supported agent found)
+# Options: --to claude-code,cursor  only tool up these agents (default: every supported agent found)
 #          --docker                 route eligible MCP servers through the Docker MCP Gateway
 #          --dry-run                print every action without changing anything
 #          --update                 re-install the chosen skills at their latest version
@@ -55,7 +55,7 @@ AGENTS=""
 PLANNED=" "        # runtimes a dry run pretends to have installed, so later steps read the same as a real run
 
 usage() {
-  say "Usage: kitenm.sh [--to AGENT,...] [--docker] [--dry-run] [--update] [--list] ID..."
+  say "Usage: toolup.sh [--to AGENT,...] [--docker] [--dry-run] [--update] [--list] ID..."
   say "  ids are MCP servers and skills from the catalog; pick them at __SITE_URL__"
 }
 
@@ -124,7 +124,7 @@ agent_present() { # agent row
   return 1
 }
 
-detect_agents() { # sets AGENTS (ids of kitted agents that are present)
+detect_agents() { # sets AGENTS (ids of the agents to tool up that are present)
   local id r
   AGENTS=""
   step "Agents on this machine"
@@ -389,7 +389,7 @@ main() {
     exit 1
   fi
 
-  printf '%sKit'"'"'Em!%s — kitting your agents%s\n' "$BOLD" "$RESET" "$([ "$DRY_RUN" = 1 ] && echo ' (dry run: nothing will change)')"
+  printf '%sTool up!%s — tooling up your agents%s\n' "$BOLD" "$RESET" "$([ "$DRY_RUN" = 1 ] && echo ' (dry run: nothing will change)')"
 
   # Which servers go through the Docker gateway. Needs a working `docker mcp`.
   local gateway=0 direct="" dnames=""

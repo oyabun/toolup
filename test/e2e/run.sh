@@ -4,7 +4,7 @@
 set -uo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 SH=public/install.sh
-IDS="github context7 playwright fetch grill-me tdd"
+IDS="github context7 linear sentry grill-me tdd"
 fails=0
 check() { if eval "$2"; then echo "  PASS $1"; else echo "  FAIL $1"; fails=$((fails + 1)); fi; }
 
@@ -33,7 +33,7 @@ cli='^(claude|codex|gemini|npx|curl) '
 check "dry run printed what run 1 did" "diff <(grep -E '→' /tmp/dry.out | sed 's/^ *→ //' | grep -E '$cli') <(grep -E '✓' /tmp/run1.out | sed 's/^ *✓ //' | grep -E '$cli') >/dev/null"
 
 echo "== what is installed"
-for s in github context7 playwright fetch; do
+for s in github context7 linear sentry; do
   check "claude has $s" "claude mcp get $s >/dev/null 2>&1"
   check "codex has $s" "codex mcp get $s >/dev/null 2>&1"
   check "gemini has $s" "python3 -c 'import json,os,sys; sys.exit(0 if \"$s\" in json.load(open(os.path.expanduser(\"~/.gemini/settings.json\")))[\"mcpServers\"] else 1)'"
@@ -43,7 +43,6 @@ for s in grill-me tdd; do
   check "skill $s is in ~/.agents/skills (Codex, Gemini, Cursor, Copilot read it)" "[ -f \$HOME/.agents/skills/$s/SKILL.md ]"
   check "skill $s is linked into Claude Code" "[ -e \$HOME/.claude/skills/$s/SKILL.md ]"
 done
-check "uv was installed for the Python server" "command -v uvx >/dev/null"
 
 after1=$(state)
 echo "== run 2 (must change nothing)"

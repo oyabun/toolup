@@ -23,7 +23,7 @@ jobs:
       - name: Commit the new counts
         run: |
           git diff --quiet -- catalog/installs.json public/catalog.json && exit 0
-          git config user.name "kitenm-bot"
+          git config user.name "toolup-bot"
           git config user.email "actions@users.noreply.github.com"
           git add catalog/installs.json public/catalog.json
           git commit -m "Refresh skills.sh install counts"

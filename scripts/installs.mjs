@@ -15,7 +15,7 @@ const toNumber = (s) => {
 };
 
 async function count(s) {
-  const res = await fetch(`https://skills.sh/${s.repo}/${s.id}`, { headers: { "user-agent": "kitenm-sh-catalog-builder" } });
+  const res = await fetch(`https://skills.sh/${s.repo}/${s.id}`, { headers: { "user-agent": "toolup-sh-catalog-builder" } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const m = /<span>Installs<\/span><\/div><div[^>]*>([^<]+)<\/div>/.exec(await res.text());
   const n = m && toNumber(m[1]);

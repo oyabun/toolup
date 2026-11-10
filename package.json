@@ -1,5 +1,5 @@
 {
-  "name": "kitenm-sh",
+  "name": "toolup-sh",
   "version": "0.1.0",
   "private": true,
   "description": "Pick MCP servers and skills, get one line that kits every AI agent on your machine",

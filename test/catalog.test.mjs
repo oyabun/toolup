@@ -7,7 +7,8 @@ import { readFileSync } from "node:fs";
 const read = (p) => JSON.parse(readFileSync(new URL(`../${p}`, import.meta.url), "utf8"));
 const agents = read("catalog/agents.json");
 const mcp = read("catalog/mcp.json");
-const { categories, repos, skills } = read("catalog/skills.json");
+const { repos, skills } = read("catalog/skills.json");
+const categories = read("catalog/categories.json");
 const packs = read("catalog/packs.json");
 const everything = [...agents, ...mcp, ...skills];
 const FEATURED = ["anthropics/skills", "obra/superpowers", "mattpocock/skills", "vercel-labs/agent-skills", "addyosmani/agent-skills", "helmcode/community-skills", "openai/skills", "emilkowalski/skills"];
@@ -34,46 +35,36 @@ test("the five v1 agents are in the table, each fully described", () => {
   assert.deepEqual(agents.map((a) => a.skills), ["claude-code", "codex", "gemini-cli", "cursor", "github-copilot"]);
 });
 
-test("servers: remote ones are https URLs, local ones a command the installer can split on spaces", () => {
-  assert.equal(mcp.length, 22);
+test("servers: every one is a remote https URL that signs in with the browser or needs nothing", () => {
+  assert.equal(mcp.length, 56);
   for (const m of mcp) {
-    assert.ok(["http", "stdio"].includes(m.transport), m.id);
-    if (m.transport === "http") { assert.match(m.url, /^https:\/\/[^\s"']+$/, m.id); assert.ok(["oauth", "none"].includes(m.auth), m.id); assert.ok(!m.cmd); }
-    else {
-      assert.ok(!m.url);
-      for (const t of m.cmd.split(" ")) assert.match(t, /^[A-Za-z0-9_@%+=:,./$-]+$/, `${m.id}: unsafe token ${t}`);
-      assert.ok(m.needs?.length, `${m.id} should say which runtime it needs`);
-      assert.ok(m.cmd.startsWith(m.needs[0] === "uv" ? "uvx " : "npx "), m.id);
-    }
+    assert.equal(m.transport, "http", `${m.id}: the catalog lists remote servers only`);
+    assert.match(m.url, /^https:\/\/[^\s"']+$/, m.id);
+    assert.ok(["oauth", "none"].includes(m.auth), m.id);
+    assert.ok(!m.cmd && !m.needs && !m.docker, `${m.id}: nothing to install or run locally`);
   }
 });
 
-test("the Docker catalog names are the ones we verified", () => {
-  const docker = Object.fromEntries(mcp.filter((m) => m.docker).map((m) => [m.id, m.docker]));
-  assert.deepEqual(docker, { github: "github-official", playwright: "playwright", context7: "context7", fetch: "fetch", git: "git", memory: "memory", "sequential-thinking": "sequentialthinking" });
-});
-
-test("the brief's servers are all there, at the URLs and commands it gave", () => {
+test("the brief's remote servers are there, at the URLs it gave", () => {
   const by = Object.fromEntries(mcp.map((m) => [m.id, m]));
   assert.equal(by.github.url, "https://api.githubcopilot.com/mcp/");
   assert.equal(by.vercel.url, "https://mcp.vercel.com");
   assert.equal(by.stripe.url, "https://mcp.stripe.com");
-  assert.equal(by.filesystem.cmd, "npx -y @modelcontextprotocol/server-filesystem $HOME");
-  assert.equal(by.playwright.cmd, "npx -y @playwright/mcp@latest");
-  assert.equal(by.fetch.cmd, "uvx mcp-server-fetch");
+  assert.equal(by.context7.url, "https://mcp.context7.com/mcp");
 });
 
-test("skills: 45 curated picks, each in a known category and a known repo or a hand-picked one", () => {
-  assert.equal(skills.length, 45);
+test("skills: 145 curated picks, each in a known category and a known repo or a hand-picked one", () => {
+  assert.equal(skills.length, 145);
   for (const s of skills) {
-    assert.ok(categories[s.cat], `${s.id}: category ${s.cat}`);
+    assert.ok(s.cats && s.cats.length, `${s.id}: needs a category`);
+    for (const c of s.cats) assert.ok(categories[c], `${s.id}: category ${c}`);
     assert.match(s.repo, /^[\w.-]+\/[\w.-]+$/, s.id);
     assert.ok(s.name && s.ds, s.id);
   }
 });
 
-test("the eight featured repos are listed, each with skills picked from it", () => {
-  assert.deepEqual(repos.map((r) => r.repo), FEATURED);
+test("the eight featured repos come first, and every listed repo has skills picked from it", () => {
+  assert.deepEqual(repos.slice(0, FEATURED.length).map((r) => r.repo), FEATURED);
   for (const r of repos) assert.ok(skills.some((s) => s.repo === r.repo), `nothing picked from ${r.repo}`);
 });
 
@@ -82,14 +73,46 @@ test("Helmcode skills carry the badge", () => {
   assert.deepEqual(skills.filter((s) => s.repo === "helmcode/community-skills").map((s) => s.id).sort(), ["building-a-beatdeck", "finops", "remotion-product-video"]);
 });
 
-test("kits: the six role packs, every id real", () => {
-  assert.deepEqual(packs.map((p) => p.name), ["Superpowered workflow", "Frontend", "Product designer", "Backend", "Docker-first", "Docs & ops"]);
+test("packs: the six role packs, every id real", () => {
+  assert.deepEqual(packs.map((p) => p.name), ["Superpowered workflow", "Frontend", "Product designer", "Backend", "Ship & monitor", "Docs & ops"]);
   const ids = new Set(everything.map((x) => x.id));
   for (const p of packs) for (const id of p.ids) assert.ok(ids.has(id), `${p.name}: ${id}`);
-  assert.ok(packs.find((p) => p.name === "Docker-first").docker);
 });
 
 test("nothing in the catalog holds a secret", () => {
   const all = ["agents", "mcp", "skills", "packs"].map((n) => readFileSync(new URL(`../catalog/${n}.json`, import.meta.url), "utf8")).join("");
   assert.doesNotMatch(all, /(ghp_|github_pat_|sk-[A-Za-z0-9]{10}|Bearer |api[_-]?key|secret)/i);
+});
+
+test("every server works without a secret: no keys, tokens or connection strings can be part of a one-line install", () => {
+  for (const m of mcp) {
+    if (m.transport === "http") {
+      assert.ok(!/[?#]/.test(m.url), `${m.id}: a URL with a query string could carry a key`);
+      assert.ok(!/@/.test(new URL(m.url).username + m.url.replace(/^https:\/\/[^/]*/, "")), `${m.id}: credentials in the URL`);
+    } else {
+      for (const t of m.cmd.split(" ")) {
+        assert.ok(!/^--?(api-?key|token|secret|password|key)\b/i.test(t), `${m.id}: ${t} looks like a credential flag`);
+        assert.ok(!/[A-Z][A-Z0-9_]{3,}=/.test(t), `${m.id}: ${t} looks like an env assignment`);
+        assert.ok(!/^(postgres(ql)?|mongodb(\+srv)?|mysql|redis):\/\//.test(t), `${m.id}: a connection string`);
+      }
+    }
+  }
+});
+
+test("servers that need a key, token or connection string are left out on purpose", () => {
+  const ids = new Set(mcp.map((m) => m.id));
+  for (const id of ["postgres", "mongodb", "firecrawl", "brave-search", "figma-context"]) assert.ok(!ids.has(id), `${id} needs a secret, so it cannot be a one-line install`);
+});
+
+test("servers and skills share one list of categories: each item is in at least one, some in several, none empty", () => {
+  for (const [kind, list] of [["server", mcp], ["skill", skills]]) {
+    for (const x of list) {
+      assert.ok(x.cats && x.cats.length, `${kind} ${x.id} has no category`);
+      assert.equal(new Set(x.cats).size, x.cats.length, `${kind} ${x.id} repeats a category`);
+      for (const c of x.cats) assert.ok(categories[c], `${kind} ${x.id}: unknown category ${c}`);
+    }
+    assert.ok(list.some((x) => x.cats.length > 1), `one ${kind} can sit in several categories`);
+  }
+  for (const c of Object.keys(categories)) assert.ok([...mcp, ...skills].some((x) => x.cats.includes(c)), `category ${c} is empty`);
+  assert.equal(read("catalog/skills.json").categories, undefined, "no second list of categories for skills");
 });
