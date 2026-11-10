@@ -96,7 +96,7 @@ test("it only adds what is missing", () => {
   assert.match(second.out, /github → Claude Code .*already set/);
 });
 
-test("--to kits only the agents named", () => {
+test("--to tools up only the agents named", () => {
   const m = machine();
   m.run("--to", "claude-code,cursor", "github", "tdd");
   assert.ok(existsSync(join(m.state, "claude/github")));
@@ -165,7 +165,7 @@ test("Codex remote servers are saved without waiting for its sign-in", () => {
 
 test("$HOME is expanded when the script runs, not baked in", () => {
   const m = machine(["claude"]);
-  const catalog = readFileSync(new URL("../public/catalog.tsv", import.meta.url), "utf8");
+  const catalog = readFileSync(new URL("./fixtures/catalog.tsv", import.meta.url), "utf8");
   assert.match(catalog, /server-filesystem \$HOME\t/);
   m.run("filesystem");
   assert.match(readFileSync(join(m.state, "claude/filesystem"), "utf8"), new RegExp(`server-filesystem ${m.home}\\b`));

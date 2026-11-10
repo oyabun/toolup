@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 const root = new URL("..", import.meta.url);
 const read = async (p) => JSON.parse(await readFile(new URL(p, root), "utf8"));
 
-const SITE_URL = (process.env.SITE_URL || "https://kitenm.sh").replace(/\/$/, "");
+const SITE_URL = (process.env.SITE_URL || "https://toolup.sh").replace(/\/$/, "");
 const SITE_HOST = new URL(SITE_URL).host;
 
 const tsv = (v) => {
@@ -48,16 +48,29 @@ function icon(spec, where) {
 export async function build() {
   const agents = await read("catalog/agents.json");
   const mcp = await read("catalog/mcp.json");
-  const { categories, owners, repos, skills } = await read("catalog/skills.json");
+  const { owners, repos, skills } = await read("catalog/skills.json");
   const packs = await read("catalog/packs.json");
+  // one list of categories for servers and skills alike; every item sits in at least one, and may sit in several
+  const categories = await read("catalog/categories.json");
+  for (const [kind, list] of [["server", mcp], ["skill", skills]]) {
+    for (const x of list) {
+      if (!Array.isArray(x.cats) || !x.cats.length) throw new Error(`${kind} ${x.id}: needs at least one category in "cats"`);
+      for (const c of x.cats) if (!categories[c]) throw new Error(`${kind} ${x.id}: unknown category "${c}" (see catalog/categories.json)`);
+    }
+  }
   let installs = {};
   try { installs = await read("catalog/installs.json"); } catch {}
 
-  const skillIcon = (s) => icon(s.icon || owners[s.repo.split("/")[0]] || owners._default, s.id);
-  const skillsOut = skills.map((s) => ({ ...s, icon: skillIcon(s), installs: installs[`${s.repo}/${s.id}`] ?? null }));
+  // A skill or repo takes its owner's logo. Owners without a brand logo of their own fall back to the GitHub mark,
+  // flagged `generic` so the page can leave it out rather than repeat the same mark on every row.
+  const ownerIcon = (explicit, repo, where) => {
+    const spec = explicit || owners[repo.split("/")[0]];
+    return { ...icon(spec || owners._default, where), ...(spec ? {} : { generic: true }) };
+  };
+  const skillsOut = skills.map((s) => ({ ...s, icon: ownerIcon(s.icon, s.repo, s.id), installs: installs[`${s.repo}/${s.id}`] ?? null }));
   const agentsOut = agents.map((a) => ({ ...a, icon: icon(a.icon, a.id) }));
   const mcpOut = mcp.map((m) => ({ ...m, icon: icon(m.icon, m.id) }));
-  const reposOut = repos.map((r) => ({ ...r, icon: icon(r.icon || owners[r.repo.split("/")[0]] || owners._default, r.repo) }));
+  const reposOut = repos.map((r) => ({ ...r, icon: ownerIcon(r.icon, r.repo, r.repo) }));
 
   const rows = [
     ...agents.map((a) => ["agent", a.id, a.name, a.bin, a.paths, a.method, a.skills, a.skillsDir, a.config, a.serversKey, a.urlKey]),
@@ -72,7 +85,7 @@ export async function build() {
   const sh = (await readFile(new URL("src/install.sh", root), "utf8"))
     .replaceAll("__SITE_URL__", SITE_URL).replaceAll("__SITE_HOST__", SITE_HOST);
   await writeFile(new URL("public/install.sh", root), sh);
-  console.log(`built: ${agents.length} agents, ${mcp.length} servers, ${skills.length} skills, ${packs.length} kits → public/ (${SITE_URL})`);
+  console.log(`built: ${agents.length} agents, ${mcp.length} servers, ${skills.length} skills, ${packs.length} packs → public/ (${SITE_URL})`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) await build();

@@ -3,8 +3,8 @@ agent	codex	Codex CLI	codex	-	codex	codex	-	-	-	-
 agent	gemini	Gemini CLI	gemini	-	gemini	gemini-cli	-	$HOME/.gemini/settings.json	mcpServers	-
 agent	cursor	Cursor	-	/Applications/Cursor.app|$HOME/.cursor	json	cursor	-	$HOME/.cursor/mcp.json	mcpServers	url
 agent	vscode	VS Code + Copilot	code	-	vscode	github-copilot	-	$HOME/Library/Application Support/Code/User/mcp.json|$HOME/.config/Code/User/mcp.json	servers	url
-mcp	github	GitHub	http	https://api.githubcopilot.com/mcp/	github-official	-
-mcp	context7	Context7	http	https://mcp.context7.com/mcp	context7	-
+mcp	github	GitHub	http	https://api.githubcopilot.com/mcp/	-	-
+mcp	context7	Context7	http	https://mcp.context7.com/mcp	-	-
 mcp	figma	Figma	http	https://mcp.figma.com/mcp	-	-
 mcp	notion	Notion	http	https://mcp.notion.com/mcp	-	-
 mcp	linear	Linear	http	https://mcp.linear.app/mcp	-	-
@@ -15,23 +15,59 @@ mcp	stripe	Stripe	http	https://mcp.stripe.com	-	-
 mcp	neon	Neon	http	https://mcp.neon.tech/mcp	-	-
 mcp	netlify	Netlify	http	https://mcp.netlify.com/mcp	-	-
 mcp	atlassian	Atlassian	http	https://mcp.atlassian.com/v1/mcp	-	-
-mcp	cloudflare-docs	Cloudflare Docs	http	https://docs.mcp.cloudflare.com/mcp	-	-
-mcp	deepwiki	DeepWiki	http	https://mcp.deepwiki.com/mcp	-	-
 mcp	huggingface	Hugging Face	http	https://huggingface.co/mcp	-	-
-mcp	playwright	Playwright	stdio	npx -y @playwright/mcp@latest	playwright	node
-mcp	chrome-devtools	Chrome DevTools	stdio	npx -y chrome-devtools-mcp@latest	-	node
-mcp	fetch	Fetch	stdio	uvx mcp-server-fetch	fetch	uv
-mcp	git	Git	stdio	uvx mcp-server-git	git	uv
-mcp	filesystem	Filesystem	stdio	npx -y @modelcontextprotocol/server-filesystem $HOME	-	node
-mcp	memory	Memory	stdio	npx -y @modelcontextprotocol/server-memory	memory	node
-mcp	sequential-thinking	Sequential Thinking	stdio	npx -y @modelcontextprotocol/server-sequential-thinking	sequentialthinking	node
+mcp	asana	Asana	http	https://mcp.asana.com/v2/mcp	-	-
+mcp	gitlab	GitLab	http	https://gitlab.com/api/v4/mcp	-	-
+mcp	cloudflare	Cloudflare	http	https://mcp.cloudflare.com/mcp	-	-
+mcp	railway	Railway	http	https://mcp.railway.com	-	-
+mcp	planetscale	PlanetScale	http	https://mcp.pscale.dev/mcp/planetscale	-	-
+mcp	cloudinary	Cloudinary	http	https://asset-management.mcp.cloudinary.com/mcp	-	-
+mcp	posthog	PostHog	http	https://mcp.posthog.com/mcp	-	-
+mcp	pagerduty	PagerDuty	http	https://mcp.pagerduty.com/mcp	-	-
+mcp	honeycomb	Honeycomb	http	https://mcp.honeycomb.io/mcp	-	-
+mcp	jam	Jam	http	https://mcp.jam.dev/mcp	-	-
+mcp	slack	Slack	http	https://mcp.slack.com/mcp	-	-
+mcp	clickup	ClickUp	http	https://mcp.clickup.com/mcp	-	-
+mcp	monday	monday.com	http	https://mcp.monday.com/mcp	-	-
+mcp	todoist	Todoist	http	https://ai.todoist.net/mcp	-	-
+mcp	airtable	Airtable	http	https://mcp.airtable.com/mcp	-	-
+mcp	granola	Granola	http	https://mcp.granola.ai/mcp	-	-
+mcp	canva	Canva	http	https://mcp.canva.com/mcp	-	-
+mcp	miro	Miro	http	https://mcp.miro.com/	-	-
+mcp	webflow	Webflow	http	https://mcp.webflow.com/mcp	-	-
+mcp	paypal	PayPal	http	https://mcp.paypal.com/mcp	-	-
+mcp	postman	Postman	http	https://mcp.postman.com/minimal	-	-
+mcp	resend	Resend	http	https://mcp.resend.com/mcp	-	-
+mcp	wordpress	WordPress.com	http	https://public-api.wordpress.com/wpcom/v2/mcp/v1	-	-
+mcp	hubspot	HubSpot	http	https://mcp.hubspot.com	-	-
+mcp	ahrefs	Ahrefs	http	https://api.ahrefs.com/mcp/mcp	-	-
+mcp	zapier	Zapier	http	https://mcp.zapier.com/api/v1/connect	-	-
+mcp	attio	Attio	http	https://mcp.attio.com/mcp	-	-
+mcp	otter-ai	Otter.ai	http	https://mcp.otter.ai/mcp	-	-
+mcp	incident-io	incident.io	http	https://mcp.incident.io/mcp	-	-
+mcp	make	Make	http	https://mcp.make.com	-	-
+mcp	openrouter	OpenRouter	http	https://mcp.openrouter.ai/mcp	-	-
+mcp	fal	fal	http	https://mcp.fal.ai/mcp-relay	-	-
+mcp	eraser	Eraser	http	https://app.eraser.io/api/mcp	-	-
+mcp	gamma	Gamma	http	https://mcp.gamma.app/mcp	-	-
+mcp	tldraw	tldraw	http	https://tldraw-mcp-app.tldraw.workers.dev/mcp	-	-
+mcp	semrush	Semrush	http	https://mcp.semrush.com/claude/v1/mcp	-	-
+mcp	gocardless	GoCardless	http	https://mcp.gocardless.com	-	-
+mcp	circleci	CircleCI	http	https://mcp.circleci.com/v1/mcp	-	-
+mcp	prisma-mcp	Prisma	http	https://mcp.prisma.io/mcp	-	-
+mcp	upstash	Upstash	http	https://mcp.upstash.com/mcp	-	-
+mcp	cypress	Cypress	http	https://mcp.cypress.io/mcp	-	-
+mcp	browserstack	BrowserStack	http	https://mcp.browserstack.com/mcp	-	-
+mcp	paddle	Paddle	http	https://mcp.paddle.com/mcp	-	-
 skill	find-skills	vercel-labs/skills
 skill	grill-me	mattpocock/skills
+skill	grill-with-docs	mattpocock/skills
 skill	to-spec	mattpocock/skills
 skill	prototype	mattpocock/skills
 skill	handoff	mattpocock/skills
 skill	brainstorming	obra/superpowers
 skill	writing-plans	obra/superpowers
+skill	executing-plans	obra/superpowers
 skill	spec-driven-development	addyosmani/agent-skills
 skill	tdd	mattpocock/skills
 skill	diagnosing-bugs	mattpocock/skills
@@ -41,11 +77,15 @@ skill	domain-modeling	mattpocock/skills
 skill	triage	mattpocock/skills
 skill	systematic-debugging	obra/superpowers
 skill	verification-before-completion	obra/superpowers
+skill	requesting-code-review	obra/superpowers
 skill	code-simplification	addyosmani/agent-skills
 skill	security-and-hardening	addyosmani/agent-skills
+skill	debugging-and-error-recovery	addyosmani/agent-skills
+skill	performance-optimization	addyosmani/agent-skills
 skill	gh-fix-ci	openai/skills
 skill	frontend-design	anthropics/skills
 skill	webapp-testing	anthropics/skills
+skill	canvas-design	anthropics/skills
 skill	impeccable	pbakaus/impeccable
 skill	emil-design-eng	emilkowalski/skills
 skill	review-animations	emilkowalski/skills
@@ -54,12 +94,14 @@ skill	web-design-guidelines	vercel-labs/agent-skills
 skill	vercel-react-best-practices	vercel-labs/agent-skills
 skill	vercel-composition-patterns	vercel-labs/agent-skills
 skill	agent-browser	vercel-labs/agent-browser
+skill	vercel-react-native-skills	vercel-labs/agent-skills
 skill	supabase-postgres-best-practices	supabase/agent-skills
 skill	neon-postgres	neondatabase/agent-skills
 skill	prisma-cli	prisma/skills
 skill	finops	helmcode/community-skills
 skill	mcp-builder	anthropics/skills
 skill	claude-api	anthropics/skills
+skill	deploy-to-vercel	vercel-labs/agent-skills
 skill	building-a-beatdeck	helmcode/community-skills
 skill	remotion-product-video	helmcode/community-skills
 skill	remotion-best-practices	remotion-dev/skills
@@ -69,4 +111,96 @@ skill	docx	anthropics/skills
 skill	xlsx	anthropics/skills
 skill	pptx	anthropics/skills
 skill	skill-creator	anthropics/skills
+skill	using-superpowers	obra/superpowers
 skill	caveman	juliusbrussee/caveman
+skill	brutalism	bergside/awesome-design-skills
+skill	bento	bergside/awesome-design-skills
+skill	claymorphism	bergside/awesome-design-skills
+skill	editorial	bergside/awesome-design-skills
+skill	glassmorphism	bergside/awesome-design-skills
+skill	neobrutalism	bergside/awesome-design-skills
+skill	minimal	bergside/awesome-design-skills
+skill	dithered	bergside/awesome-design-skills
+skill	stripe-best-practices	stripe/ai
+skill	upgrade-stripe	stripe/ai
+skill	notion-knowledge-capture	makenotion/claude-code-notion-plugin
+skill	notion-meeting-intelligence	makenotion/claude-code-notion-plugin
+skill	notion-spec-to-implementation	makenotion/claude-code-notion-plugin
+skill	workers-best-practices	cloudflare/skills
+skill	wrangler	cloudflare/skills
+skill	durable-objects	cloudflare/skills
+skill	figma-design-to-code	figma/mcp-server-guide
+skill	figma-generate-design	figma/mcp-server-guide
+skill	figma-code-connect	figma/mcp-server-guide
+skill	hf-cli	huggingface/skills
+skill	huggingface-gradio	huggingface/skills
+skill	text-to-speech	elevenlabs/skills
+skill	speech-to-text	elevenlabs/skills
+skill	browser-use	browser-use/browser-use
+skill	browser	browserbase/skills
+skill	ui-test	browserbase/skills
+skill	auth0	auth0/agent-skills
+skill	better-auth-best-practices	better-auth/skills
+skill	find-bugs	getsentry/skills
+skill	iterate-pr	getsentry/skills
+skill	security-review	getsentry/skills
+skill	terraform-style-guide	hashicorp/agent-skills
+skill	terraform-test	hashicorp/agent-skills
+skill	differential-review	trailofbits/skills
+skill	semgrep	trailofbits/skills
+skill	property-based-testing	trailofbits/skills
+skill	supply-chain-risk-auditor	trailofbits/skills
+skill	gstack	garrytan/gstack
+skill	copywriting	coreyhaines31/marketingskills
+skill	seo-audit	coreyhaines31/marketingskills
+skill	cro	coreyhaines31/marketingskills
+skill	pricing	coreyhaines31/marketingskills
+skill	launch	coreyhaines31/marketingskills
+skill	ab-testing	coreyhaines31/marketingskills
+skill	ad-creative	coreyhaines31/marketingskills
+skill	ads	coreyhaines31/marketingskills
+skill	ai-seo	coreyhaines31/marketingskills
+skill	analytics	coreyhaines31/marketingskills
+skill	aso	coreyhaines31/marketingskills
+skill	attribution	coreyhaines31/marketingskills
+skill	churn-prevention	coreyhaines31/marketingskills
+skill	co-marketing	coreyhaines31/marketingskills
+skill	cold-email	coreyhaines31/marketingskills
+skill	community-marketing	coreyhaines31/marketingskills
+skill	competitor-profiling	coreyhaines31/marketingskills
+skill	competitors	coreyhaines31/marketingskills
+skill	content-strategy	coreyhaines31/marketingskills
+skill	conversion-tracking	coreyhaines31/marketingskills
+skill	copy-editing	coreyhaines31/marketingskills
+skill	customer-research	coreyhaines31/marketingskills
+skill	directory-submissions	coreyhaines31/marketingskills
+skill	emails	coreyhaines31/marketingskills
+skill	events	coreyhaines31/marketingskills
+skill	free-tools	coreyhaines31/marketingskills
+skill	image	coreyhaines31/marketingskills
+skill	influencer-marketing	coreyhaines31/marketingskills
+skill	lead-magnets	coreyhaines31/marketingskills
+skill	link-building	coreyhaines31/marketingskills
+skill	marketing-council	coreyhaines31/marketingskills
+skill	marketing-ideas	coreyhaines31/marketingskills
+skill	marketing-loops	coreyhaines31/marketingskills
+skill	marketing-plan	coreyhaines31/marketingskills
+skill	marketing-psychology	coreyhaines31/marketingskills
+skill	offers	coreyhaines31/marketingskills
+skill	onboarding	coreyhaines31/marketingskills
+skill	paywalls	coreyhaines31/marketingskills
+skill	popups	coreyhaines31/marketingskills
+skill	product-marketing	coreyhaines31/marketingskills
+skill	programmatic-seo	coreyhaines31/marketingskills
+skill	prospecting	coreyhaines31/marketingskills
+skill	public-relations	coreyhaines31/marketingskills
+skill	referrals	coreyhaines31/marketingskills
+skill	reverse-engineer-marketing	coreyhaines31/marketingskills
+skill	revops	coreyhaines31/marketingskills
+skill	sales-enablement	coreyhaines31/marketingskills
+skill	schema	coreyhaines31/marketingskills
+skill	signup	coreyhaines31/marketingskills
+skill	site-architecture	coreyhaines31/marketingskills
+skill	sms	coreyhaines31/marketingskills
+skill	social	coreyhaines31/marketingskills
+skill	video	coreyhaines31/marketingskills

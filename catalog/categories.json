@@ -1,0 +1,14 @@
+{
+  "code": "Code & repos",
+  "test": "Testing & observability",
+  "design": "Design & frontend",
+  "docs": "Docs & knowledge",
+  "media": "Documents & media",
+  "cloud": "Cloud, data & deploy",
+  "work": "Planning & teams",
+  "pay": "Payments & commerce",
+  "web": "Web & search",
+  "ai": "AI & models",
+  "biz": "Business & marketing",
+  "util": "Utilities & meta"
+}
