@@ -395,7 +395,7 @@ h2 small{flex-basis:100%;margin-top:12px;font:400 16px/1.45 var(--sans);letter-s
 .faq code{font-family:var(--mono);font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 footer{margin-top:40px;color:var(--mute);font-size:13px;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px}
 footer p{margin:0}
-footer .joke{flex-basis:100%;margin-top:6px;font-size:12px;opacity:.8}
+footer .joke{flex-basis:100%;max-width:56ch;margin:6px auto 0;font-size:12.5px;line-height:1.5;opacity:.85}
 .fbrand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:16px;letter-spacing:-.03em}
 .logo.flogo{width:28px;height:23px}
 .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-80px);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:14px;z-index:50;transition:transform .2s}
