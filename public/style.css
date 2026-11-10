@@ -91,6 +91,11 @@ h1 em{font-style:normal;background:linear-gradient(95deg,#7d22d8 6%,#c25be0 52%,
 .hero .dd-chev{width:18px;height:18px}
 @media (max-width:639px){.hero-pick{flex-direction:column;align-items:stretch;gap:8px;width:auto}}
 /* a neon sticker, a little crooked, with a faint hatch like tape */
+.pts{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:4px;max-width:52ch;font-size:15px;line-height:1.45;color:var(--mute)}
+.pts li{display:block}
+.pts b::after{content:" ·";color:var(--mute);font-weight:400}
+.pts b{color:var(--ink);font-weight:600}
+.pts code{font-family:var(--mono);font-size:.85em;background:var(--chip);padding:1px 5px;border-radius:4px}
 .lede code,.sheet code{font-family:var(--mono);font-size:.85em;background:var(--chip);padding:1px 5px;border-radius:4px}
 noscript .lede{margin:20px 0}
 
