@@ -8,7 +8,12 @@
   <img src="public/images/hero-closed.webp" width="480" alt="Tool up!">
 </p>
 
-One line to tool up your AI agents with MCP servers and skills: [toolup.sh](https://toolup.sh)
+**Tool up your AI agents in one line.** Pick the MCP servers and skills you want at [toolup.sh](https://toolup.sh), copy one command, and they are installed.
+
+- **No juggling commands.** No more `claude mcp add`, `codex mcp add`, `gemini mcp add`, editing JSON files and running the skills CLI one agent at a time.
+- **Every agent at once.** Claude Code, Codex CLI, Gemini CLI, Cursor and VS Code + Copilot: it finds the ones on your machine and sets up all of them.
+- **Curated and simple.** A short list of MCP servers and skills worth having, in one set of categories. Select, copy, paste.
+- **Safe to run again.** It only adds what's missing, and `--dry-run` shows what it would do first.
 
 ```sh
 curl -fsSL toolup.sh | bash -s -- github sentry grill-me tdd frontend-design
