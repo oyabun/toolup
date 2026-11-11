@@ -6,13 +6,16 @@
 
   let C, ALL = {}, BYK = {};
   let sel = new Set(), dock = false, dry = false, q = "", fcat = "", tab = "all";
-  const PAGE = window.KITEM_PAGE || 24, pageOf = { mcp: PAGE, skills: PAGE };   // two long lists: 24 cards at a time, "Show more" for the rest
+  const PAGE = window.KITEM_PAGE || 24, pageOf = { all: PAGE, mcp: PAGE, skills: PAGE };   // one page count per tab: 24 cards at a time, "Show more" for the rest
+  const resetPages = () => { pageOf.all = pageOf.mcp = pageOf.skills = PAGE; };
   let lastFocus = null;
   const cache = {};
 
-  const SECTIONS = [
-    ["mcp", "MCP servers", "Registered with each agent you tool up"],
-    ["skills", "Skills", "Installed into every agent you tool up, with the open skills CLI"],
+  // the three tabs over the one list: its label, what an empty list is called, and the line under the heading
+  const TABS = [
+    ["all", "All", "tools", "MCP servers connect your agents to a service. Skills teach them how to do a job."],
+    ["mcp", "MCPs", "MCP servers", "MCP servers connect your agents to a service. Registered with each agent you tool up."],
+    ["skills", "Skills", "skills", "Skills teach your agents how to do a job. Installed into every agent you tool up, with the open skills CLI."],
   ];
 
   /* ---------- catalog helpers ---------- */
@@ -128,13 +131,15 @@
   const tagsHtml = (x) => tagsFor(x).map((t) => `<span class="tag ${tagClass(t)}">${esc(t)}</span>`).join("");
   const infoBtn = (x) => `<button class="info" type="button" data-info="${x.id}" aria-label="Details for ${esc(x.name)}">details</button>`;
 
+  // every card says what it is: a coloured badge (violet MCP, green Skill), and the logo's shape (square server, round skill)
+  const kindBadge = (x) => `<span class="kind">${svgIcon(x.sec)}${x.sec === "skills" ? "Skill" : "MCP"}</span>`;
   // A server: a logo, a name, one line, and what it takes to run. The publisher is left out when it is the name again.
   function card(x) {
     const by = x.by && x.by.toLowerCase() !== x.name.toLowerCase() ? `<span class="by">${esc(x.by)}</span>` : "";
-    return `<div class="card"><button class="item" type="button" data-id="${x.id}" aria-pressed="${sel.has(x.id)}">
+    return `<div class="card"><button class="item k-mcp" type="button" data-id="${x.id}" aria-pressed="${sel.has(x.id)}">
       <span class="top">${ico(x)}<span class="who"><span class="nm">${esc(x.name)}</span>${by}</span><span class="check" aria-hidden="true"></span></span>
       <span class="ds">${esc(x.ds)}</span>
-      <span class="meta">${tagsHtml(x)}</span></button>${infoBtn(x)}</div>`;
+      <span class="meta">${tagsHtml(x)}</span>${kindBadge(x)}</button>${infoBtn(x)}</div>`;
   }
   // A skill is a card like a server: its owner's logo, or an initial tile when it has none, name, repo, description, tags.
   // a server's logo sits in a rounded square, a skill's in a circle: you can tell them apart at a glance, everywhere
@@ -146,10 +151,10 @@
     return `<span class="ico initial round" style="background:hsl(${h} 48% 42%)" aria-hidden="true">${esc(x.name.trim()[0].toUpperCase())}</span>`;
   }
   function skillRow(x) {
-    return `<div class="card"><button class="item" type="button" data-id="${x.id}" aria-pressed="${sel.has(x.id)}">
+    return `<div class="card"><button class="item k-skill" type="button" data-id="${x.id}" aria-pressed="${sel.has(x.id)}">
       <span class="top">${mark(x)}<span class="who"><span class="nm">${esc(x.name)}</span><span class="by">${esc(x.repo)}</span></span><span class="check" aria-hidden="true"></span></span>
       <span class="ds">${esc(x.ds)}</span>
-      <span class="meta">${tagsHtml(x)}</span></button>${infoBtn(x)}</div>`;
+      <span class="meta">${tagsHtml(x)}</span>${kindBadge(x)}</button>${infoBtn(x)}</div>`;
   }
   // lists are shown by name, A to Z (the command keeps catalog order, so it reads the same however you picked)
   const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base", numeric: true });
@@ -157,10 +162,11 @@
 
   function focusKey(el) {
     if (!el || !el.dataset) return null;
-    for (const k of ["id", "info", "cat", "mcat", "tab", "tgt", "all"]) if (el.dataset[k] !== undefined) return [k, el.dataset[k]];
+    for (const k of ["id", "info", "cat", "mcat", "show", "tab", "tgt", "all"]) if (el.dataset[k] !== undefined) return [k, el.dataset[k]];
     return null;
   }
-  // One list on screen at a time (tabs), 24 cards at a time. A search looks in both and shows what matched in each, without tabs.
+  // One list, three tabs: All mixes servers and skills by name; MCPs and Skills show one kind. 24 cards at a time.
+  // Search and the category filter apply inside the open tab, and each tab's count says how many it would show.
   function renderCatalog(opts = {}) {
     const keep = focusKey(document.activeElement);
     const ql = q.trim().toLowerCase();
@@ -168,16 +174,18 @@
       mcp: C.mcp.filter((x) => matches(x, ql) && (!fcat || x.cats.includes(fcat))).sort(byName),
       skills: C.skills.filter((x) => matches(x, ql) && (!fcat || x.cats.includes(fcat))).sort(byName),
     };
-    // one row of categories for both lists, with how many servers and skills each holds
+    items.all = [...items.mcp, ...items.skills].sort(byName);
+    // one row of categories for both kinds, with how many servers and skills each holds
     const inCat = (c) => C.mcp.filter((x) => x.cats.includes(c)).length + C.skills.filter((x) => x.cats.includes(c)).length;
     const chipRow = `<div class="cats" role="group" aria-label="Categories"><button class="cat" type="button" data-cat="" aria-pressed="${!fcat}">All</button>${Object.entries(C.categories).map(([c, l]) => `<button class="cat" type="button" data-cat="${c}" aria-pressed="${fcat === c}">${esc(l)} <small>${inCat(c)}</small></button>`).join("")}</div>`;
-    const kinds = ql ? SECTIONS.map((x) => x[0]).filter((k) => items[k].length) : tab === "all" ? ["mcp", "skills"] : [tab];
-    const html = kinds.map((k) => {
-      const [, label, sub] = SECTIONS.find((x) => x[0] === k), all = items[k], vis = all.slice(0, pageOf[k]), rest = all.length - vis.length;
-      const more = rest > 0 ? `<button class="showmore btn" type="button" data-more="${k}">Show ${Math.min(PAGE, rest)} more <small>${rest} left</small></button>` : "";
-      return `<section aria-labelledby="h-${k}"><h2 id="h-${k}"><span class="n">${kinds.length > 1 && k === "skills" ? "03" : "02"}</span> ${label} <small>${sub}</small></h2><div class="grid">${vis.map(k === "skills" ? skillRow : card).join("") || `<p class="empty">No ${k === "skills" ? "skills" : "servers"} match.</p>`}</div>${more}</section>`;
-    }).join("");
-    $("#cat").innerHTML = chipRow + (html || `<p class="empty">Nothing matches “${esc(q)}”.</p>`);
+    const tabRow = `<div class="tabs" role="group" aria-label="Show">${TABS.map(([k, label]) => `<button class="tab t-${k}" type="button" data-show="${k}" aria-pressed="${tab === k}">${svgIcon(k)}<span>${label}</span><small>${items[k].length}</small></button>`).join("")}</div>`;
+    const [, , noun, sub] = TABS.find((x) => x[0] === tab), all = items[tab], vis = all.slice(0, pageOf[tab]), rest = all.length - vis.length;
+    const more = rest > 0 ? `<button class="showmore btn" type="button" data-more="${tab}">Show ${Math.min(PAGE, rest)} more <small>${rest} left</small></button>` : "";
+    // nothing in this tab: say so, and point at the other tab when the match is there
+    const other = tab === "mcp" ? "skills" : "mcp", elsewhere = tab !== "all" && items[other].length;
+    const empty = !items.all.length && ql ? `<p class="empty">Nothing matches “${esc(q)}”.</p>`
+      : `<p class="empty">No ${noun} match.${elsewhere ? ` <button class="btn" type="button" data-show="${other}">See ${items[other].length} in ${other === "mcp" ? "MCPs" : "Skills"}</button>` : ""}</p>`;
+    $("#cat").innerHTML = `<section aria-labelledby="h-list"><h2 id="h-list"><span class="n">02</span> Pick your tools <small>${sub}</small></h2>${tabRow}${chipRow}<div class="grid">${vis.map((x) => (x.sec === "skills" ? skillRow(x) : card(x))).join("") || empty}</div>${more}</section>`;
     $("#show-pick").value = tab;   // the list filter lives in the header
     $("#cat-pick").value = fcat;
     if (refreshDD["show-pick"]) { refreshDD["show-pick"](); refreshDD["cat-pick"](); }
@@ -237,7 +245,7 @@
     document.body.classList.toggle("has-bar", nm + ns > 0);
     if (!(nm + ns)) closeMore(false);
     $("#dryflag").setAttribute("aria-pressed", dry);
-    try { history.replaceState(null, "", sel.size ? "#" + code() : location.pathname + location.search); } catch (e) { /* sandboxed frames */ }
+    try { history.replaceState(null, "", view() === "app" ? location.pathname + location.search : "#" + (sel.size ? code() : "catalog")); } catch (e) { /* sandboxed frames */ }
   }
   const render = sync;
 
@@ -456,7 +464,9 @@
     const tg = t.closest("[data-tog]");
     if (tg) { closeSheet(); toggle(tg.dataset.tog); return; }
     const cb = t.closest("[data-cat]");
-    if (cb) { fcat = cb.dataset.cat; pageOf.mcp = pageOf.skills = PAGE; return renderCatalog(); }
+if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
+    const sh = t.closest("[data-show]");
+    if (sh) { tab = sh.dataset.show; resetPages(); return renderCatalog(); }
     const mo = t.closest("[data-more]");
     if (mo) { const k = mo.dataset.more, was = pageOf[k]; pageOf[k] += PAGE; return renderCatalog({ focusItem: was }); }
     if (t.closest("[data-all], [data-dall]")) { C.agents.forEach((a) => sel.delete(a.id)); return render(); }
@@ -478,6 +488,19 @@
     if (e.key === "Escape") { if (!$("#more-menu").hidden) closeMore(true); else if ($("#scrim").classList.contains("show")) closeSheet(); else closeDrawer(true); }
     trapTab(e);
   });
+
+  // the page's two views: the desktop app and the catalog. The address says which: #catalog or a share link is the catalog.
+  const viewOf = (h) => (h === "catalog" || h.startsWith("e-") ? "catalog" : "app");
+  const view = () => document.documentElement.dataset.view || viewOf(location.hash.slice(1));
+  function setView(v, scroll) {
+    document.documentElement.dataset.view = v;
+    $$(".views a").forEach((a) => (a.dataset.view === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+    $("header").classList.remove("open");
+    if (v === "app") { closeMore(false); closeDrawer(); }
+    if (scroll) window.scrollTo(0, 0);
+    sync();
+    window.dispatchEvent(new Event("resize"));   // the hero's canvases were measured while hidden
+  }
 
   function load() {
     const h = location.hash.slice(1);
@@ -515,7 +538,7 @@
         <span class="pk-logos">${logos}</span>
         <span class="cta"><span class="cta-t">Add pack</span> <span aria-hidden="true">→</span></span>${pixelShape(i)}</button>`;
     }).join("");
-    $("#q").addEventListener("input", (e) => { q = e.target.value; pageOf.mcp = pageOf.skills = PAGE; renderCatalog(); if (q && $("#cat").getBoundingClientRect().top > innerHeight * 0.6) $("#cat").scrollIntoView({ block: "start" }); });
+    $("#q").addEventListener("input", (e) => { q = e.target.value; resetPages(); renderCatalog(); if (q && $("#cat").getBoundingClientRect().top > innerHeight * 0.6) $("#cat").scrollIntoView({ block: "start" }); });
     $("#more").onclick = () => ($("#more-menu").hidden ? openMore() : closeMore(false));
     $("#more-menu").addEventListener("click", () => closeMore(false));
     $("#more-menu").addEventListener("keydown", (e) => {   // arrows move between the two items
@@ -548,7 +571,7 @@
     // toolbar: starter packs, categories, theme
     $("#cat-pick").innerHTML = `<option value="" data-short="Categories">All categories</option>${Object.entries(C.categories).map(([c, l]) => `<option value="${c}">${esc(l)}</option>`).join("")}`;
     $("#cat-pick").onchange = (e) => {
-      fcat = e.target.value; pageOf.mcp = pageOf.skills = PAGE;
+      fcat = e.target.value; resetPages();
       renderCatalog();
       if (fcat) { const top = $("#cat").getBoundingClientRect().top; if (top > innerHeight * 0.55 || top < 0) $("#cat").scrollIntoView({ block: "start" }); }
     };
@@ -560,8 +583,17 @@
       root.dataset.theme = dark ? "light" : "dark";
       try { localStorage.setItem("theme", root.dataset.theme); } catch (e) { /* private mode */ }
     };
-    window.addEventListener("hashchange", () => { if (location.hash.slice(1) !== code()) load(); });
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-view]");
+      if (a) { e.preventDefault(); setView(a.dataset.view, true); }
+    });
+    window.addEventListener("hashchange", () => {
+      const h = location.hash.slice(1), v = viewOf(h);
+      if (h.startsWith("e-") && h !== code()) load();
+      if (v !== view()) setView(v, true);
+    });
     load();
+    setView(view(), false);
     window.ToolUp = { placeMenu, command, wire, embed, code, script, get state() { return { sel: [...sel], dock, dry }; } };
   }
 

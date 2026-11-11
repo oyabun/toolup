@@ -53,8 +53,8 @@ test("the brief's remote servers are there, at the URLs it gave", () => {
   assert.equal(by.context7.url, "https://mcp.context7.com/mcp");
 });
 
-test("skills: 145 curated picks, each in a known category and a known repo or a hand-picked one", () => {
-  assert.equal(skills.length, 145);
+test("skills: 153 curated picks, each in a known category and a known repo or a hand-picked one", () => {
+  assert.equal(skills.length, 153);
   for (const s of skills) {
     assert.ok(s.cats && s.cats.length, `${s.id}: needs a category`);
     for (const c of s.cats) assert.ok(categories[c], `${s.id}: category ${c}`);

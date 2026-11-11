@@ -1,0 +1,5 @@
+{
+  "oil-ui": {
+    "about": "Design, improve and review the interfaces of websites, apps, admin panels and components: explore design directions, generate a page comparing several styles side by side, and refine the visual hierarchy against real screenshots. On request it delivers the comparison page, design notes, a design draft or a working interface. It only makes design judgements; it is not for pure business logic, building APIs, tidying code with no visible change, or everyday edits whose solution is already fully specified (changing copy, adjusting a count, deleting a named element, reusing existing styles, even when they are called “optimisation”). When oil-ui-pro is installed, it hands over to oil-ui-pro."
+  }
+}

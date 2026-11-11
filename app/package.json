@@ -1,0 +1,30 @@
+{
+  "name": "toolup-app",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Tool up! desktop: see which MCP servers and skills each agent on this machine has, and even them out",
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "ui:dev": "vite",
+    "ui:build": "vite build",
+    "scan": "tsx bin/scan.ts",
+    "test": "node --import tsx --test \"test/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.4",
+    "smol-toml": "^1.3.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.4",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^6.4.6"
+  }
+}

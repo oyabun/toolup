@@ -31,6 +31,7 @@
   "obra/superpowers/systematic-debugging": 325900,
   "obra/superpowers/verification-before-completion": 269500,
   "obra/superpowers/writing-plans": 298100,
+  "oil-oil/oil-ui/oil-ui": 4100,
   "openai/skills/gh-fix-ci": 11800,
   "pbakaus/impeccable/impeccable": 395500,
   "prisma/skills/prisma-cli": 415700,
@@ -40,5 +41,6 @@
   "vercel-labs/agent-skills/vercel-composition-patterns": 445200,
   "vercel-labs/agent-skills/vercel-react-best-practices": 882900,
   "vercel-labs/agent-skills/web-design-guidelines": 841200,
-  "vercel-labs/skills/find-skills": 4300000
+  "vercel-labs/skills/find-skills": 4300000,
+  "wheresryan22/anatomy/anatomy": 32800
 }

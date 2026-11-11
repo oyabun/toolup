@@ -90,6 +90,10 @@ skill	impeccable	pbakaus/impeccable
 skill	emil-design-eng	emilkowalski/skills
 skill	review-animations	emilkowalski/skills
 skill	design-taste-frontend	leonxlnx/taste-skill
+skill	interface-design	dammyjay93/interface-design
+skill	ui-ux-pro-max	nextlevelbuilder/ui-ux-pro-max-skill
+skill	anatomy	wheresryan22/anatomy
+skill	oil-ui	oil-oil/oil-ui
 skill	web-design-guidelines	vercel-labs/agent-skills
 skill	vercel-react-best-practices	vercel-labs/agent-skills
 skill	vercel-composition-patterns	vercel-labs/agent-skills
@@ -102,6 +106,10 @@ skill	finops	helmcode/community-skills
 skill	mcp-builder	anthropics/skills
 skill	claude-api	anthropics/skills
 skill	deploy-to-vercel	vercel-labs/agent-skills
+skill	vercel-react-view-transitions	vercel-labs/agent-skills
+skill	vercel-optimize	vercel-labs/agent-skills
+skill	vercel-cli-with-tokens	vercel-labs/agent-skills
+skill	writing-guidelines	vercel-labs/agent-skills
 skill	building-a-beatdeck	helmcode/community-skills
 skill	remotion-product-video	helmcode/community-skills
 skill	remotion-best-practices	remotion-dev/skills

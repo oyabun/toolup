@@ -1,0 +1,17 @@
+[package]
+name = "toolup"
+version = "0.0.1"
+description = "See which MCP servers and skills each agent on this machine has, and even them out"
+edition = "2021"
+
+[lib]
+name = "toolup_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

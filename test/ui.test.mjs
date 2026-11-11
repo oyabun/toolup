@@ -17,7 +17,7 @@ let window, $, $$, click;
 const downloads = [];
 
 const wait = (ms = 20) => new Promise((r) => setTimeout(r, ms));
-async function boot(hash = "", page = 1000) {
+async function boot(hash = "#catalog", page = 1000) {   // the catalog view: what these tests walk through
   const dom = new JSDOM(html, { url: `http://localhost:3000/${hash}`, runScripts: "outside-only", pretendToBeVisual: true });
   window = dom.window;
   window.addEventListener("error", (e) => errors.push(String(e.error || e.message)));
@@ -47,7 +47,7 @@ before(() => boot());
 test("the page loads without script errors", () => assert.deepEqual(errors, []));
 
 test("the hero, the wordmark with its beta pill and the logo are there", () => {
-  assert.match($("h1").textContent, /Tool up your agents in one line\./);
+  assert.match($("#v-catalog h1").textContent, /Tool up your agents in one line\./);
   assert.equal($(".logo").getAttribute("aria-label"), "Tool up!");
   assert.equal($(".logo").tagName.toLowerCase(), "svg", "the logo is a vector");
   assert.equal($$(".home .logo path").length, 1, "one path: the official logo");
@@ -68,16 +68,63 @@ test("the hero, the wordmark with its beta pill and the logo are there", () => {
   assert.match($(".brand").textContent, /Tool up!/);
 });
 
-test("sections run 01 to 03 in order, then the FAQ", () => {
-  const heads = $$("h2").map((h) => h.textContent.replace(/\s+/g, " ").trim());
+test("the page opens on the app; the header's tabs switch to the catalog and back", () => {
+  const view = () => window.document.documentElement.dataset.view;
+  const current = () => $$(".views a[aria-current]").map((a) => a.dataset.view);
+  assert.equal(view(), "catalog", "#catalog opens the catalog");
+  click($('.views a[data-view="app"]'));
+  assert.equal(view(), "app");
+  assert.deepEqual(current(), ["app"]);
+  assert.equal(window.location.hash, "");
+  assert.match($("#v-app h1").textContent, /one window/);
+  assert.ok($("#v-app .app-shot img"), "with a picture of the app");
+  click($('.views a[data-view="catalog"]'));
+  assert.equal(view(), "catalog");
+  assert.deepEqual(current(), ["catalog"]);
+  assert.equal(window.location.hash, "#catalog", "the address says which view, so a reload stays there");
+  click($('#v-app a[data-view="catalog"]'));
+  assert.equal(view(), "catalog", "the app page's own links to the catalog go there too");
+  assert.match(read("app.js"), /viewOf = \(h\) => \(h === "catalog" \|\| h\.startsWith\("e-"\) \? "catalog" : "app"\)/, "no hash: the app comes first");
+  assert.match(read("style.css"), /\[data-view="app"\] #v-catalog,\[data-view="catalog"\] #v-app\{display:none\}/, "only one view shows");
+  assert.match(read("index.html"), /dataset\.view = h === "catalog" \|\| h\.indexOf\("e-"\) === 0 \? "catalog" : "app"/, "set before the first paint: #catalog or a share link opens the catalog");
+});
+
+test("sections run 01 to 02 in order, then the FAQ; the list's heading explains the open tab", () => {
+  const heads = $$("#v-catalog h2").map((h) => h.textContent.replace(/\s+/g, " ").trim());
   assert.match(heads[0], /^01 Start from a pack/);
-  assert.match(heads[1], /^02 MCP servers/);
-  assert.match(heads[2], /^03 Skills/, "the All tab shows both lists");
-  assert.equal(heads[3], "Questions, answered");
+  assert.match(heads[1], /^02 Pick your tools/, "one list, not a section per kind");
+  assert.equal(heads[2], "Questions, answered");
   tabTo("skills");
-  assert.match($$("h2")[1].textContent.replace(/\s+/g, " ").trim(), /^02 Skills/);
+  assert.match($$("#v-catalog h2")[1].textContent, /Skills teach your agents/);
   tabTo("all");
 });
+
+test("three tabs, All, MCPs and Skills, over one list; cards say which kind they are", () => {
+  const tabs = () => $$("#cat .tabs .tab");
+  assert.deepEqual(tabs().map((b) => b.querySelector("span").textContent), ["All", "MCPs", "Skills"]);
+  assert.deepEqual(tabs().map((b) => b.querySelector("small").textContent), ["209", "56", "153"]);
+  assert.equal($('[data-show="all"]').getAttribute("aria-pressed"), "true");
+  assert.equal($$("#cat .grid").length, 1, "All is one mixed list");
+  const names = $$("#cat .item .nm").map((n) => n.textContent);
+  assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base", numeric: true })), "by name, servers and skills together");
+  assert.ok($$("#cat .item.k-mcp").every((i) => i.querySelector(".kind").textContent === "MCP"));
+  assert.ok($$("#cat .item.k-skill").every((i) => i.querySelector(".kind").textContent === "Skill"));
+  click($('[data-show="mcp"]'));
+  assert.equal($('[data-show="mcp"]').getAttribute("aria-pressed"), "true");
+  assert.equal($("#show-pick").value, "mcp", "the header's dropdown follows");
+  assert.ok($$("#cat .item").length === 56 && !$("#cat .item.k-skill"));
+  tabTo("skills");
+  assert.equal($('[data-show="skills"]').getAttribute("aria-pressed"), "true", "and the tabs follow the dropdown");
+  assert.ok($$("#cat .item").length === 153 && !$("#cat .item.k-mcp"));
+  const q = $("#q");
+  q.value = "sentry"; q.dispatchEvent(new window.Event("input"));
+  assert.ok(+$('[data-show="mcp"] small').textContent >= 1 && +$('[data-show="all"] small').textContent < 209, "the counts follow the search");
+  q.value = "linear"; q.dispatchEvent(new window.Event("input"));
+  if (!$("#cat .item")) { click($("#cat .empty [data-show]")); assert.ok($("#cat .item.k-mcp"), "an empty tab points at the one that has the match"); }
+  q.value = ""; q.dispatchEvent(new window.Event("input"));
+  click($('[data-show="all"]'));
+});
+
 
 test("the agent selector is a dropdown in the header: All agents by default, then the five agents", () => {
   const btn = $("#agent-btn"), opts = $$("#agent-opts [role=option]");
@@ -131,13 +178,13 @@ test("the dropdown works from the keyboard: arrows move, Escape closes and gives
   assert.equal(window.document.activeElement, btn);
 });
 
-test("six packs, 56 servers and 145 skills are listed from the catalog", () => {
+test("six packs, 56 servers and 153 skills are listed from the catalog", () => {
   assert.equal($$(".pack").length, 6);
-  assert.equal($$("#h-mcp ~ .grid .item").length, 56);
+  assert.equal($$("#cat .item.k-mcp").length, 56);
   tabTo("skills");
-  assert.equal($$("#h-skills ~ .grid .item").length, 145);
+  assert.equal($$("#cat .item.k-skill").length, 153);
   assert.match($('[data-tab="mcp"]').textContent, /56/);
-  assert.match($('[data-tab="skills"]').textContent, /145/);
+  assert.match($('[data-tab="skills"]').textContent, /153/);
   tabTo("mcp");
 });
 
@@ -229,7 +276,7 @@ test("search finds servers and skills together, and says when nothing matches", 
   q.value = "zzzzqqq"; q.dispatchEvent(new window.Event("input"));
   assert.match($("#cat").textContent, /Nothing matches/);
   q.value = ""; q.dispatchEvent(new window.Event("input"));
-  assert.equal($$(".item").length, 201, "back to the tab view: the All tab shows servers and skills");
+  assert.equal($$(".item").length, 209, "back to the tab view: the All tab shows servers and skills");
   assert.equal($("#show-pick").value, "all");
 });
 
@@ -293,7 +340,7 @@ test("one row of categories, the same for servers and skills, filters both lists
   assert.deepEqual(names, ["All", ...Object.values(catalog.categories)]);
   click($('.cat[data-cat="work"]'));
   const inWork = (list, i) => list.find((x) => x.id === i.dataset.id).cats.includes("work");
-  const skillItems = $$("#h-skills ~ .grid .item"), serverItems = $$("#h-mcp ~ .grid .item");
+  const skillItems = $$("#cat .item.k-skill"), serverItems = $$("#cat .item.k-mcp");
   assert.ok(skillItems.length > 0 && skillItems.every((i) => inWork(catalog.skills, i)), "skills are filtered by the category");
   assert.ok(serverItems.length > 0 && serverItems.every((i) => inWork(catalog.mcp, i)), "and so are servers, by the same category");
   assert.ok(serverItems.some((i) => i.dataset.id === "linear") && skillItems.some((i) => i.dataset.id === "brainstorming"));
@@ -301,7 +348,7 @@ test("one row of categories, the same for servers and skills, filters both lists
 });
 
 test("a server in several categories shows under each", () => {
-  const ids = () => $$("#h-mcp ~ .grid .item").map((i) => i.dataset.id);
+  const ids = () => $$("#cat .item.k-mcp").map((i) => i.dataset.id);
   click($('[data-cat="test"]'));
   assert.ok(ids().includes("sentry"), "Sentry is under Testing");
   const inTest = ids().join();
@@ -394,7 +441,7 @@ test("the toolbar has the search, a categories picker and the theme button, and 
   tabTo("all");
   const cp = $("#cat-pick"); cp.value = "test"; cp.dispatchEvent(new window.Event("change"));
   assert.equal($("#show-pick").value, "all", "the category filters both lists, it does not switch lists");
-  assert.ok($$("#h-mcp ~ .grid .item").length < 20 && $$("#h-skills ~ .grid .item").length < 30);
+  assert.ok($$("#cat .item.k-mcp").length < 20 && $$("#cat .item.k-skill").length < 30);
   assert.equal($('[data-cat="test"]').getAttribute("aria-pressed"), "true", "and the chip row agrees");
   cp.value = ""; cp.dispatchEvent(new window.Event("change"));
   assert.equal($('[data-cat=""]').getAttribute("aria-pressed"), "true");
@@ -481,18 +528,18 @@ test("the wiring commands the page shows are the ones the installer runs, for ev
 test("every server and agent chip shows an inline logo, not initials", async () => {
   await boot();
   const noIcon = (sel) => $$(sel).filter((el) => !el.querySelector(".ico svg path, .ico svg g")).map((el) => el.dataset.id || el.dataset.repo || el.dataset.tgt);
-  assert.deepEqual(noIcon("#h-mcp ~ .grid .item"), []);
+  assert.deepEqual(noIcon("#cat .item.k-mcp"), []);
   assert.deepEqual(noIcon("[data-tgt]"), []);
-  assert.equal($$("#h-mcp ~ .grid .item .ico").length, 56);
+  assert.equal($$("#cat .item.k-mcp .ico").length, 56);
   assert.ok(!$$(".ico").some((i) => /^[A-Za-z]{2}$/.test(i.textContent)), "no two-letter placeholders");
 });
 
 test("skills are cards like servers; a brand owner shows its logo, anyone else an initial tile, never one generic mark twenty times", () => {
   tabTo("skills");
-  assert.ok(!$("#h-skills ~ .grid").classList.contains("list"));
+  assert.ok(!$("#cat .grid").classList.contains("list"));
   for (const id of ["frontend-design", "find-skills", "supabase-postgres-best-practices", "prisma-cli", "gh-fix-ci"]) assert.ok(card(id).querySelector(".top .ico svg"), `${id} should carry its owner's logo`);
   for (const id of ["tdd", "grill-me", "brainstorming", "caveman"]) { const t = card(id).querySelector(".top .ico.initial"); assert.ok(t, `${id} has no brand owner: an initial tile`); assert.equal(t.textContent, card(id).querySelector(".nm").textContent[0].toUpperCase()); }
-  assert.equal($$("#h-skills ~ .grid .ico svg path[d^='M12 .297']").length, 0, "the GitHub mark is not used as a skill logo");
+  assert.equal($$("#cat .item.k-skill .ico svg path[d^='M12 .297']").length, 0, "the GitHub mark is not used as a skill logo");
 });
 
 test("a server whose publisher is its own name doesn't say it twice", () => {
@@ -571,24 +618,24 @@ test("long lists: the header filters show one list at a time (or all), 24 cards 
   await boot("", 24);
   assert.equal($$("#show-pick option").length, 3);
   assert.equal($("#show-pick").value, "all", "All is the first option and the default");
-  assert.equal($$("#h-mcp ~ .grid .item").length, 24);
-  assert.equal($$("#h-skills ~ .grid .item").length, 24);
-  assert.match($('[data-tab="all"]').textContent, /201/);
+  assert.equal($$("#cat .item").length, 24, "All pages as one list");
+  assert.match($("[data-more=all]").textContent, /Show 24 more/);
+  assert.match($('[data-tab="all"]').textContent, /209/);
   tabTo("mcp");
   assert.equal($("#show-pick").value, "mcp");
-  assert.equal($$("#h-mcp ~ .grid .item").length, 24);
+  assert.equal($$("#cat .item.k-mcp").length, 24);
   assert.match($("[data-more=mcp]").textContent, /Show 24 more/);
   click($("[data-more=mcp]"));
-  assert.equal($$("#h-mcp ~ .grid .item").length, 48);
+  assert.equal($$("#cat .item.k-mcp").length, 48);
   click($("[data-more=mcp]"));
-  assert.equal($$("#h-mcp ~ .grid .item").length, 56);
+  assert.equal($$("#cat .item.k-mcp").length, 56);
   assert.equal($("[data-more=mcp]"), null, "nothing left to show");
   click($('[data-cat="test"]'));
-  assert.ok($$("#h-mcp ~ .grid .item").length < 24 && !$("[data-more=mcp]"), "a filter starts from the first page again");
+  assert.ok($$("#cat .item.k-mcp").length < 24 && !$("[data-more=mcp]"), "a filter starts from the first page again");
   click($('[data-cat=""]'));
   tabTo("skills");
   assert.equal($("#show-pick").value, "skills");
-  assert.equal($$("#h-skills ~ .grid .item").length, 24);
+  assert.equal($$("#cat .item.k-skill").length, 24);
   await boot();
 });
 
@@ -656,7 +703,7 @@ test("the header's dropdowns have an icon on every option, open on click, pick o
     assert.ok(list.hidden, "Escape closes it");
   }
   assert.equal($('[data-dd="show-pick"] .dd2-lbl').textContent, "All", "the button says it short");
-  assert.match($('[data-dd="show-pick"] .dd2-opt[data-v="all"]').textContent, /All · 201/, "the list has the counts");
+  assert.match($('[data-dd="show-pick"] .dd2-opt[data-v="all"]').textContent, /All · 209/, "the list has the counts");
   click($('[data-dd="show-pick"] .dd2-btn'));
   click($('[data-dd="show-pick"] .dd2-opt[data-v="skills"]'));
   assert.equal($("#show-pick").value, "skills", "picking in the list sets the real value");
@@ -694,7 +741,7 @@ test("servers and skills are listed by name, A to Z, while the command keeps cat
   tabTo("all");
   const sorted = (arr) => [...arr].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base", numeric: true }));
   const names = (sel) => $$(sel).map((i) => i.querySelector(".nm").textContent);
-  const servers = names("#h-mcp ~ .grid .item"), skills = names("#h-skills ~ .grid .item");
+  const servers = names("#cat .item.k-mcp"), skills = names("#cat .item.k-skill");
   assert.deepEqual(servers, sorted(servers), "servers by name");
   assert.deepEqual(skills, sorted(skills), "skills by name");
   assert.equal(servers[0], "Ahrefs");

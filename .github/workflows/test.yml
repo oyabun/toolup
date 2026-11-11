@@ -24,3 +24,6 @@ jobs:
       - name: public/ is up to date with catalog/ and src/
         run: git diff --exit-code -- public/catalog.json public/catalog.tsv public/install.sh
       - run: npm test
+      - name: desktop app (scan core and window model)
+        working-directory: app
+        run: npm ci && npm run typecheck && npm test
