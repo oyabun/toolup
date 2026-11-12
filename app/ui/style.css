@@ -20,7 +20,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 #app{display:flex;flex-direction:column;height:100%}
 
 header{flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg);-webkit-user-select:none;user-select:none}
-.mac-app header{padding-left:88px}   /* the window's close, minimise and zoom buttons sit over the header */
+.mac-app header{padding-left:100px}   /* the window's close, minimise and zoom buttons sit over the header */
 .views{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:var(--wash);border:1px solid var(--line)}
 .views button{border:0;background:none;border-radius:7px;padding:5px 14px;font-weight:600;color:var(--mute);white-space:nowrap}
 .views button:hover{color:var(--ink)}
@@ -957,3 +957,9 @@ span.app-main{cursor:default}
 .doc.md th,.doc.md td{padding:5px 10px;border:1px solid var(--line);text-align:left;vertical-align:top}
 .doc.md th{background:var(--wash);font-weight:600}
 .doc.md .link{font-size:inherit}
+/* back and forward: one pill at the left of the bar, before the screens */
+.hist{display:inline-flex;flex:none;gap:2px;padding:3px;border:1px solid var(--line);border-radius:99px;background:var(--wash)}
+.hist button{display:grid;place-items:center;width:28px;height:26px;padding:0;border:0;border-radius:99px;background:none;color:var(--ink)}
+.hist button svg{width:16px;height:16px}
+.hist button:hover:not(:disabled){background:var(--panel);box-shadow:0 1px 2px #0000001f}
+.hist button:disabled{color:var(--mute);opacity:.45;cursor:default}

@@ -489,7 +489,7 @@ function discover() {
     const c = COVERS[i % COVERS.length], items = p.ids.map((id) => listed.get(id)).filter((x): x is Listed => !!x);
     return `<article class="feat" style="background-image:url(${c.file})"><button class="feat-open" type="button" data-pack="${i}" aria-label="See what is in ${esc(p.name)}"></button><div class="feat-in">
       <span class="eyebrow">Starter pack</span><h2>${esc(p.name)}</h2><p>${esc(p.ds)}</p>
-      <div class="feat-b"><span class="feat-logos">${items.slice(0, 6).map((x) => cardLogo(x, "mini")).join("")}</span><span class="feat-n">${plural(items.length, "item")}</span><button class="get light" type="button" data-getpack="${i}">Install all</button></div></div></article>`;
+      <div class="feat-b"><span class="feat-logos">${items.slice(0, 6).map((x) => cardLogo(x, "mini")).join("")}</span><span class="feat-n">${plural(items.length, "item")}</span><button class="get light" type="button" data-pack="${i}" aria-label="View ${esc(p.name)}">View</button></div></div></article>`;
   }).join("");
   const top = [...raw.skills].sort((a, b) => (b.installs || 0) - (a.installs || 0)).slice(0, SHELF).map((x) => listed.get(x.id)!);
   const servers = raw.mcp.slice(0, SHELF).map((x) => listed.get(x.id)!);
@@ -594,7 +594,7 @@ function packView() {
   const p = raw.packs[shop.pack], c = COVERS[shop.pack % COVERS.length];
   const items = p.ids.map((id) => listed.get(id)).filter((x): x is Listed => !!x);
   const missing = items.filter((x) => haveIt(x.id).length < cols().length).length;
-  return `${crumbs(p.name)}
+  return `<div class="crumb-row">${crumbs(p.name)}${layToggle()}</div>
     <div class="pack-hero" style="background-image:url(${c.file})"><div class="feat-in">
       <span class="eyebrow">Starter pack</span><h1>${esc(p.name)}</h1><p>${esc(p.ds)}</p>
       <div class="feat-b"><span class="feat-n">${plural(items.length, "item")}${missing ? "" : " · all installed"}</span>${missing ? `<button class="get light" type="button" data-getpack="${shop.pack}">Install all ${items.length}</button>` : ""}</div></div></div>
@@ -678,7 +678,7 @@ function pluginView(p: Plugin) {
     if (known && listed.has(known.id)) return appRow(listed.get(known.id)!);
     return `<div class="app k-mcp"><span class="app-main">${coolIcon(words(c.name), "", undefined, "cat-mcp", "")}<span class="app-t"><b>${esc(words(c.name))}</b>${appMeta(["MCP server"])}<small>${esc(c.host || "Runs on this computer")}</small></span></span></div>`;
   };
-  return `${crumbs(p.title)}
+  return `<div class="crumb-row">${crumbs(p.title)}${layToggle()}</div>
     <div class="hero">${pluginIcon(p, "big")}<div class="hero-t"><h1>${esc(p.title)}</h1><p>${esc(owner)}${p.category ? ` · ${esc(p.category)}` : ""}</p><span class="hero-b">${pluginGet(p)}${p.repo ? `<button class="btn small" type="button" data-url="${esc(repoUrl(p.repo, p.path))}">${glyph("github")}View on GitHub</button>` : ""}</span></div></div>
     <dl class="facts">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
     <section class="shelf"><h2>About</h2><p class="about">${mdLine(p.description || "No description.", true)}</p>
@@ -1412,6 +1412,7 @@ function body() {
 }
 function shell() {
   app.innerHTML = `<header data-tauri-drag-region>
+    <div class="hist" role="group" aria-label="Back and forward"><button type="button" data-go="-1" title="Back (⌘[)" aria-label="Back" disabled>${glyph("back")}</button><button type="button" data-go="1" title="Forward (⌘])" aria-label="Forward" disabled>${glyph("next")}</button></div>
     <div class="views" role="group" aria-label="View"><button type="button" data-screen="installed">Installed</button><button type="button" data-screen="catalog">Catalog</button><button type="button" data-screen="projects">Projects</button></div>
     <label class="search">${glyph("search")}<input id="q" type="search" aria-label="Search" autocomplete="off"></label>
     <button class="btn icon" id="rescan" type="button" title="Look again for agents, skills and servers" aria-label="Scan again">${glyph("refresh")}</button>
@@ -1467,6 +1468,32 @@ function oneRow() {
 }
 window.addEventListener("resize", wireCarousel);
 window.addEventListener("resize", oneRow);
+/* ---------- back and forward: the places you have been (a screen, and in the Catalog the list, pack, collection or page) ---------- */
+interface Place { screen: Screen; shop: typeof shop; q: string; top: number }
+const places: Place[] = [];
+let placeAt = -1;
+const placeKey = (p: Place) => JSON.stringify([p.screen, p.shop.tab, p.shop.cat, p.shop.detail, p.shop.pack, p.shop.plugin, p.shop.list, p.shop.coll, p.q.trim()]);
+/** After each draw: if what is on screen is a new place, it goes on the end of the trail (and what was ahead of it is dropped). */
+function notePlace() {
+  if (!inv) return;
+  const now: Place = { screen, shop: { ...shop }, q, top: 0 }, cur = places[placeAt];
+  if (cur && placeKey(cur) === placeKey(now)) cur.shop.page = shop.page;
+  else if (cur && cur.q.trim() && now.q.trim() && placeKey({ ...cur, q: "" }) === placeKey({ ...now, q: "" })) places[placeAt] = now;   // typing in the search box is one place, not one for each letter
+  else { places.splice(placeAt + 1); places.push(now); if (places.length > 80) places.shift(); placeAt = places.length - 1; }
+  document.querySelector<HTMLButtonElement>('[data-go="-1"]')!.disabled = placeAt <= 0;
+  document.querySelector<HTMLButtonElement>('[data-go="1"]')!.disabled = placeAt >= places.length - 1;
+}
+/** Go one place back (-1) or forward (1), to where the page was scrolled when you left it. */
+function goPlace(dir: number) {
+  const to = places[placeAt + dir];
+  if (!to || sheet) return;
+  placeAt += dir;
+  screen = to.screen; Object.assign(shop, to.shop); q = to.q;
+  document.querySelector<HTMLInputElement>("#q")!.value = q;
+  menu = null; getMenu = null; catsOpen = false; srcOpen = false;
+  queueSearch(); paint();
+  document.querySelector("#body")!.scrollTop = to.top;
+}
 function paint() {
   document.querySelectorAll<HTMLElement>(".views [data-screen]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.screen === screen)));
   document.querySelector<HTMLInputElement>("#q")!.placeholder = screen === "installed" ? "Search what's installed…" : screen === "projects" ? "Search your projects…" : "Search skills and MCP servers…";
@@ -1478,6 +1505,7 @@ function paint() {
   wireCarousel();
   oneRow();
   mountMeadow({ hold: arranging ? chosen : "", on: !meadowStill });
+  notePlace();
   app.classList.toggle("has-tray", !!document.querySelector(".tray"));
 }
 async function load(quiet = false) {
@@ -2116,7 +2144,7 @@ const collCard = (c: Collection) => { const have = collHave(c); return folderCar
 }); };
 function collShelf() {
   if (!enabled.has("toolup") || !collections.length) return "";
-  return `<section class="shelf"><div class="shelf-h"><h2><button class="shelf-link" type="button" data-list="collections" title="See all ${collections.length}">Collections${glyph("next")}</button></h2><button class="btn small see-all" type="button" data-list="collections">See all (${collections.length})</button></div><p>Each publisher's own set of skills. Install all of one, or only the ones you want. Make your own from any Install button's menu.</p><div class="folders one">${collections.map(collCard).join("")}</div></section>`;
+  return `<section class="shelf"><div class="shelf-h"><h2><button class="shelf-link" type="button" data-list="collections" title="See all ${collections.length}">Collections${glyph("next")}</button></h2></div><p>Each publisher's own set of skills. Install all of one, or only the ones you want. Make your own from any Install button's menu.</p><div class="folders one">${collections.map(collCard).join("")}</div><button class="shelf-more" type="button" data-list="collections">See all ${collections.length} collections${glyph("next")}</button></section>`;
 }
 function collView(c: Collection) {
   const have = collHave(c);
@@ -2176,6 +2204,7 @@ app.addEventListener("click", (e) => {
   if ((el = hit("[data-theme-set]"))) { theme = el.dataset.themeSet!; save("toolup.theme", theme); applyLook(); return paint(); }
   if ((el = hit("[data-accent-set]"))) { accent = el.dataset.accentSet!; save("toolup.accent", accent); applyLook(); return paint(); }
   if (hit("[data-more-agents]")) { moreAgents = !moreAgents; return paint(); }
+  if ((el = hit("[data-go]"))) return goPlace(+el.dataset.go!);
   if (hit("[data-meadow-arrange]")) { arranging = !arranging; if (!arranging) chosen = ""; return paint(); }
   if (hit("[data-meadow-hide]")) { setMeadowOff(true); return paint(); }
   if ((el = hit("[data-meadow-show]"))) { setMeadowOff(el.dataset.meadowShow === "0"); return paint(); }
@@ -2371,3 +2400,12 @@ if (inTauri()) {
 }
 if (inTauri()) void listen<string[]>("deep-link", (e) => e.payload.forEach(openLink));
 load().then(async () => { for (const u of [...pendingLinks.splice(0), ...(await startLinks().catch(() => []))]) openLink(u); });
+
+// back and forward from the keyboard (⌘[ and ⌘], as in Finder and the App Store) and from a mouse's side buttons;
+// the page remembers how far down it was scrolled
+document.addEventListener("keydown", (e) => {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey || (e.key !== "[" && e.key !== "]")) return;
+  e.preventDefault(); goPlace(e.key === "[" ? -1 : 1);
+});
+document.addEventListener("mouseup", (e) => { if (e.button === 3 || e.button === 4) { e.preventDefault(); goPlace(e.button === 3 ? -1 : 1); } });
+document.addEventListener("scroll", (e) => { const b = e.target as HTMLElement; if (b.id === "body" && places[placeAt]) places[placeAt].top = b.scrollTop; }, true);
