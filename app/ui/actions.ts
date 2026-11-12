@@ -105,3 +105,35 @@ export async function codexMarketplace(repo: string): Promise<RunResult> {
   await new Promise((r) => setTimeout(r, 300));
   return { code: 0, output: "" };
 }
+
+/** Take MCP servers out of agents, by the name each agent knows them by. */
+export async function toolupRemove(names: string[], to: string[]): Promise<RunResult> {
+  if (inTauri()) return invoke<RunResult>("toolup_remove", { names, to });
+  await new Promise((r) => setTimeout(r, 500));
+  return { code: 0, output: "" };
+}
+
+/** The text files of a skill about to be installed (a .skill file or a staged download), for the safety check. */
+export const skillTexts = (path: string) => invoke<{ path: string; text: string }[]>("skill_texts", { path });
+
+/** Save an instructions file: AGENTS.md, CLAUDE.md or GEMINI.md in a project, or a skill's SKILL.md. */
+export const writeText = (path: string, text: string) => invoke<void>("write_text", { path, text });
+
+/** Copy a skill's folder into the store under a new name, as a skill of your own. Returns where the copy is. */
+export const copySkill = (source: string, storeDir: string, name: string) => invoke<string>("copy_skill", { source, storeDir, name });
+
+/** Back up the saved skills to a GitHub repository with the user's own git (or, with `restore`, pull them back). */
+export async function backupStore(storeDir: string, remote: string, restore: boolean): Promise<RunResult> {
+  if (inTauri()) return invoke<RunResult>("backup_store", { storeDir, remote, restore });
+  await new Promise((r) => setTimeout(r, 600));
+  return { code: 0, output: "(sample) nothing was sent" };
+}
+
+/** The toolup:// links the app was opened with. */
+export const startLinks = () => (inTauri() ? invoke<string[]>("start_links") : Promise.resolve([] as string[]));
+
+/** Ask for a folder with the system's own dialog; null when the user cancels. */
+export const pickFolder = () => invoke<string | null>("pick_folder");
+
+/** Open a terminal in a project folder with an agent started on its own /init, which writes the project's instructions. */
+export const openTerminal = (path: string, agent: string) => invoke<void>("open_terminal", { path, agent });

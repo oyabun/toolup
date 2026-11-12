@@ -1,7 +1,7 @@
 // Reading a pasted install command: skills, MCP servers and plugins, and leaving ordinary text alone.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parsePaste, words } from "../core/paste.ts";
+import { githubSkills, parsePaste, words } from "../core/paste.ts";
 
 test("shell words honour quotes", () => {
   assert.deepEqual(words(`a "b c" 'd e' f\\ g ""`), ["a", "b c", "d e", "f g", ""]);
@@ -51,5 +51,14 @@ test("plugins: the install line, alone or with the list it comes from", () => {
 });
 
 test("ordinary text is not a command", () => {
-  for (const t of ["", "frontend design", "https://github.com/owner/repo", "npm install skills", "how do I add an mcp server?", "claude mcp list", "x".repeat(30000)]) assert.equal(parsePaste(t), null, t);
+  for (const t of ["", "frontend design", "owner/repo", "https://example.com/owner/repo", "npm install skills", "how do I add an mcp server?", "claude mcp list", "x".repeat(30000)]) assert.equal(parsePaste(t), null, t);
+});
+
+test("a GitHub address on its own is a repository of skills to pick from", () => {
+  assert.deepEqual(parsePaste("https://github.com/mengto/skills"), { type: "skill", repo: "mengto/skills", skills: [] });
+  assert.deepEqual(parsePaste("github.com/arla6ka/design.how/"), { type: "skill", repo: "arla6ka/design.how", skills: [] });
+  assert.deepEqual(parsePaste("https://github.com/Leonxlnx/taste-skill/tree/HEAD/skills/taste-skill"), { type: "skill", repo: "Leonxlnx/taste-skill", skills: ["taste-skill"] });
+  assert.equal(githubSkills("owner/repo"), null, "plain owner/repo is too easily ordinary text for a paste");
+  assert.deepEqual(githubSkills("owner/repo", true), { type: "skill", repo: "owner/repo", skills: [] }, "but fine where a repository is what was asked for");
+  assert.equal(githubSkills("https://github.com/owner", true), null);
 });

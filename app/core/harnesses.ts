@@ -19,6 +19,11 @@ export interface HarnessRead {
 // The folder the open `skills` CLI installs into and links from; harnesses without a folder of their own read it.
 export const SHARED_SKILLS = "$HOME/.agents/skills";
 
+const NO_SERVERS: McpSource = { files: [], format: "json", key: "mcpServers" };
+
+/** Whether Tool up! can add MCP servers to this agent; false for the ones it only gives skills to. */
+export const takesServers = (agent: CatalogAgent): boolean => agent.method !== "skills";
+
 const READ: Record<string, HarnessRead> = {
   "claude-code": {
     mcp: { files: ["$HOME/.claude.json"], format: "json", key: "mcpServers" },
@@ -40,6 +45,29 @@ const READ: Record<string, HarnessRead> = {
     mcp: { files: ["$HOME/Library/Application Support/Code/User/mcp.json", "$HOME/.config/Code/User/mcp.json"], format: "json", key: "servers" },
     skills: ["$HOME/.copilot/skills", SHARED_SKILLS],
   },
+  windsurf: {
+    mcp: { files: ["$HOME/.codeium/windsurf/mcp_config.json"], format: "json", key: "mcpServers" },
+    skills: ["$HOME/.codeium/windsurf/skills", SHARED_SKILLS],
+  },
+  cline: {
+    mcp: { files: ["$HOME/.cline/data/settings/cline_mcp_settings.json", "$HOME/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json", "$HOME/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json"], format: "json", key: "mcpServers" },
+    skills: ["$HOME/.cline/skills", SHARED_SKILLS],
+  },
+  "qwen-code": {
+    mcp: { files: ["$HOME/.qwen/settings.json"], format: "json", key: "mcpServers" },
+    skills: ["$HOME/.qwen/skills", SHARED_SKILLS],
+  },
+  kiro: {
+    mcp: { files: ["$HOME/.kiro/settings/mcp.json"], format: "json", key: "mcpServers" },
+    skills: ["$HOME/.kiro/skills", SHARED_SKILLS],
+  },
+  // Skills only: these keep their servers in YAML (Goose, Hermes, DeepSeek Harness), behind their own command
+  // (OpenClaw), or have none of their own (Pi), so no server file is read for them.
+  "deepseek-harness": { mcp: NO_SERVERS, skills: ["$HOME/.dsh/skills", SHARED_SKILLS] },
+  openclaw: { mcp: NO_SERVERS, skills: ["$HOME/.openclaw/skills"] },
+  goose: { mcp: NO_SERVERS, skills: ["$HOME/.config/goose/skills", SHARED_SKILLS] },
+  pi: { mcp: NO_SERVERS, skills: ["$HOME/.pi/agent/skills", SHARED_SKILLS] },
+  hermes: { mcp: NO_SERVERS, skills: ["$HOME/.hermes/skills"] },
 };
 
 // Tool up!'s own store: one copy of each skill it installs, which every agent that has it turned on links to.

@@ -82,7 +82,38 @@ h1 em{font-style:normal;background:linear-gradient(95deg,#7d22d8 6%,#c25be0 52%,
 /* the divider before the FAQ: a few rows of the hero's own cells, thinning out downwards and toward the sides */
 .heat-rule{display:block;width:100%;height:57px}
 /* the agent selector is part of the hero: "Kit for [logos All agents ⌄]" under the paragraph */
-.hero-pick{display:flex;width:fit-content;align-items:center;gap:14px;flex-wrap:wrap;margin-top:clamp(26px,3.4vw,40px)}
+.hero-pick{display:flex;width:fit-content;align-items:center;gap:14px;flex-wrap:wrap}
+/* the catalog's hero builds the line: three numbered rows (pick, for, copy) */
+.build{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;max-width:900px;margin-top:clamp(30px,4vw,48px)}
+.bstep{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:8px 14px}
+.bl{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.bl i{font:700 15px var(--pixel);font-style:normal;letter-spacing:.04em;color:var(--accent-text);margin-right:6px}
+.qp{display:flex;flex-wrap:wrap;gap:8px}
+.qp-i,.qp-all{display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 15px 0 7px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 14.5px var(--sans)}
+.qp-i > svg{width:17px;height:17px;margin-left:7px;color:var(--accent-text)}
+.qp-i small{font:500 11px var(--mono);color:var(--mute)}
+.qp-i > span{color:var(--mute)}
+.qp-i .ico.round{border-radius:50%}
+.qp-i .ico svg{width:16px;height:16px}
+.qp-i:hover,.qp-all:hover{border-color:var(--ink)}
+.qp-i[aria-pressed="true"]{border-color:var(--accent-strong);background:var(--tint);color:var(--accent-text);box-shadow:inset 0 0 0 1px var(--accent-strong)}
+.qp-i[aria-pressed="true"]::after{content:"✓";font-weight:700;margin-left:-2px}
+.qp-all{padding:0 15px;border-style:dashed;color:var(--mute)}
+.hero-term .cmd{padding:9px 9px 9px 16px;font-size:14px}
+.hero-term .btn{flex:none}
+.line-seen .bar{display:none}
+@media (max-width:639px){.bstep{grid-template-columns:minmax(0,1fr)}.qp-i,.qp-all{height:38px;font-size:14px}}
+/* the catalog's banner for the desktop app: fixed under the header, always there */
+.getapp{position:fixed;top:65px;left:0;right:0;z-index:45;background:var(--tint);border-bottom:1px solid color-mix(in srgb,var(--accent-strong) 28%,var(--line));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.getapp-in{max-width:1120px;margin:0 auto;padding:0 16px;height:42px;display:flex;align-items:center;gap:12px;font-size:14px}
+.getapp p{margin:0;min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mute)}
+.getapp b{color:var(--ink);font-weight:600}
+.getapp-tag{flex:none;font:700 11px var(--pixel);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--grad);border-radius:5px;padding:3px 7px 2px}
+.getapp-go{flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:99px;background:var(--grad);color:var(--accent-ink);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.getapp-go:hover{filter:brightness(1.08)}
+[data-view="catalog"] body{padding-top:108px}
+html[data-view="catalog"]{scroll-padding-top:126px}
+@media (max-width:639px){.getapp-more,.getapp-tag{display:none}}
 .pick-lbl{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .hero .dd{height:54px;padding:0 20px 0 10px;gap:14px;font-size:clamp(16px,1.6vw,18px)}
 .hero .dd-logos .ico.mini{width:30px;height:30px;border-radius:9px;margin-left:-9px}
@@ -138,30 +169,9 @@ h2 small{flex-basis:100%;margin-top:12px;font:400 16px/1.45 var(--sans);letter-s
 .dd-foot{margin-top:8px;border-top:1px solid var(--line);padding:11px 12px 6px;font:500 12px/1.3 var(--mono);color:var(--mute)}
 
 /* kits: tinted cards with a block of gradient pixels */
-.pack{--tone:var(--accent);position:relative;overflow:hidden;min-height:220px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px 22px 20px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;transition:border-color .15s}
-.pack:hover{border-color:var(--ink)}
-.pack .more{font:500 11.5px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}
-.pack b{font-size:clamp(24px,2.4vw,28px);font-weight:500;letter-spacing:-.04em;line-height:1.05;margin-top:22px;max-width:70%}
-.pack .pk-ds{font-size:14px;color:var(--mute);line-height:1.45;margin-top:8px;max-width:62%}
-.pk-logos{display:flex;margin-top:14px;min-height:20px}
-.pk-logos .ico.mini{margin-left:-6px;box-shadow:0 0 0 2px var(--panel)}
-.pk-logos .ico.mini:first-child{margin-left:0}
-.pack .cta{margin-top:auto;display:inline-flex;align-items:center;gap:8px;height:36px;font-weight:600;font-size:14px;border-radius:99px}
-.pack .cta>span:first-child{border-bottom:1.5px solid var(--ink);padding-bottom:2px}
-.pack:hover .cta>span:last-child{transform:translateX(4px)}
 .cta>span{transition:transform .15s}
 .shape{position:absolute;right:-4%;top:50%;width:42%;transform:translateY(-46%);pointer-events:none;opacity:.75;transition:opacity .2s}
-.pack:hover .shape{opacity:1}
 /* an added kit: tinted, ringed, with a badge, its pixels at full strength and a filled button that offers to undo it */
-.pack.done{border-color:var(--accent-strong);background:var(--tint);box-shadow:inset 0 0 0 1px var(--accent-strong)}
-.pack.done .shape{opacity:1}
-.pack.done::after{content:"";position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M4 0h1v1H4zM3 1h1v1H3zM0 2h1v1H0zM2 2h1v1H2zM1 3h1v1H1z'/%3E%3C/svg%3E") center/14px 11px no-repeat,var(--grad);image-rendering:pixelated}
-.pack.done .cta{padding:0 14px;background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent-strong) 36%,transparent);color:var(--accent-text)}
-.pack.done .cta>span:first-child{border-bottom:0;padding-bottom:0}
-.pack.done .cta-t::before{content:"✓ "}
-.pack.done:hover .cta-t{font-size:0}
-.pack.done:hover .cta-t::before{content:"Remove";font-size:14px}
-.pack.done:hover .cta>span:last-child{display:none}
 
 .pk-tools{display:flex;justify-content:flex-end;margin:18px 0 0}
 .tb-search{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:42px;padding:0 14px;border:1px solid var(--line);background:var(--panel);border-radius:12px;color:var(--mute)}
@@ -227,9 +237,6 @@ h2 small{flex-basis:100%;margin-top:12px;font:400 16px/1.45 var(--sans);letter-s
 .list .info{bottom:auto;top:11px}
 
 /* repos, categories */
-.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.cat{border:1px solid var(--line);background:none;border-radius:99px;padding:5px 12px;font-size:13px;color:var(--mute)}
-.cat[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
 /* bottom bar */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
@@ -365,9 +372,6 @@ h2 small{flex-basis:100%;margin-top:12px;font:400 16px/1.45 var(--sans);letter-s
   .term-f{display:none}
   .btn{padding:8px 10px;font-size:13px}
   .tog{font-size:12px}
-  .pack{min-height:230px}
-  .pack b{max-width:70%}
-  .pack .pk-ds{max-width:62%}
 }
 
 /* sheet */
@@ -423,13 +427,6 @@ footer .joke{flex-basis:100%;max-width:56ch;margin:6px auto 0;font-size:12.5px;l
 /* agents, editable in the drawer */
 .dr-ag{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .dr-cap{font:600 10.5px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
-.dr-agents{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:6px}
-.dr-agent{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 11px 4px 5px;font-size:12.5px;color:var(--mute)}
-.dr-agent[data-dall]{padding:4px 12px}
-.dr-agent .ico{width:20px;height:20px;border-radius:99px;flex:none}
-.dr-agent .ico svg{width:12px;height:12px}
-.dr-agent:hover{border-color:var(--ink)}
-.dr-agent[aria-pressed="true"]{border-color:var(--accent-strong);background:var(--tint);color:var(--ink)}
 .drawer:not(.has) .dr-ag{display:none}
 /* the agent options are a multi-select: every option shows an empty box until picked ("All" is the exclusive one, a round radio) */
 .dd-tick{box-sizing:border-box;border:1.5px solid color-mix(in srgb,var(--ink) 30%,var(--line));background-color:var(--panel)}
@@ -437,7 +434,7 @@ footer .joke{flex-basis:100%;max-width:56ch;margin:6px auto 0;font-size:12.5px;l
 .dd-opt:hover .dd-tick{border-color:var(--ink)}
 .dd-opt[data-all] .dd-tick{border-radius:50%}
 .dd-opt[data-all][aria-selected="true"] .dd-tick{background:radial-gradient(circle,#fff 0 27%,transparent 30%),var(--grad)}
-.hero>.hero-pick{z-index:20}   /* the agent menu opens over the sticky toolbar, not under it */
+.hero>.build{z-index:20}   /* the agent menu opens over the sticky toolbar, not under it */
 
 /* the header's dropdowns: a button and a list with an icon per option (the select behind them is hidden) */
 .dd2{position:relative}
@@ -491,7 +488,6 @@ footer .joke{flex-basis:100%;max-width:56ch;margin:6px auto 0;font-size:12.5px;l
 .shape .v1{fill:var(--v1)}.shape .v2{fill:var(--v2)}.shape .v3{fill:var(--v3)}.shape .v4{fill:var(--v4)}
 /* only while you point at the pack, and only a little: the cells breathe, each on its own beat */
 @keyframes cell-breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.62;transform:scale(.9)}}
-.pack:hover .shape rect{animation:cell-breathe 1.9s ease-in-out infinite;animation-delay:calc(var(--d) * -1s)}
 @media (prefers-reduced-motion:reduce){.pack:hover .shape rect{animation:none}}
 
 /* the big toolbox in the hero: the same three as the logo. Shut; open when you point at it; a skill inside once you have picked something */
@@ -516,31 +512,43 @@ footer .joke{flex-basis:100%;max-width:56ch;margin:6px auto 0;font-size:12.5px;l
 
 /* MCPs and skills, told apart: three tabs over the one list, and each card wears its kind's colour (violet MCP, green skill) */
 :root{--k-mcp:var(--accent-strong);--k-mcp-text:var(--accent-text);--k-skill:var(--helm);--k-skill-text:var(--helm)}
-.tabs{display:inline-flex;gap:4px;padding:4px;margin:10px 0 26px;border:1px solid var(--line);background:var(--wash);border-radius:14px;max-width:100%}
-.tab{display:inline-flex;align-items:center;gap:8px;border:0;background:none;border-radius:10px;padding:9px 16px;font-weight:600;font-size:15px;color:var(--mute);white-space:nowrap;transition:background .15s,color .15s}
-.tab svg{width:16px;height:16px;flex:none}
-.tab small{font:500 11px var(--mono);padding:2px 6px;border-radius:99px;background:color-mix(in srgb,var(--ink) 8%,transparent);color:inherit}
-.tab:hover{color:var(--ink)}
-.tab.t-mcp svg{color:var(--k-mcp-text)}
-.tab.t-skills svg{color:var(--k-skill-text)}
-.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.tab.t-mcp[aria-pressed="true"]{background:var(--k-mcp);color:#fff}
-.tab.t-skills[aria-pressed="true"]{background:var(--k-skill);color:#fff}
 :root[data-theme="dark"] .tab.t-skills[aria-pressed="true"]{color:#06231c}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tab.t-skills[aria-pressed="true"]{color:#06231c}}
-.tab[aria-pressed="true"] svg{color:inherit}
-.tab[aria-pressed="true"] small{background:#ffffff2e}
 @media (max-width:480px){.tabs{display:flex}.tab{flex:1;justify-content:center;padding:9px 8px;gap:6px}.tab svg{display:none}}
 .item.k-mcp{--k:var(--k-mcp);--k-text:var(--k-mcp-text)}
 .item.k-skill{--k:var(--k-skill);--k-text:var(--k-skill-text)}
-.item.k-mcp,.item.k-skill{background-image:linear-gradient(180deg,color-mix(in srgb,var(--k) 9%,transparent),transparent 62px)}
+/* the catalog's entries are the app's rows: a large logo, the name, who made it, what it does, and one pill to add it.
+   No card, no wash, no kind badge (a server's logo is a rounded square, a skill's a circle). */
+#cat .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:0 32px}
+#cat .card{border-bottom:1px solid var(--line)}
+#cat .item{display:grid;grid-template-columns:46px minmax(0,1fr) auto;grid-template-rows:auto auto auto;align-content:center;column-gap:13px;row-gap:1px;min-height:0;padding:12px 0 13px;border:0;border-radius:10px;background:none}
+#cat .item .top{display:contents}
+#cat .item .ico{grid-column:1;grid-row:1/4;align-self:center;width:46px;height:46px;border-radius:11px}
+#cat .item .ico.round{border-radius:50%}
+#cat .item .ico svg{width:24px;height:24px}
+#cat .item .ico.initial{font-size:19px}
+#cat .item .who{grid-column:2;grid-row:1}
+#cat .item .nm{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cat .item .by{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cat .item .ds{grid-column:2;grid-row:2;font-size:13px;line-height:1.38;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#cat .item .meta{grid-column:2;grid-row:3;margin-top:3px;padding-right:58px;min-height:16px}
+#cat .item .kind{display:none}
+#cat .item:hover .nm{color:var(--accent-text)}
+#cat .item[aria-pressed="true"]{background:none}
+#cat .item .check{grid-column:3;grid-row:1/4;align-self:center;width:auto;height:30px;padding:0 16px;border:0;border-radius:99px;background:color-mix(in srgb,var(--accent-strong) 12%,var(--wash));color:var(--accent-text);font:700 13px var(--sans);letter-spacing:.01em}
+#cat .item .check::before{content:"Add"}
+#cat .item:hover .check{background:var(--accent-strong);color:#fff}
+#cat .item[aria-pressed="true"] .check{background:var(--accent-strong);color:#fff}
+#cat .item[aria-pressed="true"] .check::before{content:"✓ Added"}
+#cat .item[aria-pressed="true"] .check::after{content:none}
+#cat .item[aria-pressed="true"]:hover .check::before{content:"Remove"}
+#cat .info{right:0;bottom:9px;padding:2px 4px}
 .item.k-mcp:hover,.item.k-skill:hover{border-color:color-mix(in srgb,var(--k) 55%,var(--line))}
 .item.k-skill[aria-pressed="true"]{border-color:var(--k);background-color:color-mix(in srgb,var(--k) 9%,var(--panel))}
 .item.k-skill[aria-pressed="true"] .check{background:var(--k);border-color:var(--k)}
 .kind{position:absolute;left:14px;bottom:10px;display:inline-flex;align-items:center;gap:5px;font:600 10.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--k-text);background:color-mix(in srgb,var(--k) 12%,transparent);padding:3px 7px 3px 6px;border-radius:6px}
 .kind svg{width:11px;height:11px}
 .empty .btn{margin-left:8px}
-#cat .cats{gap:9px 8px;margin-bottom:32px}
 
 /* two views share the page: the desktop app (first) and the catalog. The header's two tabs switch between them. */
 [data-view="app"] #v-catalog,[data-view="catalog"] #v-app{display:none}
@@ -551,30 +559,212 @@ footer .joke{flex-basis:100%;max-width:56ch;margin:6px auto 0;font-size:12.5px;l
 .views a{padding:7px 14px;border-radius:99px;font-size:14.5px;font-weight:600;line-height:1;color:var(--mute);text-decoration:none;transition:background .15s,color .15s}
 .views a:hover{color:var(--ink)}
 [data-view="app"] .views a[data-view="app"],[data-view="catalog"] .views a[data-view="catalog"]{background:var(--ink);color:var(--bg)}
-@media (max-width:519px){.beta,.brand{display:none}.views{margin-left:0}}
+@media (max-width:519px){.beta,.brand:not(.ico){display:none}.views{margin-left:0}}
 
-/* the app's hero: the same big type, then the app itself, as it looks on screen */
-.app-hero{padding-top:clamp(56px,8vw,104px);padding-bottom:0}
-.app-hero h1{max-width:13ch}
+/* one hero, two sets of words: each view shows its own */
+[data-view="app"] .for-cat,[data-view="catalog"] .for-app{display:none}
+/* the catalog's hero is short, so the list starts on the first screen: one-line title, the three steps in two rows, a small toolbox */
+[data-view="catalog"] .hero{padding:clamp(28px,3.4vw,44px) 0 clamp(20px,2.6vw,30px)}
+[data-view="catalog"] .hero .eyebrow{margin-bottom:14px}
+#h-packs{margin-top:clamp(26px,3.4vw,40px);font-size:clamp(24px,3vw,32px)}
+[data-view="catalog"] .hero h1{font-size:clamp(34px,5.2vw,60px);line-height:1;letter-spacing:-.045em;max-width:none}
+[data-view="catalog"] .hero .lede{margin-top:14px;max-width:none;font-size:clamp(15px,1.4vw,17px)}
+[data-view="catalog"] .hero>.hero-art{top:clamp(10px,1.6vw,22px);right:0;width:clamp(120px,13vw,170px)}
+[data-view="catalog"] .build{max-width:none;margin-top:clamp(20px,2.4vw,28px);gap:12px 22px;grid-template-columns:auto minmax(0,1fr)}
+[data-view="catalog"] .bstep{grid-template-columns:auto minmax(0,1fr)}
+[data-view="catalog"] .bstep:last-child{grid-column:1/-1}
+[data-view="catalog"] .qp{gap:6px}
+[data-view="catalog"] .qp-i,[data-view="catalog"] .qp-all{height:36px;font-size:14px;gap:7px;padding:0 12px 0 5px}
+[data-view="catalog"] .build{column-gap:18px}
+[data-view="catalog"] .qp-all{padding:0 12px}
+[data-view="catalog"] .qp-i .ico{width:26px;height:26px}
+[data-view="catalog"] .hero .dd{height:44px;font-size:15px;gap:10px;padding:0 14px 0 8px}
+[data-view="catalog"] .hero .dd-logos .ico.mini{width:24px;height:24px;border-radius:7px;margin-left:-8px}
+[data-view="catalog"] .hero .dd-logos .ico.mini:first-child{margin-left:0}
+[data-view="catalog"] .hero-term .cmd{padding:5px 5px 5px 14px;font-size:13px}
+@media (max-width:820px){[data-view="catalog"] .build{grid-template-columns:minmax(0,1fr)}[data-view="catalog"] .bstep:last-child{grid-column:auto}}
+@media (max-width:639px){[data-view="catalog"] .bstep{grid-template-columns:minmax(0,1fr)}}
 .app-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:clamp(26px,3.4vw,40px)}
+.soon{display:inline-flex;align-items:center;height:50px;padding:0 18px;border-radius:99px;border:1px dashed color-mix(in srgb,var(--accent-strong) 55%,transparent);background:var(--tint);color:var(--accent-text);font:700 15px var(--pixel);letter-spacing:.04em}
 .btn.big{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 20px;border-radius:99px;border-color:var(--ink);font-size:16px;text-decoration:none}
 .btn.big:hover{background:var(--wash)}
 .btn.big.pri{border-color:transparent}
 .btn.big.pri:hover{background:var(--grad);filter:brightness(1.08)}
-/* not a button: a tag, until there is a build to download */
-.soon{display:inline-flex;align-items:center;height:50px;padding:0 18px;border-radius:99px;border:1px dashed color-mix(in srgb,var(--accent-strong) 55%,transparent);background:var(--tint);color:var(--accent-text);font:700 15px var(--pixel);letter-spacing:.04em}
-.app-shot{margin:clamp(40px,6vw,72px) 0 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 40px 80px -48px #3a0a6e66,0 2px 6px #0000000d}
-.app-shot img{display:block;width:100%;height:auto}
-.app-shot .shot-dark{display:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-shot .shot-light{display:none}:root:not([data-theme="light"]) .app-shot .shot-dark{display:block}}
-:root[data-theme="dark"] .app-shot .shot-light{display:none}
-:root[data-theme="dark"] .app-shot .shot-dark{display:block}
-@media (max-width:639px){.app-shot{border-radius:10px}.app-cta>*{flex:1 1 100%;justify-content:center}}
+@media (max-width:639px){.app-cta>*{flex:1 1 100%;justify-content:center}}
 
-/* what the app does: four short points, numbered like the catalog's sections */
+/* the app itself in a window: the desktop app's own interface in a frame, which the buttons above it drive */
+.try h2{margin-top:clamp(40px,6vw,72px)}
+.tour{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px}
+.tour-l{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-right:6px}
+.tour button{height:34px;padding:0 14px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 14px var(--sans);cursor:pointer}
+.tour button:hover{border-color:var(--ink)}
+.tour button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.win{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 40px 80px -48px #3a0a6e66,0 2px 6px #0000000d;scroll-margin-top:84px}
+#try{scroll-margin-top:72px}
+.win-h{position:relative;display:flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-bottom:1px solid var(--line);background:var(--chip)}
+.win-h i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.win-h span{position:absolute;left:0;right:0;text-align:center;font:500 12.5px var(--sans);color:var(--mute);pointer-events:none}
+/* the frame is laid out at the app's own width and scaled down to fit a narrower page (--k, set by app.js), so it is
+   always the desktop layout and still clickable */
+.win-b{position:relative;height:calc(var(--h,680px) * var(--k,1));overflow:hidden}
+.win-b iframe{display:block;border:0;width:calc(100% / var(--k,1));height:var(--h,680px);transform:scale(var(--k,1));transform-origin:0 0;background:var(--panel)}
+@media (max-width:639px){.win{border-radius:10px}}
+.pts .show{margin-top:12px;padding:0;border:0;background:none;color:var(--accent-text);font:600 14px var(--sans);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent)}
+.pts .show:hover{text-decoration-color:currentColor}
+/* the agents it works with: each one's mark and name */
+/* the agents it works with: one line of big bare logos drifting left to right, in one colour until you point at one */
+.agents-run{overflow:hidden;margin-top:14px;padding:6px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.agents{list-style:none;margin:0;padding:0;display:flex;width:max-content;animation:agents-run 56s linear infinite}
+.agents-run:hover .agents,.agents-run:focus-within .agents{animation-play-state:paused}
+@keyframes agents-run{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.agents li{flex:none;display:flex;flex-direction:column;align-items:center;gap:13px;width:150px;text-align:center;font-size:14px;font-weight:500;line-height:1.25;color:var(--mute);white-space:nowrap}
+.agents .logo-b{width:52px;height:52px;color:var(--ink);filter:brightness(0);opacity:.62;transition:filter .2s,opacity .2s,transform .2s}
+.agents .logo-b svg{display:block;width:100%;height:100%}
+.agents li:hover{color:var(--ink)}
+.agents li:hover .logo-b{filter:none;opacity:1;transform:scale(1.08)}
+:root[data-theme="dark"] .agents li:not(:hover) .logo-b{filter:brightness(0) invert(1)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .agents li:not(:hover) .logo-b{filter:brightness(0) invert(1)}}
+@media (prefers-reduced-motion:reduce){.agents{animation:none}.agents-run{overflow-x:auto}.agents li[aria-hidden]{display:none}}
+.app-faq{margin-top:0}
+.app-faq h2{margin-top:92px}
+
+/* what the app does: short points, numbered like the catalog's sections */
 .pts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:28px 32px}
 .pts li{border-top:1px solid var(--line);padding-top:16px}
 .pts .n{display:block;font:700 15px var(--pixel);letter-spacing:.04em;color:var(--accent-text);margin-bottom:10px}
 .pts b{font-size:18px;font-weight:600;letter-spacing:-.02em}
 .pts p{margin:8px 0 0;color:var(--mute);font-size:15px;line-height:1.55}
 .also h2 small{max-width:52ch}
+
+/* starter packs: the app's cards. A photo, a dark foot to read on, what is inside along the bottom */
+.pack{position:relative;overflow:hidden;min-height:232px;padding:0;border:0;border-radius:20px;background:#15151a center/cover no-repeat;display:flex;align-items:flex-end;text-align:left;color:#fff;box-shadow:0 10px 26px -10px #00000066;transition:transform .15s}
+.pack::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0b0b1000 14%,#0b0b10b3 58%,#0b0b10f2 100%)}
+.pack:hover{transform:translateY(-2px)}
+.pk-in{position:relative;display:flex;flex-direction:column;width:100%;padding:18px 20px}
+.pack .pk-eb{font:600 11px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:#ffffffb8}
+.pack b{margin:4px 0;font-size:26px;font-weight:700;letter-spacing:-.035em;line-height:1.08}
+.pack .pk-ds{font-size:13.5px;line-height:1.4;color:#ffffffc7}
+.pk-b{display:flex;align-items:center;gap:10px;margin-top:14px}
+.pk-logos{display:flex;flex:none}
+.pk-logos .ico{width:22px;height:22px;border-radius:7px;margin-right:-6px;box-shadow:0 0 0 2px #15151a;font-size:11px}
+.pk-logos .ico.round{border-radius:50%}
+.pk-logos .ico svg{width:13px;height:13px}
+.pk-n{flex:1;margin-left:8px;font-size:12.5px;color:#ffffffb8;white-space:nowrap}
+.pack .cta{flex:none;display:inline-flex;align-items:center;height:32px;padding:0 15px;border-radius:99px;background:#fff;color:#16161a;font-weight:700;font-size:13.5px}
+.pack.done{box-shadow:0 0 0 3px var(--accent-strong),0 10px 26px -10px #00000066}
+.pack.done .cta{background:var(--accent-strong);color:#fff}
+.pack.done .cta-t::before{content:"✓ "}
+.pack.done:hover .cta-t{font-size:0}
+.pack.done:hover .cta-t::before{content:"Remove";font-size:13.5px}
+
+/* collections: the app's folders */
+.colls{margin-top:34px}
+.colls[hidden]{display:none}
+.colls-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.colls-h h3{margin:0;font-size:20px;font-weight:600;letter-spacing:-.025em}
+.colls-h h3 small{margin-left:10px;font-size:14px;font-weight:400;letter-spacing:0;color:var(--mute)}
+.colls-h .btn{flex:none;padding:6px 13px;font-size:13px}
+.colls-h .btn[hidden],.fold[hidden]{display:none}
+.folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:34px 18px;margin-top:38px}
+.fold{--fo:var(--accent-strong);--fo-deep:color-mix(in srgb,var(--accent-strong) 58%,#16161a);--fo-dark:color-mix(in srgb,var(--accent-strong) 38%,#101014)}
+/* a shelf of folders gets room above and below: the pages stick out of the folders and their shadows fall under them */
+.fold{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0;max-width:210px;border-radius:16px;cursor:pointer}
+.fold-open{position:absolute;inset:0;z-index:0;padding:0;border:0;background:none;border-radius:inherit;cursor:pointer}
+.fold-open:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.fold .folder-pill{position:relative;z-index:4}
+.fold-art{position:relative;display:block;width:100%;height:144px}
+.folder-back{position:absolute;z-index:0;left:0;right:0;bottom:0;height:108px;border-radius:6px 14px 14px 14px;background:linear-gradient(165deg,color-mix(in srgb,var(--fo) 78%,#fff 6%),var(--fo-deep) 60%,var(--fo-dark));box-shadow:inset 0 1px 0 rgb(255 255 255 / .18),0 10px 20px color-mix(in srgb,var(--fo-dark) 34%,transparent)}
+.folder-back::before{content:"";position:absolute;left:0;top:-11px;width:62px;height:17px;border-radius:9px 9px 0 0;background:linear-gradient(180deg,color-mix(in srgb,var(--fo) 82%,#fff 10%),color-mix(in srgb,var(--fo) 70%,#16161a))}
+.folder-pages{position:absolute;left:8px;right:8px;bottom:38px;height:0;z-index:1;clip-path:inset(-180px 0 0 0)}
+.paper{position:absolute;left:50%;bottom:0;width:64px;height:96px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 6px 0;border-radius:8px;background:var(--panel);border:1px solid var(--line);box-shadow:0 4px 10px #0000003d;transform-origin:50% 100%;transform:translateX(calc(-50% + var(--x,0px))) translateY(var(--sag,0px)) rotate(var(--rot,0deg));transition:transform .28s cubic-bezier(.34,1.4,.64,1)}
+.paper .ico{width:30px;height:30px;border-radius:8px;flex:none}
+.paper .ico.round{border-radius:50%}
+.paper .ico svg{width:16px;height:16px}
+.paper-name{max-width:100%;font-size:9.5px;font-weight:600;line-height:1.1;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paper-line{width:80%;height:3px;border-radius:2px;background:var(--line)}
+.paper-line.short{width:54%}
+.ghost{position:absolute;left:50%;bottom:0;width:64px;height:96px;border-radius:8px;background:var(--wash);border:1px solid var(--line);transform-origin:50% 100%;transform:translateX(calc(-50% + var(--gx,0px))) translateY(var(--gy,0px)) rotate(var(--gr,0deg));transition:transform .28s cubic-bezier(.34,1.4,.64,1)}
+.folder-front{position:absolute;z-index:2;left:0;right:0;bottom:0;height:60px;border-radius:8px 8px 14px 14px;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 9px 9px;transform-origin:50% 100%;transition:transform .28s ease;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 44%,transparent),color-mix(in srgb,var(--fo) 72%,transparent));-webkit-backdrop-filter:blur(9px) saturate(1.4);backdrop-filter:blur(9px) saturate(1.4);border:1px solid rgb(255 255 255 / .3);box-shadow:inset 0 1px 0 rgb(255 255 255 / .5),inset 0 -10px 18px color-mix(in srgb,var(--fo-dark) 30%,transparent),0 -6px 14px color-mix(in srgb,var(--fo-dark) 24%,transparent)}
+.folder-pill{padding:3px 12px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:rgb(255 255 255 / .18);border:1px solid rgb(255 255 255 / .35)}
+.folder-pill:hover{background:rgb(255 255 255 / .34)}
+/* on hover the pages lift and the front dips; the card itself stays put (a transformed parent breaks Safari's frosted glass) */
+.fold:hover .paper{transform:translateX(calc(-50% + var(--x,0px) * 1.08)) translateY(calc(var(--sag,0px) - 12px)) rotate(calc(var(--rot,0deg) * 1.1))}
+.fold:hover .ghost{transform:translateX(calc(-50% + var(--gx,0px) * 1.2)) translateY(calc(var(--gy,0px) - 4px)) rotate(calc(var(--gr,0deg) * 1.15))}
+.fold:hover .folder-front{transform:translateY(3px) scaleY(.94)}
+.folder-caption{display:flex;flex-direction:column;gap:1px;padding:0 3px;min-width:0}
+.folder-n{font-weight:650;font-size:14px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folder-sub{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.folder-pill[aria-pressed="true"]{background:#fff;color:var(--fo-dark)}
+.paper .ico.initial{font-size:14px}
+@media (max-width:639px){.colls-h h3 small{display:block;margin:4px 0 0}}
+
+/* the picks drawer's agents: a closed row that names who is picked, and a list to tick */
+.dr-dd{width:100%;height:38px;border-color:var(--line);font-size:14px}
+.dr-dd .dd-main{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis}
+.dr-agents{display:flex;flex-direction:column;gap:1px;max-height:228px;overflow-y:auto;overscroll-behavior:contain;padding:4px;margin-bottom:6px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.dr-agents[hidden]{display:none}
+.dr-agents .dd-opt{padding:6px 8px;gap:10px;border-radius:9px}
+.dr-agents .dd-opt .ico{width:24px;height:24px;border-radius:7px}
+.dr-agents .dd-opt .ico svg{width:14px;height:14px}
+.dr-agents .dd-nm{font-size:14px}
+.dr-agents .dd-opt[aria-pressed="true"]{background:var(--tint)}
+.dr-agents .dd-opt[aria-pressed="true"] .dd-tick{border-color:var(--accent-strong);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M4 0h1v1H4zM3 1h1v1H3zM0 2h1v1H0zM2 2h1v1H2zM1 3h1v1H1z'/%3E%3C/svg%3E") center/11px 9px no-repeat,var(--accent-strong)}
+.dr-agents .dd-opt[data-dall] .dd-tick{border-radius:50%}
+.dr-ag{padding-bottom:8px}
+
+/* a collection's own page in the list, as the app shows it */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin:22px 0 14px -6px;font-size:14px}
+.crumbs button{border:0;background:none;padding:3px 6px;border-radius:7px;color:var(--accent-text);font-weight:600}
+.crumbs button:hover{background:var(--tint)}
+.crumbs i{font-style:normal;color:var(--mute)}
+.crumbs span{padding:3px 6px;color:var(--mute)}
+.coll-h{display:flex;align-items:flex-end;gap:26px;margin:0 0 20px;padding:30px 32px 28px;border-radius:18px;background:var(--wash);border:1px solid var(--line)}
+.fold.art{flex:none;width:176px;cursor:default;pointer-events:none}
+#cat .coll-h h2{margin:0 0 4px;font-size:28px;font-weight:600;letter-spacing:-.03em;line-height:1.15}
+.coll-h p{margin:0;color:var(--mute);font-size:15px}
+.coll-h p a{color:inherit;text-underline-offset:3px}
+.coll-h p a:hover{color:var(--ink)}
+.coll-h .coll-n{margin-top:6px;font-size:13px;font-weight:600;color:var(--ink)}
+.coll-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.coll-b a.btn{text-decoration:none}
+.coll-each{margin:0 0 6px;font-size:13.5px;color:var(--mute)}
+@media (max-width:639px){.coll-h{flex-direction:column;align-items:flex-start;padding:26px 20px 22px}}
+
+/* the list's selectors, as in the app: a chip for each kind and a Categories menu, in one row that stays under the header */
+.catnav{position:sticky;top:107px;z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px -16px 18px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.tabs{display:contents}
+.sel{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font:600 14px var(--sans);color:var(--ink);white-space:nowrap}
+.sel svg{width:15px;height:15px;flex:none;color:var(--mute)}
+.sel small{font:500 11px var(--mono);color:var(--mute)}
+.sel:hover{border-color:var(--ink)}
+.sel[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.sel[aria-pressed="true"] svg,.sel[aria-pressed="true"] small{color:inherit}
+.sel-chev{margin-left:-2px;transition:transform .2s}
+.sel[aria-expanded="true"] .sel-chev{transform:rotate(180deg)}
+.sel-pair{display:inline-flex}
+.sel-pair .sel:not(:last-child){border-top-right-radius:0;border-bottom-right-radius:0}
+.sel-x{display:grid;place-items:center;width:34px;height:36px;padding:0;border:1px solid var(--ink);border-left-color:color-mix(in srgb,var(--bg) 30%,transparent);border-radius:0 10px 10px 0;background:var(--ink);color:var(--bg)}
+.sel-x svg{width:14px;height:14px}
+.sel-x:hover{background:color-mix(in srgb,var(--ink) 80%,var(--bg))}
+.catdd{position:relative}
+.cats{position:absolute;left:0;top:calc(100% + 6px);z-index:12;display:flex;flex-direction:column;width:280px;max-width:calc(100vw - 32px);max-height:min(70vh,560px);overflow:auto;padding:8px;border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 14px 36px #00000029}
+.cats[hidden]{display:none}
+.cat{display:flex;align-items:center;gap:9px;border:0;background:none;padding:7px 8px;border-radius:8px;font-size:14px;text-align:left;color:var(--ink)}
+.cat small{margin-left:auto;font:500 11px var(--mono);color:var(--mute)}
+.cat:hover{background:var(--wash)}
+.cat[aria-pressed="true"]{font-weight:700;color:var(--accent-text);background:var(--tint)}
+.cat-ic{order:-1;display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:7px;color:hsl(var(--h) 62% 42%);background:hsl(var(--h) 70% 50% / .13)}
+.cat-ic svg{width:14px;height:14px}
+:root[data-theme="dark"] .cat-ic{color:hsl(var(--h) 80% 74%);background:hsl(var(--h) 70% 60% / .18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cat-ic{color:hsl(var(--h) 80% 74%);background:hsl(var(--h) 70% 60% / .18)}}
+/* the list's items as cards, like the app's */
+#cat .grid{gap:10px}
+#cat .card{position:relative;padding:0 12px 0 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+#cat .info{right:12px}
+/* a card answers the pointer: its edge darkens and it lifts a little */
+#cat .card{transition:border-color .15s,box-shadow .15s,transform .15s}
+#cat .card:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));box-shadow:0 6px 18px -8px #00000038;transform:translateY(-1px)}
+/* in the dark a shadow does not show, so the card itself lights up: a lighter ground and an edge in the accent */
+:root[data-theme="dark"] #cat .card:hover{background:color-mix(in srgb,var(--ink) 7%,var(--panel));border-color:color-mix(in srgb,var(--accent) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent),0 12px 28px -12px #000}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #cat .card:hover{background:color-mix(in srgb,var(--ink) 7%,var(--panel));border-color:color-mix(in srgb,var(--accent) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent),0 12px 28px -12px #000}}

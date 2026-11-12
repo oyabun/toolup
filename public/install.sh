@@ -48,6 +48,7 @@ DRY_RUN=0
 DOCKER=0
 UPDATE=0
 LIST=0
+REMOVE=0
 TO=""
 IDS=""
 CATALOG=""
@@ -56,6 +57,7 @@ PLANNED=" "        # runtimes a dry run pretends to have installed, so later ste
 
 usage() {
   say "Usage: toolup.sh [--to AGENT,...] [--docker] [--dry-run] [--update] [--list] ID..."
+  say "       toolup.sh --remove --to AGENT,... SERVER...   take MCP servers out of those agents, by name"
   say "  ids are MCP servers and skills from the catalog; pick them at https://toolup.sh"
 }
 
@@ -103,7 +105,8 @@ quote() {
 
 # ---------------------------------------------------------------- agents
 
-# Agent table columns after "agent<TAB>id": name bin paths method skills skillsDir config serversKey urlKey
+# Agent table columns after "agent<TAB>id": name bin paths method skills skillsDir config serversKey urlKey httpExtra
+# method "skills": the agent takes skills but its MCP servers are not wired from here (its config is not JSON, or it has none).
 a_name()    { field "$1" 1; }
 a_bin()     { field "$1" 2; }
 a_paths()   { field "$1" 3; }
@@ -113,13 +116,23 @@ a_sdir()    { field "$1" 6; }
 a_config()  { field "$1" 7; }
 a_skey()    { field "$1" 8; }
 a_ukey()    { local u; u="$(field "$1" 9)"; printf '%s' "${u:-url}"; }
+a_extra()   { field "$1" 10; }   # extra JSON members a remote server's entry needs for this agent
+
+# Does this path show the agent is really here? An app does, and so does a folder with something of the agent's
+# own in it. A folder that holds only "skills" does not: skill installers make those for agents never installed.
+real_place() {
+  [ -e "$1" ] || return 1
+  [ -d "$1" ] || return 0
+  case "$1" in *.app) return 0 ;; esac
+  [ -n "$(ls -A "$1" 2>/dev/null | grep -v -x -e skills -e .DS_Store | head -1)" ]
+}
 
 agent_present() { # agent row
   local bin p
   bin="$(a_bin "$1")"
   if [ -n "$bin" ] && have "$bin"; then return 0; fi
   while IFS= read -r p; do
-    [ -n "$p" ] && [ -e "$(expand "$p")" ] && return 0
+    [ -n "$p" ] && real_place "$(expand "$p")" && return 0
   done <<<"$(a_paths "$1" | tr '|' '\n')"
   return 1
 }
@@ -250,7 +263,8 @@ mcp_add() {
       [ "$t" = http ] && lead="$lead,\"type\":\"http\""
       run code --add-mcp "$(server_json "$t" "$target" url "$lead")" ;;
     json)
-      json_merge "$(first_config "$r")" "$(a_skey "$r")" "$name" "$(server_json "$t" "$target" "$(a_ukey "$r")")" ;;
+      lead=""; [ "$t" = http ] && lead="$(a_extra "$r")"
+      json_merge "$(first_config "$r")" "$(a_skey "$r")" "$name" "$(server_json "$t" "$target" "$(a_ukey "$r")" "$lead")" ;;
   esac
 }
 
@@ -296,9 +310,53 @@ PY
   then ok "$3 → $1"; else warn "could not edit $1 (is it valid JSON?)"; FAILED=$((FAILED + 1)); fi
 }
 
+# Take one server out of one agent, by the name that agent knows it by. $1 agent row, $2 name.
+mcp_remove() {
+  local r="$1" name="$2"
+  case "$(a_method "$r")" in
+    claude) run claude mcp remove --scope user "$name" ;;
+    codex) run codex mcp remove "$name" ;;
+    gemini) run gemini mcp remove -s user "$name" ;;
+    vscode|json) json_drop "$(first_config "$r")" "$(a_skey "$r")" "$name" ;;
+  esac
+}
+
+# Delete one server from a JSON config, leaving everything else as it is.
+json_drop() { # file serversKey name
+  if [ "$DRY_RUN" = 1 ]; then plan "remove $3 from $1 ($2)"; return 0; fi
+  have python3 || { warn "python3 is needed to edit $1"; FAILED=$((FAILED + 1)); return 1; }
+  if python3 - "$1" "$2" "$3" <<'PY'
+import json, sys
+path, skey, name = sys.argv[1:4]
+with open(path) as f:
+    data = json.load(f)
+servers = data.get(skey) if isinstance(data, dict) else None
+if isinstance(servers, dict) and name in servers:
+    del servers[name]
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+PY
+  then ok "$3 removed from $1"; else warn "could not edit $1 (is it valid JSON?)"; FAILED=$((FAILED + 1)); fi
+}
+
+# --remove: take the named servers out of the agents given with --to. Only what is there is touched.
+remove_servers() { # server names in $1
+  local a r name
+  for a in $AGENTS; do
+    r="$(row agent "$a")"
+    step "Remove from $(a_name "$r")"
+    if [ "$(a_method "$r")" = skills ]; then say "  ${DIM}– MCP servers are not managed from here for $(a_name "$r")${RESET}"; continue; fi
+    for name in $1; do
+      if mcp_present "$a" "$r" "$name"; then mcp_remove "$r" "$name"; else say "  ${DIM}• $name is not in $(a_name "$r")${RESET}"; fi
+    done
+  done
+}
+
 wire_agent() { # agent id, servers as "name<TAB>transport<TAB>target" lines in $2
   local id="$1" servers="$2" r name t target
   r="$(row agent "$id")"
+  if [ "$(a_method "$r")" = skills ]; then say "  ${DIM}– $(a_name "$r"): MCP servers are not added from here yet (skills only)${RESET}"; return; fi
   step "MCP servers → $(a_name "$r")"
   while IFS="$TAB" read -r name t target; do
     [ -n "$name" ] || continue
@@ -353,6 +411,7 @@ main() {
       --docker) DOCKER=1 ;;
       --update) UPDATE=1 ;;
       --list) LIST=1 ;;
+      --remove) REMOVE=1 ;;
       --to) [ "$#" -gt 0 ] || die "--to needs a list of agents"; TO="$1"; shift ;;
       --to=*) TO="${arg#--to=}" ;;
       -h|--help) usage; exit 0 ;;
@@ -376,6 +435,15 @@ main() {
   if [ -z "$IDS" ]; then usage >&2; exit 1; fi
 
   for id in ${TO//,/ }; do [ -n "$(row agent "$id")" ] || die "unknown agent '$id' (see --list)"; done
+  if [ "$REMOVE" = 1 ]; then
+    [ -n "$TO" ] || die "--remove needs --to with the agents to remove from"
+    printf '%sTool up!%s — removing MCP servers%s\n' "$BOLD" "$RESET" "$([ "$DRY_RUN" = 1 ] && echo ' (dry run: nothing will change)')"
+    detect_agents
+    remove_servers "$IDS"
+    step "Done"
+    [ "$FAILED" = 0 ] || { say "  ${YELLOW}$FAILED step(s) failed, see above.${RESET}"; exit 1; }
+    exit 0
+  fi
   for id in $IDS; do
     kind="$(kind_of "$id")"
     case "$kind" in

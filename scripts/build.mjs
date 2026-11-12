@@ -73,7 +73,7 @@ export async function build() {
   const reposOut = repos.map((r) => ({ ...r, icon: ownerIcon(r.icon, r.repo, r.repo) }));
 
   const rows = [
-    ...agents.map((a) => ["agent", a.id, a.name, a.bin, a.paths, a.method, a.skills, a.skillsDir, a.config, a.serversKey, a.urlKey]),
+    ...agents.map((a) => ["agent", a.id, a.name, a.bin, a.paths, a.method, a.skills, a.skillsDir, a.config, a.serversKey, a.urlKey, a.httpExtra]),
     ...mcp.map((m) => ["mcp", m.id, m.name, m.transport, m.transport === "http" ? m.url : m.cmd, m.docker, m.needs]),
     ...skills.map((s) => ["skill", s.id, s.repo]),
   ].map((r) => r.map(tsv).join("\t"));

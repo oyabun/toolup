@@ -14,13 +14,19 @@ const stubs = fileURLToPath(new URL("./stubs", import.meta.url));
 
 // A machine with the given agents installed ("claude", "codex", "gemini", "code", "cursor").
 export const realCatalogUrl = new URL("../public/catalog.tsv", import.meta.url).href;
+// The agents found by a folder in the home directory (the later additions): name them in `agents` to have them present.
+export const MORE_AGENTS = { windsurf: ".codeium/windsurf", cline: ".cline", "qwen-code": ".qwen", "deepseek-harness": ".dsh", openclaw: ".openclaw", goose: ".config/goose", kiro: ".kiro", pi: ".pi/agent", hermes: ".hermes" };
+export const EVERY_AGENT = ["claude", "codex", "gemini", "code", "cursor", ...Object.keys(MORE_AGENTS)];
 export function machine(agents = ["claude", "codex", "gemini", "code", "cursor"], { real = false } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "kitem-"));
   const home = join(dir, "home"), state = join(dir, "state"), bin = join(dir, "bin");
   spawnSync("mkdir", ["-p", home, state, bin]);
   for (const a of ["claude", "codex", "gemini", "code"]) if (agents.includes(a)) spawnSync("ln", ["-s", join(stubs, a), join(bin, a)]);
   for (const s of ["npx", "uvx", "docker"]) spawnSync("ln", ["-s", join(stubs, s), join(bin, s)]);
-  if (agents.includes("cursor")) spawnSync("mkdir", ["-p", join(home, ".cursor")]);
+  // an agent found by its folder is one whose folder holds something of its own, not just skills
+  const own = (d) => spawnSync("mkdir", ["-p", join(home, d, "state")]);
+  if (agents.includes("cursor")) own(".cursor");
+  for (const [a, d] of Object.entries(MORE_AGENTS)) if (agents.includes(a)) own(d);
   const path = `${bin}:${process.env.PATH}`;
   const run = (...args) => {
     const t = Date.now();

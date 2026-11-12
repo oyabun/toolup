@@ -9,9 +9,20 @@ import type { Catalog, CatalogAgent, HarnessReport, Host, Inventory, Item } from
 
 const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 
+/**
+ * Whether a path shows the agent is really here. An app counts; so does a folder with anything of the agent's own
+ * in it. A folder holding only `skills` does not: skill installers create those for agents that were never installed.
+ */
+async function realPlace(host: Host, path: string): Promise<boolean> {
+  if (!(await host.exists(path))) return false;
+  const entries = await host.list(path);
+  if (entries === null || path.endsWith(".app")) return true;   // a file, an app, or a folder that cannot be listed
+  return entries.some((e) => e.name !== "skills" && e.name !== ".DS_Store");
+}
+
 async function present(host: Host, a: CatalogAgent): Promise<boolean> {
   if (a.bin && (await host.onPath(a.bin))) return true;
-  for (const p of a.paths || []) if (await host.exists(expand(p, host.home))) return true;
+  for (const p of a.paths || []) if (await realPlace(host, expand(p, host.home))) return true;
   return false;
 }
 

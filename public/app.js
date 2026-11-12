@@ -21,6 +21,7 @@
   /* ---------- catalog helpers ---------- */
   const secOf = (id) => ALL[id].sec;
   const ofSec = (s) => C[s].filter((x) => sel.has(x.id));
+  const appLink = () => "toolup://install?ids=" + [...ofSec("mcp"), ...ofSec("skills")].map((x) => x.id).join(",");
   const kit = () => [...ofSec("mcp"), ...ofSec("skills")].map((x) => x.id);   // catalog order, so the line is the same however you picked
   const agentsPicked = () => ofSec("agents").map((x) => x.id);
   const fmt = (n) => (n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}K` : String(n));
@@ -51,6 +52,22 @@
       ? `<path d="${i.path}" fill="currentColor"/>`
       : `<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i.stroke}</g>`;
     return `<span class="ico ${cls}" style="background:${i.color};color:${fg}" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">${glyph}</svg></span>`;
+  }
+
+  // An agent's logo on its own, large: no tile behind it. A logo that is drawn as a filled square with a figure inside loses
+  // the square, and the figure takes the square's colour. Gradient ids get a suffix, so they never point at a copy in a hidden part of the page.
+  function bareLogo(x, n = "") {
+    const i = x.icon;
+    let inner;
+    if (i.svg) {
+      inner = i.svg.replace(/lobe-icons-[\w-]+/g, "$&-bare" + n);
+      const m = inner.match(/^<g><path d="M[\d.]+ 0H[\d.]+A[^"]*" fill="(#[0-9a-fA-F]{3,6})"><\/path>/);
+      if (m) {
+        inner = "<g>" + inner.slice(m[0].length);
+        if (!/^#f{3}(f{3})?$/i.test(m[1])) inner = inner.replace(/fill="#000"/g, 'fill="var(--bg)"').replace(/fill="#fff"/g, `fill="${m[1]}"`);
+      }
+    } else inner = i.path ? `<path d="${i.path}" fill="${i.color}"/>` : `<g fill="none" stroke="${i.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i.stroke}</g>`;
+    return `<span class="logo-b" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">${inner}</svg></span>`;
   }
 
   // A cluster of fat square pixels, denser toward the right edge, each filled with its own tone-to-clear gradient.
@@ -98,7 +115,8 @@
       case "codex": return stdio ? `codex mcp add ${x.id} -- ${cmd}` : `codex mcp add ${x.id} --url ${x.url}`;
       case "gemini": return stdio ? `gemini mcp add -s user ${x.id} ${cmd}` : `gemini mcp add -s user -t http ${x.id} ${x.url}`;
       case "vscode": return `code --add-mcp '${JSON.stringify(entry(x, a.urlKey || "url", stdio ? { name: x.id } : { name: x.id, type: "http" }))}'`;
-      case "json": return `# merge into ${a.config[0].replace("$HOME", "~")} → ${a.serversKey}\n"${x.id}": ${JSON.stringify(entry(x, a.urlKey || "url"))}`;
+      case "json": return `# merge into ${a.config[0].replace("$HOME", "~")} → ${a.serversKey}\n"${x.id}": ${JSON.stringify(entry(x, a.urlKey || "url", !stdio && a.httpExtra ? JSON.parse(`{${a.httpExtra}}`) : {}))}`;
+      case "skills": return "# skills only: MCP servers are not added to this agent from here yet";
       default: return "";
     }
   }
@@ -157,6 +175,26 @@
       <span class="meta">${tagsHtml(x)}</span>${kindBadge(x)}</button>${infoBtn(x)}</div>`;
   }
   // lists are shown by name, A to Z (the command keeps catalog order, so it reads the same however you picked)
+  // the packs' cover photos (the app's own, built into app/covers/), in the order the packs are listed
+  const COVERS = ["workflow", "frontend", "designer", "backend", "ship", "docs"];
+  // collections: every repository with three skills or more, the largest first (the same rule and names as the app)
+  const OWNER_NAMES = { anthropics: "Anthropic", "vercel-labs": "Vercel", docker: "Docker", obra: "Superpowers", mattpocock: "Matt Pocock", addyosmani: "Addy Osmani", getsentry: "Sentry", cloudflare: "Cloudflare", figma: "Figma", makenotion: "Notion", trailofbits: "Trail of Bits", helmcode: "Helmcode", coreyhaines31: "Marketing", bergside: "Design styles", mengto: "Meng To", arla6ka: "design.how" };
+  // the categories' own colours, the same as the app's
+  const CAT_HUE = { code: 262, test: 150, design: 330, docs: 32, media: 12, cloud: 205, work: 245, pay: 165, web: 190, ai: 285, biz: 20, util: 220 };
+  let catsOpen = false;   // the list's Categories menu
+  let COLLS = [], coll = null;   // coll: the collection whose own page the list is showing, or null
+  function foldArt(c, front = "") {
+    const show = c.items.slice(0, 3), step = show.length === 2 ? 46 : 38, tilt = Math.min(7, 20 / Math.max(1, show.length - 1));
+    const papers = show.map((x, n) => { const off = n - (show.length - 1) / 2; return `<span class="paper" style="--x:${(off * step).toFixed(1)}px;--rot:${(off * tilt).toFixed(1)}deg;--sag:${(Math.abs(off) * 1.5).toFixed(1)}px;z-index:${n + 1}">${mark(x)}<span class="paper-name">${esc(x.name)}</span><span class="paper-line"></span><span class="paper-line short"></span></span>`; }).join("");
+    const ghosts = Array.from({ length: Math.min(4, c.items.length - show.length) }, (_, n) => { const side = n % 2 ? 1 : -1; return `<span class="ghost" style="--gx:${side * (4 + n * 3.4)}px;--gy:${(-n * 1.6).toFixed(1)}px;--gr:${side * (2.5 + n * 1.2)}deg"></span>`; }).join("");
+    return `<span class="fold-art"><span class="folder-back" aria-hidden="true"></span><span class="folder-pages" aria-hidden="true">${ghosts}${papers}</span><span class="folder-front">${front}</span></span>`;
+  }
+  const collsOf = () => {
+    const by = new Map();
+    for (const x of C.skills) if (x.repo) by.set(x.repo, [...(by.get(x.repo) || []), x]);
+    return [...by].filter(([, items]) => items.length >= 3).map(([repo, items]) => { const o = repo.split("/")[0]; return { repo, title: `${OWNER_NAMES[o] || o} skills`, items: items.sort((a, b) => a.name.localeCompare(b.name)) }; })
+      .sort((a, b) => b.items.length - a.items.length || a.title.localeCompare(b.title));
+  };
   const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base", numeric: true });
   const matches = (x, ql) => !ql || [x.name, x.ds, x.by || x.repo, x.id, ...tagsFor(x), ...(x.cats || []).map((c) => C.categories[c])].join(" ").toLowerCase().includes(ql);
 
@@ -174,18 +212,28 @@
       mcp: C.mcp.filter((x) => matches(x, ql) && (!fcat || x.cats.includes(fcat))).sort(byName),
       skills: C.skills.filter((x) => matches(x, ql) && (!fcat || x.cats.includes(fcat))).sort(byName),
     };
+    const cv = coll == null ? null : COLLS[coll];
+    if (cv) { tab = "skills"; items.mcp = []; items.skills = cv.items; }
     items.all = [...items.mcp, ...items.skills].sort(byName);
     // one row of categories for both kinds, with how many servers and skills each holds
-    const inCat = (c) => C.mcp.filter((x) => x.cats.includes(c)).length + C.skills.filter((x) => x.cats.includes(c)).length;
-    const chipRow = `<div class="cats" role="group" aria-label="Categories"><button class="cat" type="button" data-cat="" aria-pressed="${!fcat}">All</button>${Object.entries(C.categories).map(([c, l]) => `<button class="cat" type="button" data-cat="${c}" aria-pressed="${fcat === c}">${esc(l)} <small>${inCat(c)}</small></button>`).join("")}</div>`;
-    const tabRow = `<div class="tabs" role="group" aria-label="Show">${TABS.map(([k, label]) => `<button class="tab t-${k}" type="button" data-show="${k}" aria-pressed="${tab === k}">${svgIcon(k)}<span>${label}</span><small>${items[k].length}</small></button>`).join("")}</div>`;
+    const inCat = (c) => C.mcp.filter((x) => !c || x.cats.includes(c)).length + C.skills.filter((x) => !c || x.cats.includes(c)).length;
+    const catIc = (c) => `<span class="cat-ic" style="--h:${CAT_HUE[c] ?? 250}" aria-hidden="true">${svgIcon(c)}</span>`;
+    const chipRow = `<div class="catdd"><span class="sel-pair"><button class="sel" type="button" data-cats aria-haspopup="true" aria-expanded="${catsOpen}" aria-pressed="${!!fcat}">${svgIcon("all")}<span>${fcat ? esc(C.categories[fcat]) : "Categories"}</span><svg class="sel-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>${fcat ? `<button class="sel-x" type="button" data-catclear title="Clear the category" aria-label="Clear the category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>` : ""}</span>
+      <div class="cats" role="group" aria-label="Categories"${catsOpen ? "" : " hidden"}><button class="cat" type="button" data-cat="" aria-pressed="${!fcat}">All<small>${inCat("")}</small></button>${Object.entries(C.categories).map(([c, l]) => `<button class="cat" type="button" data-cat="${c}" aria-pressed="${fcat === c}">${esc(l)}${catIc(c)}<small>${inCat(c)}</small></button>`).join("")}</div></div>`;
+    const tabRow = `<div class="tabs" role="group" aria-label="Show">${TABS.map(([k, label]) => `<button class="tab sel t-${k}" type="button" data-show="${k}" aria-pressed="${tab === k}">${svgIcon(k)}<span>${label === "MCPs" ? "MCP servers" : label}</span><small>${items[k].length}</small></button>`).join("")}</div>`;
     const [, , noun, sub] = TABS.find((x) => x[0] === tab), all = items[tab], vis = all.slice(0, pageOf[tab]), rest = all.length - vis.length;
     const more = rest > 0 ? `<button class="showmore btn" type="button" data-more="${tab}">Show ${Math.min(PAGE, rest)} more <small>${rest} left</small></button>` : "";
     // nothing in this tab: say so, and point at the other tab when the match is there
     const other = tab === "mcp" ? "skills" : "mcp", elsewhere = tab !== "all" && items[other].length;
     const empty = !items.all.length && ql ? `<p class="empty">Nothing matches “${esc(q)}”.</p>`
       : `<p class="empty">No ${noun} match.${elsewhere ? ` <button class="btn" type="button" data-show="${other}">See ${items[other].length} in ${other === "mcp" ? "MCPs" : "Skills"}</button>` : ""}</p>`;
-    $("#cat").innerHTML = `<section aria-labelledby="h-list"><h2 id="h-list"><span class="n">02</span> Pick your tools <small>${sub}</small></h2>${tabRow}${chipRow}<div class="grid">${vis.map((x) => (x.sec === "skills" ? skillRow(x) : card(x))).join("") || empty}</div>${more}</section>`;
+    const about = cv && repoMeta(cv.repo).ds;
+    const head = cv ? `<nav class="crumbs" aria-label="Where you are"><button type="button" data-collback>Catalog</button><i aria-hidden="true">›</i><button type="button" data-collback="colls">Collections</button><i aria-hidden="true">›</i><span>${esc(cv.title)}</span></nav>
+      <div class="coll-h"><span class="fold art" aria-hidden="true">${foldArt(cv)}</span><div><h2 id="h-list">${esc(cv.title)}</h2><p><a href="https://github.com/${esc(cv.repo)}" target="_blank" rel="noopener">${esc(cv.repo)}</a>${about ? ` · ${esc(about)}` : ""}</p>
+        <p class="coll-n"></p><div class="coll-b"><button class="btn pri" type="button" data-collall="${coll}" id="coll-add">Add all</button><a class="btn" href="https://github.com/${esc(cv.repo)}" target="_blank" rel="noopener">View on GitHub</a></div></div></div>
+      <p class="coll-each">Each can also be added on its own.</p>`
+      : `<h2 id="h-list"><span class="n">02</span> Pick your tools <small>${sub}</small></h2><nav class="catnav" aria-label="Filter the list">${tabRow}${chipRow}</nav>`;
+    $("#cat").innerHTML = `<section aria-labelledby="h-list">${head}<div class="grid">${vis.map((x) => (x.sec === "skills" ? skillRow(x) : card(x))).join("") || empty}</div>${more}</section>`;
     $("#show-pick").value = tab;   // the list filter lives in the header
     $("#cat-pick").value = fcat;
     if (refreshDD["show-pick"]) { refreshDD["show-pick"](); refreshDD["cat-pick"](); }
@@ -194,7 +242,7 @@
     else if (keep) { const el = $(`[data-${keep[0]}="${keep[1].replace(/["\\]/g, "\\$&")}"]`); if (el) el.focus(); }
   }
   const openTab = (k) => {
-    tab = k; renderCatalog();
+    tab = k; coll = null; renderCatalog();
     const top = $("#cat").getBoundingClientRect().top;   // filtering from the top of the page: bring the list up
     if (top > innerHeight * 0.55 || top < 0) $("#cat").scrollIntoView({ block: "start" });
   };
@@ -219,6 +267,17 @@
     $("#agent-flag").textContent = tg.length ? `--to ${tg.join(",")}` : "No --to: tools up every agent it finds";
     $$("[data-dtgt]").forEach((b) => b.setAttribute("aria-pressed", sel.has(b.dataset.dtgt)));
     const dall = $("[data-dall]"); if (dall) dall.setAttribute("aria-pressed", !tg.length);
+    $("#dr-logos").innerHTML = $("#agent-logos").innerHTML; $("#dr-main").textContent = !tg.length ? "All agents" : tg.map((i) => ALL[i].chip).join(", ");
+    if (coll != null && $("#coll-add")) {
+      const c = COLLS[coll], n = c.items.filter((x) => sel.has(x.id)).length;
+      $("#cat .coll-n").textContent = `${c.items.length} skills${n ? ` · ${n} picked` : ""}`;
+      $("#coll-add").textContent = n === c.items.length ? `Remove all ${n}` : n ? `Add the other ${c.items.length - n}` : `Add all ${c.items.length}`;
+    }
+    $$(".fold[data-coll]").forEach((el) => {
+      const c = COLLS[+el.dataset.coll], n = c.items.filter((x) => sel.has(x.id)).length, pill = el.querySelector(".folder-pill");
+      pill.textContent = n === c.items.length ? "✓ Added" : `Add all ${c.items.length}`; pill.setAttribute("aria-pressed", n === c.items.length);
+      el.querySelector(".folder-sub").textContent = `${c.items.length} skills${n ? ` · ${n} picked` : ""}`;
+    });
     const nm = ofSec("mcp").length, ns = ofSec("skills").length;
     $("#count").innerHTML = nm + ns
       ? `<b>${nm}</b> server${nm === 1 ? "" : "s"} · <b>${ns}</b> skill${ns === 1 ? "" : "s"} → ${tg.length ? tg.map((i) => esc(ALL[i].chip)).join(", ") : "all your agents"}`
@@ -239,8 +298,9 @@
     $(".fo-sub2").textContent = picked.length ? `${nm} MCP${nm === 1 ? "" : "s"} · ${ns} skill${ns === 1 ? "" : "s"}` : "nothing yet";
     $("#fo-sub").textContent = picked.length ? `${nm} MCP${nm === 1 ? "" : "s"} · ${ns} skill${ns === 1 ? "" : "s"}` : "nothing yet";
     if (!picked.length) closeDrawer();
-    $("#cmd").textContent = command();
-    ["copy", "more", "view", "dl", "link"].forEach((b) => { $("#" + b).disabled = !(nm + ns); });
+    $("#cmd").textContent = $("#hero-cmd").textContent = command();
+    $("#hero-copy").disabled = !(nm + ns);
+    ["copy", "more", "view", "dl", "link", "inapp"].forEach((b) => { $("#" + b).disabled = !(nm + ns); });
     $(".bar").hidden = !(nm + ns);   // nothing picked, nothing to show: no bar, no disabled buttons
     document.body.classList.toggle("has-bar", nm + ns > 0);
     if (!(nm + ns)) closeMore(false);
@@ -456,6 +516,14 @@
     if (ft) { toggle(ft.dataset.ftog); return details(ft.dataset.of, true); }
     const fa = t.closest("[data-fall]");
     if (fa) { const f = family(ALL[fa.dataset.fall]), every = f.members.every((m) => sel.has(m.id)); f.members.forEach((m) => (every ? sel.delete(m.id) : sel.add(m.id))); render(); return details(fa.dataset.fall, true); }
+    const ca = t.closest("[data-collall]");
+    if (ca) { const c = COLLS[+ca.dataset.collall], every = c.items.every((m) => sel.has(m.id)); c.items.forEach((m) => (every ? sel.delete(m.id) : sel.add(m.id))); render(); return toast(`${c.title} ${every ? "removed" : "added"}`); }
+    const co = t.closest(".fold[data-coll]");
+    if (co) { q = $("#q").value = ""; fcat = ""; resetPages(); coll = +co.dataset.coll; renderCatalog(); $("#cat").scrollIntoView({ block: "start" }); return; }
+    const bk = t.closest("[data-collback]");
+    if (bk) { openTab("all"); (bk.dataset.collback ? $("#colls-box") : $("#cat")).scrollIntoView({ block: bk.dataset.collback ? "center" : "start" }); return; }
+    const br = t.closest("[data-browse]");
+    if (br) { openTab(br.dataset.browse); $("#cat").scrollIntoView({ block: "start", behavior: "smooth" }); return; }
     const it = t.closest(".item");
     if (it) { toggle(it.dataset.id); return; }
     if (t.closest("[data-close]") || t.id === "scrim") return closeSheet();
@@ -464,7 +532,10 @@
     const tg = t.closest("[data-tog]");
     if (tg) { closeSheet(); toggle(tg.dataset.tog); return; }
     const cb = t.closest("[data-cat]");
-if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
+if (cb) { fcat = cb.dataset.cat; catsOpen = false; resetPages(); return renderCatalog(); }
+    if (t.closest("[data-catclear]")) { fcat = ""; catsOpen = false; resetPages(); return renderCatalog(); }
+    if (t.closest("[data-cats]")) { catsOpen = !catsOpen; renderCatalog(); const b = $("[data-cats]"); if (b) b.focus(); return; }
+    if (catsOpen && !t.closest(".catdd")) { catsOpen = false; const m = $("#cat .cats"), b = $("[data-cats]"); if (m) m.hidden = true; if (b) b.setAttribute("aria-expanded", "false"); }
     const sh = t.closest("[data-show]");
     if (sh) { tab = sh.dataset.show; resetPages(); return renderCatalog(); }
     const mo = t.closest("[data-more]");
@@ -485,6 +556,7 @@ if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
     render(); toast(`${p.name} pack ${done ? "removed" : "added"}`);
   }
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && catsOpen) { catsOpen = false; renderCatalog(); const b = $("[data-cats]"); if (b) b.focus(); return; }
     if (e.key === "Escape") { if (!$("#more-menu").hidden) closeMore(true); else if ($("#scrim").classList.contains("show")) closeSheet(); else closeDrawer(true); }
     trapTab(e);
   });
@@ -502,6 +574,52 @@ if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
     window.dispatchEvent(new Event("resize"));   // the hero's canvases were measured while hidden
   }
 
+  /* ---------- the app on the page: the desktop app's own interface in a frame (app/, built from app/ui), on sample data.
+     There are no pictures of it here. The "show me" buttons press the app's real buttons, so what they show is what it does. ---------- */
+  const TOUR = {
+    installed: ['.views [data-screen="installed"]'],
+    switch: ['.views [data-screen="installed"]', '.swt[role="switch"][aria-checked="false"]:not([aria-disabled])'],
+    paste: ['.views [data-screen="installed"]', "[data-add-menu]"],
+    menu: ['.views [data-screen="installed"]', ".dots[data-menu]"],
+    catalog: ['.views [data-screen="catalog"]'],
+    collection: ['.views [data-screen="catalog"]', "[data-coll]"],
+    detail: ['.views [data-screen="catalog"]', "[data-detail]"],
+    projects: ['.views [data-screen="projects"]'],
+    settings: ['[data-screen="settings"]'],
+  };
+  const DOWNLOAD = "";   // the Mac build's address once one is published: the hero and the catalog's banner then offer it
+  const APP_W = 1060;   // the narrowest the app's window is laid out at; a narrower page shows it scaled down
+  function liveApp() {
+    const frame = $("#live"), box = frame.parentElement;
+    const inside = () => { try { return frame.contentDocument; } catch (e) { return null; } };
+    const fit = () => { const w = box.clientWidth; if (w) box.style.setProperty("--k", Math.min(1, w / APP_W).toFixed(4)); };
+    const look = () => frame.contentWindow && frame.contentWindow.postMessage({ toolup: "theme", theme: document.documentElement.dataset.theme || "system" }, location.origin);
+    let run = 0;
+    // close whatever is open in the app, then press each control in turn, giving the app a moment to draw between presses
+    function tour(name) {
+      const steps = TOUR[name], doc = inside();
+      $$(".tour [data-tour]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tour === name));
+      if (!steps || !doc || !doc.querySelector(".views")) return false;
+      const mine = ++run, W = frame.contentWindow;
+      for (let n = 0; n < 2; n++) doc.dispatchEvent(new W.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      steps.forEach((sel, n) => setTimeout(() => { const el = mine === run && doc.querySelector(sel); if (el) el.click(); }, n * 260));
+      return true;
+    }
+    frame.addEventListener("load", () => { look(); fit(); });
+    window.addEventListener("resize", fit);
+    new MutationObserver(look).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-tour]");
+      if (!b) return;
+      e.preventDefault();
+      frame.loading = "eager";   // asked for before it scrolled into view
+      if (!b.closest(".tour")) $(".win").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+      if (!tour(b.dataset.tour)) frame.addEventListener("load", () => setTimeout(() => tour(b.dataset.tour), 400), { once: true });
+    });
+    fit(); look();
+    window.ToolUpLive = { tour, TOUR };
+  }
+
   function load() {
     const h = location.hash.slice(1);
     if (h.startsWith("e-")) {
@@ -517,7 +635,25 @@ if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
     $("#host").textContent = `${C.site.host} — zsh`;
     buildAgentMenu();
     // the same choice as the hero's dropdown, editable right where you review: one button per agent, and "All"
-    $("#dr-agents").innerHTML = `<button class="dr-agent" type="button" data-dall aria-pressed="true">All</button>` + C.agents.map((a) => `<button class="dr-agent" type="button" data-dtgt="${a.id}" aria-pressed="false" title="${esc(a.name)}">${ico(a, "mini")}<span>${esc(a.chip)}</span></button>`).join("");
+    // the drawer's agents: one closed row that says who is picked; open, a list to tick any number of them
+    const dopt = (attrs, logo, name) => `<button class="dd-opt" type="button" ${attrs}>${logo}<span class="dd-on"><span class="dd-nm">${esc(name)}</span></span><span class="dd-tick" aria-hidden="true"></span></button>`;
+    $("#dr-agents").innerHTML = dopt('data-dall aria-pressed="true"', "", "All agents") + C.agents.map((a) => dopt(`data-dtgt="${a.id}" aria-pressed="false"`, ico(a, "mini"), a.name)).join("");
+    $("#dr-dd").onclick = () => { const open = $("#dr-agents").hidden; $("#dr-agents").hidden = !open; $("#dr-dd").setAttribute("aria-expanded", open); };
+    // collections: folders like the app's. As many as fit one row, and a button for the rest
+    COLLS = collsOf();
+    $("#colls").innerHTML = COLLS.map((c, i) => `<div class="fold" data-coll="${i}"><button class="fold-open" type="button" aria-label="Open ${esc(c.title)}"></button>
+        ${foldArt(c, `<button class="folder-pill" type="button" data-collall="${i}" aria-pressed="false">Add all ${c.items.length}</button>`)}
+        <span class="folder-caption"><b class="folder-n">${esc(c.title)}</b><span class="folder-sub"></span></span></div>`).join("");
+    $("#colls-box").hidden = !COLLS.length;
+    const fitColls = () => {
+      const all = $("#colls-all").getAttribute("aria-expanded") === "true", w = $("#colls").clientWidth;
+      const per = w ? Math.max(2, Math.floor((w + 18) / 186)) : COLLS.length;
+      $$("#colls .fold").forEach((el, i) => (el.hidden = !all && i >= per));
+      $("#colls-all").hidden = COLLS.length <= per; $("#colls-all").textContent = all ? "Show fewer" : `See all ${COLLS.length}`;
+    };
+    $("#colls-all").onclick = () => { $("#colls-all").setAttribute("aria-expanded", $("#colls-all").getAttribute("aria-expanded") !== "true"); fitColls(); };
+    window.addEventListener("resize", fitColls); fitColls();
+
     // the phone menu: the button opens the link panel; a link, Escape or a tap elsewhere closes it
     const hdr = $("header"), mbtn = $("#menu-btn");
     $$("#show-pick option").forEach((o) => { o.textContent = `${o.dataset.tab === "all" ? "All" : o.dataset.tab === "mcp" ? "MCP servers" : "Skills"} · ${o.dataset.tab === "all" ? C.mcp.length + C.skills.length : C[o.dataset.tab].length}`; });
@@ -527,18 +663,29 @@ if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
     document.addEventListener("click", (e) => { if (!e.target.closest("header")) setMenu(false); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && hdr.classList.contains("open")) { setMenu(false); mbtn.focus(); } });
     $("#hero-meta").textContent = `${C.mcp.length} MCP servers · ${C.skills.length} skills · ${C.agents.length} agents`;
+    $("#app-meta").textContent = `Desktop app · Mac · ${C.agents.length} agents`;
+    $("#n-agents").textContent = C.agents.length;
+    // one line that drifts from left to right without end: the list twice, the second copy only for the eye
+    $("#app-agents").innerHTML = [false, true].map((copy) => C.agents.map((a) => `<li${copy ? ' aria-hidden="true"' : ""}>${bareLogo(a, copy ? "-2" : "")}${esc(a.name)}</li>`).join("")).join("");
+    liveApp();
+    // the hero's second step: which kind to look through. Each button opens that list below; the picking happens there
+    $("#quick").innerHTML = [["skills", "Skills", C.skills.length], ["mcp", "MCP servers", C.mcp.length], ["all", "All", C.mcp.length + C.skills.length]]
+      .map(([k, label, n]) => `<button class="qp-i" type="button" data-browse="${k}">${svgIcon(k)}${label}<small>${n}</small><span aria-hidden="true">↓</span></button>`).join("");
+    $("#hero-copy").onclick = () => copy(command(), "Command copied");
+    // while the hero's own line is on screen the bar at the bottom would say the same thing twice, so it waits
+    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => document.body.classList.toggle("line-seen", e.isIntersecting), { threshold: 0.6 }).observe($("#hero-term"));
+    if (DOWNLOAD) $$("[data-download]").forEach((el) => { const a = document.createElement("a"); a.className = el.dataset.download; a.href = DOWNLOAD; a.textContent = "Download for Mac"; el.replaceWith(a); });
     // each pack is a tinted card: what's inside as logos, and a block shape of fat gradient pixels, different for each
     $("#packs").innerHTML = C.packs.map((p, i) => {
       const servers = p.ids.filter((id) => ALL[id].sec === "mcp"), n = p.ids.length - servers.length;
-      const logos = servers.slice(0, 6).map((id) => ico(ALL[id], "mini")).join("");
+      const logos = [...servers, ...p.ids.filter((id) => ALL[id].sec !== "mcp")].slice(0, 6).map((id) => (ALL[id].sec === "mcp" ? ico(ALL[id], "mini") : mark(ALL[id]))).join("");
       const more = [servers.length && `${servers.length} server${servers.length === 1 ? "" : "s"}`, n && `${n} skill${n === 1 ? "" : "s"}`].filter(Boolean).join(" · ");
-      return `<button class="pack t${i % 6}" type="button" data-i="${i}" aria-pressed="false">
-        <span class="more">${more}</span>
+      return `<button class="pack" type="button" data-i="${i}" aria-pressed="false" style="background-image:url(app/covers/${COVERS[i % COVERS.length]}.jpg)">
+        <span class="pk-in"><span class="pk-eb">Starter pack</span>
         <b>${esc(p.name)}</b><span class="pk-ds">${esc(p.ds)}</span>
-        <span class="pk-logos">${logos}</span>
-        <span class="cta"><span class="cta-t">Add pack</span> <span aria-hidden="true">→</span></span>${pixelShape(i)}</button>`;
+        <span class="pk-b"><span class="pk-logos">${logos}</span><span class="more pk-n">${more}</span><span class="cta"><span class="cta-t">Add pack</span></span></span></span></button>`;
     }).join("");
-    $("#q").addEventListener("input", (e) => { q = e.target.value; resetPages(); renderCatalog(); if (q && $("#cat").getBoundingClientRect().top > innerHeight * 0.6) $("#cat").scrollIntoView({ block: "start" }); });
+    $("#q").addEventListener("input", (e) => { q = e.target.value; coll = null; resetPages(); renderCatalog(); if (q && $("#cat").getBoundingClientRect().top > innerHeight * 0.6) $("#cat").scrollIntoView({ block: "start" }); });
     $("#more").onclick = () => ($("#more-menu").hidden ? openMore() : closeMore(false));
     $("#more-menu").addEventListener("click", () => closeMore(false));
     $("#more-menu").addEventListener("keydown", (e) => {   // arrows move between the two items
@@ -551,6 +698,8 @@ if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
     $("#dryflag").onclick = () => { dry = !dry; sync(); };
     $("#copy").onclick = () => copy(command(), "Command copied");
     $("#link").onclick = () => copy(location.href.split("#")[0] + "#" + code(), "Share link copied");
+    // a toolup:// link: the desktop app, if it is installed, opens with these picks and asks before installing them
+    $("#inapp").onclick = () => { location.href = appLink(); };
     $("#view").onclick = async () => {
       try {
         const s = await script();
@@ -594,7 +743,7 @@ if (cb) { fcat = cb.dataset.cat; resetPages(); return renderCatalog(); }
     });
     load();
     setView(view(), false);
-    window.ToolUp = { placeMenu, command, wire, embed, code, script, get state() { return { sel: [...sel], dock, dry }; } };
+    window.ToolUp = { placeMenu, command, wire, embed, code, script, appLink, get state() { return { sel: [...sel], dock, dry }; } };
   }
 
   fetch("catalog.json")

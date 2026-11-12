@@ -1,8 +1,17 @@
-agent	claude-code	Claude Code	claude	-	claude	claude-code	$HOME/.claude/skills	-	-	-
-agent	codex	Codex CLI	codex	-	codex	codex	-	-	-	-
-agent	gemini	Gemini CLI	gemini	-	gemini	gemini-cli	-	$HOME/.gemini/settings.json	mcpServers	-
-agent	cursor	Cursor	-	/Applications/Cursor.app|$HOME/.cursor	json	cursor	-	$HOME/.cursor/mcp.json	mcpServers	url
-agent	vscode	VS Code + Copilot	code	-	vscode	github-copilot	-	$HOME/Library/Application Support/Code/User/mcp.json|$HOME/.config/Code/User/mcp.json	servers	url
+agent	claude-code	Claude Code	claude	-	claude	claude-code	$HOME/.claude/skills	-	-	-	-
+agent	codex	Codex CLI	codex	-	codex	codex	-	-	-	-	-
+agent	gemini	Gemini CLI	gemini	-	gemini	gemini-cli	-	$HOME/.gemini/settings.json	mcpServers	-	-
+agent	cursor	Cursor	-	/Applications/Cursor.app|$HOME/.cursor	json	cursor	-	$HOME/.cursor/mcp.json	mcpServers	url	-
+agent	vscode	VS Code + Copilot	code	-	vscode	github-copilot	-	$HOME/Library/Application Support/Code/User/mcp.json|$HOME/.config/Code/User/mcp.json	servers	url	-
+agent	windsurf	Windsurf	-	/Applications/Windsurf.app|$HOME/.codeium/windsurf	json	windsurf	$HOME/.codeium/windsurf/skills	$HOME/.codeium/windsurf/mcp_config.json	mcpServers	serverUrl	-
+agent	cline	Cline	cline	$HOME/.cline|$HOME/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev|$HOME/.config/Code/User/globalStorage/saoudrizwan.claude-dev	json	cline	-	$HOME/.cline/data/settings/cline_mcp_settings.json|$HOME/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json|$HOME/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json	mcpServers	url	"type":"streamableHttp","disabled":false
+agent	qwen-code	Qwen Code	qwen	$HOME/.qwen	json	qwen-code	$HOME/.qwen/skills	$HOME/.qwen/settings.json	mcpServers	httpUrl	-
+agent	deepseek-harness	DeepSeek Harness	dsh	$HOME/.dsh	skills	codex	-	-	-	-	-
+agent	openclaw	OpenClaw	openclaw	$HOME/.openclaw	skills	openclaw	$HOME/.openclaw/skills	-	-	-	-
+agent	goose	Goose	goose	/Applications/Goose.app|$HOME/.config/goose	skills	goose	$HOME/.config/goose/skills	-	-	-	-
+agent	kiro	Kiro	kiro-cli	/Applications/Kiro.app|$HOME/.kiro	json	kiro-cli	$HOME/.kiro/skills	$HOME/.kiro/settings/mcp.json	mcpServers	url	-
+agent	pi	Pi	pi	$HOME/.pi/agent	skills	pi	-	-	-	-	-
+agent	hermes	Hermes Agent	hermes	$HOME/.hermes	skills	hermes-agent	$HOME/.hermes/skills	-	-	-	-
 mcp	github	GitHub	http	https://api.githubcopilot.com/mcp/	-	-
 mcp	context7	Context7	http	https://mcp.context7.com/mcp	-	-
 mcp	figma	Figma	http	https://mcp.figma.com/mcp	-	-
@@ -92,6 +101,16 @@ skill	review-animations	emilkowalski/skills
 skill	design-taste-frontend	leonxlnx/taste-skill
 skill	interface-design	dammyjay93/interface-design
 skill	ui-ux-pro-max	nextlevelbuilder/ui-ux-pro-max-skill
+skill	design-system-boss	arla6ka/design.how
+skill	build-design-system	arla6ka/design.how
+skill	migrate-design-system	arla6ka/design.how
+skill	token-mapping	arla6ka/design.how
+skill	component-docs	arla6ka/design.how
+skill	ui-review	arla6ka/design.how
+skill	video-to-superprompt	mengto/skills
+skill	html-to-interaction-prompts	mengto/skills
+skill	stitched-full-page-capture	mengto/skills
+skill	daily-ui-inspiration-capture	mengto/skills
 skill	anatomy	wheresryan22/anatomy
 skill	oil-ui	oil-oil/oil-ui
 skill	web-design-guidelines	vercel-labs/agent-skills
@@ -105,6 +124,19 @@ skill	prisma-cli	prisma/skills
 skill	finops	helmcode/community-skills
 skill	mcp-builder	anthropics/skills
 skill	claude-api	anthropics/skills
+skill	docker-project-foundations	docker/skills
+skill	docker-build-strategies	docker/skills
+skill	docker-compose-patterns	docker/skills
+skill	docker-destructive-guardrails	docker/skills
+skill	docker-docs	docker/skills
+skill	docker-agent-config	docker/skills
+skill	docker-agent-run	docker/skills
+skill	docker-agent-deploy	docker/skills
+skill	docker-sandboxes-lifecycle	docker/skills
+skill	docker-sandboxes-env	docker/skills
+skill	docker-sandboxes-kits	docker/skills
+skill	docker-sandboxes-mcp-gateway	docker/skills
+skill	docker-sandboxes-network-credentials	docker/skills
 skill	deploy-to-vercel	vercel-labs/agent-skills
 skill	vercel-react-view-transitions	vercel-labs/agent-skills
 skill	vercel-optimize	vercel-labs/agent-skills

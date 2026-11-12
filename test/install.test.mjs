@@ -194,3 +194,44 @@ test("the script and its catalog carry no tokens or secrets", () => {
   const text = readFileSync(script, "utf8") + readFileSync(new URL("../public/catalog.tsv", import.meta.url), "utf8");
   assert.doesNotMatch(text, /(ghp_|github_pat_|sk-[A-Za-z0-9]{10}|Bearer\s|api[_-]?key\s*=|token\s*=)/i);
 });
+
+test("the later agents: each JSON config gets the entry its agent reads, and skills-only agents get no server", () => {
+  const m = machine(["windsurf", "cline", "qwen-code", "kiro", "goose", "deepseek-harness"], { real: true });
+  const r = m.run("github", "tdd");
+  assert.equal(r.code, 0, r.out);
+  const servers = (f, key = "mcpServers") => JSON.parse(readFileSync(join(m.home, f), "utf8"))[key];
+  assert.deepEqual(servers(".codeium/windsurf/mcp_config.json").github, { serverUrl: "https://api.githubcopilot.com/mcp/" }, "Windsurf reads serverUrl");
+  assert.deepEqual(servers(".cline/data/settings/cline_mcp_settings.json").github, { type: "streamableHttp", disabled: false, url: "https://api.githubcopilot.com/mcp/" }, "Cline needs the transport named");
+  assert.deepEqual(servers(".qwen/settings.json").github, { httpUrl: "https://api.githubcopilot.com/mcp/" }, "Qwen Code reads httpUrl");
+  assert.deepEqual(servers(".kiro/settings/mcp.json").github, { url: "https://api.githubcopilot.com/mcp/" });
+  assert.match(r.out, /Goose: MCP servers are not added from here yet \(skills only\)/);
+  assert.match(r.out, /DeepSeek Harness: MCP servers are not added from here yet \(skills only\)/);
+  assert.ok(!existsSync(join(m.home, ".config/goose/config.yaml")), "Goose's own config is left alone");
+  // skills go to every one of them, by the name the skills CLI knows it by (DeepSeek Harness reads the shared folder)
+  assert.ok(m.calls().some((c) => /skills add mattpocock\/skills -g -y .*-a windsurf -a cline -a qwen-code -a codex -a goose -a kiro-cli --skill tdd/.test(c)), m.calls().join("\n"));
+});
+
+test("--remove takes a server out of the agents named, and nothing else", () => {
+  const m = machine();
+  assert.equal(m.run("github", "context7").code, 0);
+  const cursor = () => JSON.parse(readFileSync(join(m.home, ".cursor/mcp.json"), "utf8")).mcpServers;
+  assert.ok(cursor().github && cursor().context7);
+  const dry = m.run("--remove", "--dry-run", "--to", "cursor,claude-code", "github");
+  assert.equal(dry.code, 0, dry.out);
+  assert.ok(cursor().github, "a dry run removes nothing");
+  const r = m.run("--remove", "--to", "cursor,claude-code", "github", "not-there");
+  assert.equal(r.code, 0, r.out);
+  assert.ok(!cursor().github && cursor().context7, "only the one named goes");
+  assert.ok(m.calls().includes("claude mcp remove --scope user github"), m.calls().join("\n"));
+  assert.ok(existsSync(join(m.state, "codex/github")), "an agent that was not named keeps it");
+  assert.match(r.out, /not-there is not in Cursor/);
+  assert.notEqual(m.run("--remove", "github").code, 0, "it insists on --to");
+});
+
+test("a folder that holds only skills is not an installed agent", () => {
+  const m = machine(["claude"]);
+  spawnSync("mkdir", ["-p", join(m.home, ".kiro/skills/tdd"), join(m.home, ".cursor/skills")]);
+  const r = m.run("--dry-run", "github");
+  assert.match(r.out, /Cursor not found/);
+  assert.ok(!/add github to .*\.cursor/.test(r.out), r.out);
+});

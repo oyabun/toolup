@@ -1,12 +1,15 @@
 //! The shell's whole job: let the interface read the user's own config files, and run the Tool up!
 //! installer for catalog items. Reading and listing are limited to the home directory. The only
-//! thing that changes the machine is `toolup`, which runs the bundled install.sh with catalog ids.
+//! things that change the machine are the commands that run the bundled install.sh (adding or removing),
+//! the skill commands, `write_text` (a short list of instruction files) and `backup_store` (git, on request).
 
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Stdio};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
+use tauri_plugin_deep_link::DeepLinkExt;
+use tauri_plugin_dialog::DialogExt;
 
 #[derive(Serialize)]
 struct Entry {
@@ -89,7 +92,10 @@ fn reveal_path(app: tauri::AppHandle, path: String) -> Result<(), String> {
 }
 
 // The only web pages the app opens: the agents' own download pages, and a skill's repository on GitHub.
-const AGENT_HOSTS: [&str; 6] = ["claude.com", "learn.chatgpt.com", "geminicli.com", "cursor.com", "code.visualstudio.com", "github.com"];
+const AGENT_HOSTS: [&str; 12] = [
+    "claude.com", "learn.chatgpt.com", "geminicli.com", "cursor.com", "code.visualstudio.com", "github.com",
+    "windsurf.com", "cline.bot", "openclaw.ai", "block.github.io", "kiro.dev", "hermes-agent.nousresearch.com",
+];
 
 /// Open one of the agents' download pages in the user's browser.
 #[tauri::command]
@@ -181,7 +187,7 @@ fn user_path(app: &tauri::AppHandle) -> Option<std::ffi::OsString> {
 }
 
 /// Run the bundled installer against a catalog (TSV text) for these ids.
-fn run_installer(app: &tauri::AppHandle, catalog: &str, ids: Vec<String>, to: Vec<String>, dry_run: bool) -> Result<RunOutput, String> {
+fn run_installer(app: &tauri::AppHandle, catalog: &str, ids: Vec<String>, to: Vec<String>, dry_run: bool, remove: bool) -> Result<RunOutput, String> {
     if ids.is_empty() || !ids.iter().chain(to.iter()).all(|s| safe_id(s)) {
         return Err("Nothing to install, or an id that is not a catalog id.".into());
     }
@@ -196,6 +202,9 @@ fn run_installer(app: &tauri::AppHandle, catalog: &str, ids: Vec<String>, to: Ve
     cmd.arg(&script);
     if dry_run {
         cmd.arg("--dry-run");
+    }
+    if remove {
+        cmd.arg("--remove");
     }
     if !to.is_empty() {
         cmd.arg("--to").arg(to.join(","));
@@ -535,7 +544,7 @@ fn remove_skill(app: tauri::AppHandle, paths: Vec<String>) -> Result<Vec<Removed
 /// With `dry_run` it only prints what it would do.
 #[tauri::command]
 async fn toolup(app: tauri::AppHandle, ids: Vec<String>, to: Vec<String>, dry_run: bool) -> Result<RunOutput, String> {
-    tauri::async_runtime::spawn_blocking(move || run_installer(&app, CATALOG_TSV, ids, to, dry_run))
+    tauri::async_runtime::spawn_blocking(move || run_installer(&app, CATALOG_TSV, ids, to, dry_run, false))
         .await
         .map_err(|e| e.to_string())?
 }
@@ -562,14 +571,14 @@ async fn toolup_servers(app: tauri::AppHandle, servers: Vec<RemoteServer>, to: V
         catalog.push_str(&format!("mcp\t{}\t{}\thttp\t{}\t-\t-\n", s.id, s.name, s.url));
         ids.push(s.id.clone());
     }
-    tauri::async_runtime::spawn_blocking(move || run_installer(&app, &catalog, ids, to, dry_run))
+    tauri::async_runtime::spawn_blocking(move || run_installer(&app, &catalog, ids, to, dry_run, false))
         .await
         .map_err(|e| e.to_string())?
 }
 
 // The other catalogs the app may ask. Nothing else can be fetched through `fetch_json`.
 // api.github.com is asked one thing only: the latest commit of a skill's folder, to see if there is a newer version.
-const CATALOG_HOSTS: [&str; 6] = ["skills.sh", "skillsmp.com", "www.skillsdirectory.com", "registry.modelcontextprotocol.io", "api.github.com", "raw.githubusercontent.com"];
+const CATALOG_HOSTS: [&str; 5] = ["skills.sh", "www.skillsdirectory.com", "registry.modelcontextprotocol.io", "api.github.com", "raw.githubusercontent.com"];
 
 /// GET a JSON answer from one of the known catalogs.
 #[tauri::command]
@@ -788,9 +797,223 @@ async fn fetch_skill(repo: String, skill: String, hint: String) -> Result<Fetche
         .map_err(|e| e.to_string())?
 }
 
+/// Take MCP servers out of agents, by the name each agent knows them by, with the same installer (`--remove`).
+/// Names are held to the same plain alphabet as catalog ids; anything else is refused rather than passed on.
+#[tauri::command]
+async fn toolup_remove(app: tauri::AppHandle, names: Vec<String>, to: Vec<String>) -> Result<RunOutput, String> {
+    if to.is_empty() {
+        return Err("Say which agent to remove it from.".into());
+    }
+    tauri::async_runtime::spawn_blocking(move || run_installer(&app, CATALOG_TSV, names, to, false, true))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[derive(Serialize)]
+struct TextFile {
+    /// Where the file is inside the skill, with forward slashes.
+    path: String,
+    text: String,
+}
+
+/// The readable files of a skill about to be installed (a .skill file or a staged download), for the
+/// safety check: scripts, instructions and config, each up to 200 KB, 400 files and 2 MB in all.
+#[tauri::command]
+fn skill_texts(path: String) -> Result<Vec<TextFile>, String> {
+    const TEXT: [&str; 22] = ["md", "txt", "sh", "bash", "zsh", "fish", "py", "js", "mjs", "cjs", "ts", "json", "yaml", "yml", "toml", "rb", "pl", "ps1", "bat", "cmd", "php", "lua"];
+    let (root, _) = unpack_skill(&path)?;
+    let mut out = Vec::new();
+    let mut total = 0usize;
+    let mut stack = vec![root.clone()];
+    while let Some(dir) = stack.pop() {
+        let Ok(read) = fs::read_dir(&dir) else { continue };
+        for e in read.flatten() {
+            let Ok(kind) = e.file_type() else { continue };
+            let p = e.path();
+            if kind.is_dir() {
+                if e.file_name() != ".git" && e.file_name() != "node_modules" {
+                    stack.push(p);
+                }
+                continue;
+            }
+            let ext = p.extension().and_then(|x| x.to_str()).unwrap_or("").to_ascii_lowercase();
+            if !kind.is_file() || !(TEXT.contains(&ext.as_str()) || ext.is_empty()) {
+                continue;
+            }
+            let size = e.metadata().map(|m| m.len()).unwrap_or(u64::MAX);
+            if size > 200 * 1024 || out.len() >= 400 || total + size as usize > 2 * 1024 * 1024 {
+                continue;
+            }
+            let Ok(text) = fs::read_to_string(&p) else { continue };   // not UTF-8: not text
+            total += text.len();
+            let rel = p.strip_prefix(&root).unwrap_or(&p).to_string_lossy().replace('\\', "/");
+            out.push(TextFile { path: rel, text });
+        }
+    }
+    out.sort_by(|a, b| a.path.cmp(&b.path));
+    Ok(out)
+}
+
+// The only files the app writes text into: an agent's instructions for a project, and a skill's own instructions.
+const WRITABLE: [&str; 4] = ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "SKILL.md"];
+
+/// Save one of the few files the app writes text into, under home, at most 1 MB:
+///   - a file in `WRITABLE`, in a folder that already exists (a SKILL.md only inside a skill folder, one that
+///     sits in a folder called `skills`);
+///   - a project's own MCP servers: `.mcp.json`, or `mcp.json` in a project's `.cursor` or `.vscode` folder,
+///     which is made if the project has none. Never the ones directly in home: those are an agent's own settings.
+#[tauri::command]
+fn write_text(app: tauri::AppHandle, path: String, text: String) -> Result<(), String> {
+    let p = inside_home(&app, &path)?;
+    let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
+    let Some(dir) = p.parent() else {
+        return Err("That is not a file Tool up! edits.".into());
+    };
+    let dir_name = dir.file_name().and_then(|n| n.to_str()).unwrap_or("");
+    let editor_file = name == "mcp.json" && (dir_name == ".cursor" || dir_name == ".vscode");
+    let project_servers = (name == ".mcp.json" && dir != home(&app)?) || (editor_file && dir.parent().map(|d| d != home(&app).unwrap_or_default()).unwrap_or(false));
+    let in_skill = dir.parent().and_then(|d| d.file_name()).map(|n| n == "skills").unwrap_or(false);
+    let instructions = WRITABLE.contains(&name) && (name != "SKILL.md" || in_skill);
+    if !(instructions || project_servers) || text.len() > 1024 * 1024 || text.contains('\0') {
+        return Err("That is not a file Tool up! edits.".into());
+    }
+    if editor_file && !dir.is_dir() && dir.parent().map(|d| d.is_dir()).unwrap_or(false) {
+        fs::create_dir(dir).map_err(|e| format!("Could not make {}: {e}", dir.display()))?;
+    }
+    if !dir.is_dir() {
+        return Err("The folder that file belongs in does not exist.".into());
+    }
+    fs::write(&p, text).map_err(|e| format!("Could not save {}: {e}", p.display()))
+}
+
+/// Make an editable copy of a skill: its folder, copied into `store_dir` under a new name, without the note
+/// that says where the original came from (so the copy is yours, and is never updated over). Returns the copy.
+#[tauri::command]
+fn copy_skill(app: tauri::AppHandle, source: String, store_dir: String, name: String) -> Result<String, String> {
+    let src = fs::canonicalize(inside_home(&app, &source)?).map_err(|_| "That skill could not be found.".to_string())?;
+    let store = inside_home(&app, &store_dir)?;
+    let in_skills = store.file_name().map(|n| n == "skills").unwrap_or(false);
+    if !src.starts_with(home(&app)?) || !src.join("SKILL.md").is_file() || !in_skills || !safe_part(&name) {
+        return Err("That is not a skill Tool up! can copy, or not a usable name (letters, digits, - _ . only).".into());
+    }
+    let dest = store.join(&name);
+    if dest.exists() || dest.symlink_metadata().is_ok() {
+        return Err(format!("You already have a skill called {name}."));
+    }
+    fs::create_dir_all(&store).map_err(|e| e.to_string())?;
+    copy_dir(&src, &dest)?;
+    let _ = fs::remove_file(dest.join(".toolup.json"));
+    Ok(dest.to_string_lossy().into_owned())
+}
+
+/// Back up Tool up!'s saved skills to a GitHub repository of the user's, or bring them back from it, with the
+/// user's own git and its sign-in. `store_dir` is the folder of saved skills; `remote` a github.com repository.
+/// Backing up commits everything there and pushes it; restoring pulls, and never rewrites what is here.
+#[tauri::command]
+async fn backup_store(app: tauri::AppHandle, store_dir: String, remote: String, restore: bool) -> Result<RunOutput, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let dir = inside_home(&app, &store_dir)?;
+        let named = dir.file_name().map(|n| n == "skills").unwrap_or(false) && dir.parent().and_then(|d| d.file_name()).map(|n| n == ".toolup").unwrap_or(false);
+        let repo = remote.strip_prefix("https://github.com/").map(|r| r.trim_end_matches(".git").trim_end_matches('/'));
+        let Some(repo) = repo.filter(|r| named && safe_repo(r)) else {
+            return Err("Give the backup a GitHub repository, as https://github.com/you/your-backup.".to_string());
+        };
+        fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        let url = format!("https://github.com/{repo}.git");
+        let path = user_path(&app);
+        let mut log = String::new();
+        let mut git = |args: &[&str]| -> Result<bool, String> {
+            let mut cmd = Command::new("git");
+            cmd.arg("-C").arg(&dir).args(args).stdin(Stdio::null()).env("GIT_TERMINAL_PROMPT", "0");
+            if let Some(p) = &path {
+                cmd.env("PATH", p);
+            }
+            let out = cmd.output().map_err(|e| format!("Could not run git: {e}"))?;
+            log.push_str(&format!("$ git {}\n{}{}", args.join(" "), String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr)));
+            Ok(out.status.success())
+        };
+        if !dir.join(".git").exists() {
+            git(&["init", "-q", "-b", "main"])?;
+        }
+        if !git(&["remote", "set-url", "origin", &url])? {
+            git(&["remote", "add", "origin", &url])?;
+        }
+        let ok = if restore {
+            git(&["pull", "--ff-only", "origin", "main"])?
+        } else {
+            git(&["add", "-A"])?;
+            // nothing new to commit is not a failure: the push below still brings the remote up to date
+            git(&["-c", "user.name=Tool up!", "-c", "user.email=toolup@localhost", "commit", "-q", "-m", "Tool up! backup"])?;
+            git(&["push", "-u", "origin", "main"])?
+        };
+        Ok(RunOutput { code: if ok { 0 } else { 1 }, output: log })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+/// Open Terminal in a project folder (under home) with an agent started on its own `/init`, which reads the
+/// project and writes its instructions file. Only these three agents, each with one fixed command; the user
+/// sees everything it does and approves what it writes. macOS only.
+#[tauri::command]
+fn open_terminal(app: tauri::AppHandle, path: String, agent: String) -> Result<(), String> {
+    let dir = inside_home(&app, &path)?;
+    let run = match agent.as_str() {
+        "claude-code" => "claude '/init'",
+        "codex" => "codex '/init'",
+        "gemini" => "gemini -i '/init'",
+        _ => return Err("That agent has no command for this.".into()),
+    };
+    let shown = dir.to_string_lossy();
+    // the folder goes into a shell line inside an AppleScript string: anything that could end either is refused
+    if !dir.is_dir() || shown.chars().any(|c| c.is_control() || matches!(c, '\'' | '"' | '\\' | '`' | '$')) {
+        return Err("That folder's name has characters Tool up! will not put in a command. Open a terminal there yourself and run the agent's /init.".into());
+    }
+    if !cfg!(target_os = "macos") {
+        return Err("Opening a terminal is only built for macOS so far. Open one in the project and run the agent's /init.".into());
+    }
+    let script = format!("tell application \"Terminal\"\nactivate\ndo script \"cd '{shown}' && {run}\"\nend tell");
+    let out = Command::new("/usr/bin/osascript").arg("-e").arg(script).stdin(Stdio::null()).output().map_err(|e| format!("Could not open Terminal: {e}"))?;
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!("Terminal could not be opened. {}", String::from_utf8_lossy(&out.stderr).trim()))
+    }
+}
+
+/// Let the user choose a folder with the system's own dialog, starting in their home directory.
+/// Returns the folder, or nothing when they cancel. Choosing it changes nothing.
+#[tauri::command]
+async fn pick_folder(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    let start = home(&app)?;
+    tauri::async_runtime::spawn_blocking(move || {
+        let picked = app.dialog().file().set_directory(start).blocking_pick_folder();
+        Ok(picked.and_then(|p| p.into_path().ok()).map(|p| p.to_string_lossy().into_owned()))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+/// The toolup:// links the app was started with, if any (a link opened while it runs arrives as a "deep-link" event).
+#[tauri::command]
+fn start_links(app: tauri::AppHandle) -> Vec<String> {
+    app.deep_link().get_current().ok().flatten().map(|urls| urls.iter().map(|u| u.to_string()).collect()).unwrap_or_default()
+}
+
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![home_dir, read_text, list_dir, path_exists, reveal_path, open_url, on_path, toolup, inspect_skill, install_skill, link_skill, park_skill, remove_skill, toolup_servers, fetch_json, fetch_skill, fetch_skills, claude_plugin, codex_marketplace])
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_dialog::init())
+        .setup(|app| {
+            // a toolup:// link opened while the app runs: hand it to the window, which decides what it asks for
+            let handle = app.handle().clone();
+            app.deep_link().on_open_url(move |event| {
+                let urls: Vec<String> = event.urls().iter().map(|u| u.to_string()).collect();
+                let _ = handle.emit("deep-link", urls);
+            });
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![home_dir, read_text, list_dir, path_exists, reveal_path, open_url, on_path, toolup, inspect_skill, install_skill, link_skill, park_skill, remove_skill, toolup_servers, fetch_json, fetch_skill, fetch_skills, claude_plugin, codex_marketplace, toolup_remove, skill_texts, write_text, copy_skill, backup_store, start_links, pick_folder, open_terminal])
         .run(tauri::generate_context!())
         .expect("error while running Tool up!");
 }

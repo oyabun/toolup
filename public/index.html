@@ -59,49 +59,37 @@
   </div>
 </header>
 
+<!-- the catalog's standing pointer to the desktop app: fixed under the header, never dismissed. Its button becomes the download once DOWNLOAD is set in app.js -->
+<aside class="getapp for-cat" aria-label="The desktop app">
+  <div class="getapp-in">
+    <span class="getapp-tag" aria-hidden="true">Mac app</span>
+    <p><b>Tool up! for Mac</b><span class="getapp-more">: see every agent's tools in one window, and switch them with a click.</span></p>
+    <a class="getapp-go" href="#app" data-view="app" data-download="getapp-go">Coming soon · See it <span aria-hidden="true">→</span></a>
+  </div>
+</aside>
+
 <div class="wrap">
   <main id="kit">
-    <div class="view" id="v-app">
-    <section class="hero app-hero" aria-labelledby="h-app">
-      <p class="eyebrow">Desktop app · Mac</p>
-      <h1 id="h-app">Every agent's tools, in <em>one window</em>.</h1>
-      <p class="lede">See the skills and MCP servers on your computer, and which of your agents has each one. One click turns one on or off.</p>
-      <div class="app-cta">
-        <!-- no build is published yet. When one is, replace this span with: <a class="btn pri big" href="…">Download for Mac</a> -->
-        <span class="soon">Coming soon for Mac</span>
-        <a class="btn big" href="#catalog" data-view="catalog">Use the catalog now <span aria-hidden="true">→</span></a>
-      </div>
-      <figure class="app-shot">
-        <img class="shot-light" src="images/app-light.webp" alt="The Tool up! app: a list of skills and MCP servers, each with a switch for every agent." width="2360" height="1560" decoding="async">
-        <img class="shot-dark" src="images/app-dark.webp" alt="" width="2360" height="1560" decoding="async" loading="lazy">
-      </figure>
-    </section>
-
-    <section class="points" aria-labelledby="h-points">
-      <h2 id="h-points">What it does</h2>
-      <ol class="pts">
-        <li><span class="n">01</span><b>Shows what you have</b><p>One list of every skill, plugin and MCP server on your computer, with a mark for each agent that has it.</p></li>
-        <li><span class="n">02</span><b>Switches with one click</b><p>Turn a skill on for one agent and off for another. Nothing is deleted, so you can turn it back on.</p></li>
-        <li><span class="n">03</span><b>Installs what you paste</b><p>Copy any install command for a skill, an MCP server or a plugin and paste it into the app. It installs it for the agents you choose, or pick from the catalog inside.</p></li>
-        <li><span class="n">04</span><b>Keeps skills current</b><p>Check a skill against its GitHub repo and update it when a newer version is out.</p></li>
-      </ol>
-    </section>
-
-    <section class="also" aria-labelledby="h-also">
-      <h2 id="h-also">Prefer the terminal? <small>Pick servers and skills in the catalog and copy one line. Every agent on your computer gets them, no app needed.</small></h2>
-      <a class="btn big" href="#catalog" data-view="catalog">Open the catalog <span aria-hidden="true">→</span></a>
-    </section>
-    </div>
-
-    <div class="view" id="v-catalog">
-    <section class="hero" aria-labelledby="h-hero">
+    <!-- one hero for both views: the same field of cells and the same toolbox, with each view's own words -->
+    <section class="hero" aria-labelledby="h-app h-hero">
       <canvas id="field" aria-hidden="true"></canvas>
       <div class="hero-art" aria-hidden="true"><img class="ha ha-closed" src="images/hero-closed.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-open" src="images/hero-open.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-skills" src="images/hero-skills.webp" alt="" width="380" height="331" decoding="async"></div>
-    <p class="eyebrow" id="hero-meta">MCP servers · Skills · One line</p>
-      <h1 id="h-hero">Tool up your agents in <em>one line</em>.</h1>
-      <p class="lede">Choose what your AI agents can do. Copy one line. Every agent on your computer gets it.</p>
+      <p class="eyebrow for-app" id="app-meta">Desktop app · Mac</p>
+      <h1 class="for-app" id="h-app">Every agent's tools, in <em>one window</em>.</h1>
+      <p class="lede for-app">See the skills and MCP servers on your computer, and which of your agents has each one. One click turns one on or off.</p>
+      <div class="app-cta for-app">
+        <!-- no build is published yet. When one is, replace this span with: <a class="btn pri big" href="…">Download for Mac</a> -->
+        <span class="soon" data-download="btn pri big">Coming soon for Mac</span>
+        <a class="btn big" href="#try" data-tour="installed">Try it on this page <span aria-hidden="true">↓</span></a>
+      </div>
+      <p class="eyebrow for-cat" id="hero-meta">MCP servers · Skills · One line</p>
+      <h1 class="for-cat" id="h-hero">Tool up your agents in <em>one line</em>.</h1>
+      <p class="lede for-cat">Choose what your AI agents can do. Copy one line. Every agent on your computer gets it.</p>
+      <!-- the catalog's hero is the thing itself: choose the agents, pick a few things for them, and the line is written as you go -->
+      <div class="build for-cat" role="group" aria-label="Build your line">
+      <div class="bstep">
+        <span class="bl" aria-hidden="true"><i>01</i> Agents</span>
       <div class="hero-pick">
-        <span class="pick-lbl" aria-hidden="true">For</span>
         <div class="dd-wrap" id="targets">
           <button class="dd" id="agent-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="agent-list" aria-labelledby="agent-lbl agent-main">
             <span class="dd-logos" id="agent-logos"></span>
@@ -115,7 +103,74 @@
           </div>
         </div>
       </div>
+      </div>
+      <div class="bstep">
+        <span class="bl" id="bl-pick"><i>02</i> Pick from</span>
+        <div class="qp" id="quick" role="group" aria-labelledby="bl-pick"></div>
+      </div>
+      <div class="bstep">
+        <span class="bl" id="bl-copy"><i>03</i> Copy</span>
+        <div class="term hero-term" id="hero-term"><div class="cmd"><span class="p" aria-hidden="true">$</span><code id="hero-cmd" tabindex="0" aria-labelledby="bl-copy"></code><button class="btn pri" id="hero-copy" type="button">Copy</button></div></div>
+      </div>
+      </div>
     </section>
+
+    <div class="view" id="v-app">
+    <!-- the app itself, not a picture of it: the desktop app's own interface (built into app/ by npm run build), on sample data -->
+    <section class="try" id="try" aria-labelledby="h-try">
+      <h2 id="h-try">Try it here <small>This is the app itself, running in your browser on sample data. Click anything in it: nothing on this page touches your computer.</small></h2>
+      <div class="tour" role="group" aria-label="Show me">
+        <span class="tour-l" aria-hidden="true">Show me</span>
+        <button type="button" data-tour="installed" aria-pressed="true">What's installed</button>
+        <button type="button" data-tour="switch">A switch</button>
+        <button type="button" data-tour="paste">Adding one</button>
+        <button type="button" data-tour="catalog">The catalog</button>
+        <button type="button" data-tour="collection">A collection</button>
+        <button type="button" data-tour="detail">A skill's page</button>
+        <button type="button" data-tour="projects">Projects</button>
+        <button type="button" data-tour="settings">Settings</button>
+      </div>
+      <div class="win">
+        <div class="win-h" aria-hidden="true"><i></i><i></i><i></i><span>Tool up!</span></div>
+        <div class="win-b"><iframe id="live" src="app/index.html?embed=1" title="The Tool up! app, running on sample data" loading="lazy"></iframe></div>
+      </div>
+    </section>
+
+    <section class="points" aria-labelledby="h-points">
+      <h2 id="h-points">What it does</h2>
+      <ol class="pts">
+        <li><span class="n">01</span><b>Shows what you have</b><p>One list of every skill, plugin and MCP server on your computer, with a mark for each agent that has it.</p><button class="show" type="button" data-tour="installed">Show me</button></li>
+        <li><span class="n">02</span><b>Switches with one click</b><p>Turn a skill on for one agent and off for another. Nothing is deleted, so you can turn it back on.</p><button class="show" type="button" data-tour="switch">Show me</button></li>
+        <li><span class="n">03</span><b>Installs what you paste</b><p>Paste any install command for a skill, an MCP server or a plugin, or a GitHub repository. It installs it for the agents you choose.</p><button class="show" type="button" data-tour="paste">Show me</button></li>
+        <li><span class="n">04</span><b>Collections, whole or in part</b><p>A publisher's set of skills comes as one folder. Get all of it or only the ones you tick, and save sets of your own.</p><button class="show" type="button" data-tour="collection">Show me</button></li>
+        <li><span class="n">05</span><b>Works per project</b><p>Give one project its own servers and skills, and edit its AGENTS.md or CLAUDE.md in place.</p><button class="show" type="button" data-tour="projects">Show me</button></li>
+        <li><span class="n">06</span><b>Keeps skills current</b><p>Check a skill against its GitHub repository and update it when a newer version is out. Or make a copy that is yours to change.</p><button class="show" type="button" data-tour="menu">Show me</button></li>
+        <li><span class="n">07</span><b>Reads before it installs</b><p>A skill from GitHub is scanned for risky instructions first, and you see what was found before you confirm.</p></li>
+        <li><span class="n">08</span><b>Backs up your skills</b><p>Save the skills you keep to a GitHub repository you name, so a new computer starts with them.</p></li>
+      </ol>
+    </section>
+
+    <section class="works" aria-labelledby="h-works">
+      <h2 id="h-works">Works with <span id="n-agents">your</span> agents <small>It finds the ones on your computer. In Settings you can leave any of them out.</small></h2>
+      <div class="agents-run"><ul class="agents" id="app-agents"></ul></div>
+    </section>
+
+    <section class="faq app-faq" aria-labelledby="h-app-faq">
+      <h2 id="h-app-faq">Questions about the app</h2>
+      <details><summary>Is the window on this page the real app?</summary><p>Yes. It is the same interface the desktop app shows, built from the same code, running in your browser on sample data. It cannot see or change anything on your computer; only the desktop app can.</p></details>
+      <details><summary>What does the desktop app change on my computer?</summary><p>Your agents' own settings files and skill folders, such as <code>~/.claude.json</code>, <code>~/.cursor/mcp.json</code> and <code>~/.claude/skills</code>. It asks before it installs or deletes anything.</p></details>
+      <details><summary>What about tokens and API keys?</summary><p>They stay where they are. The app will not copy an MCP server that carries a key from one agent to another, and nothing from the catalog needs a secret.</p></details>
+      <details><summary>Does it install the agents themselves?</summary><p>No. It works on the agents you already have. An agent you install later shows up the next time the app looks.</p></details>
+      <details><summary>When can I download it?</summary><p>The Mac build is not published yet. Until it is, the <a href="#catalog" data-view="catalog">catalog</a> does the installing part today, with one line in your terminal.</p></details>
+    </section>
+
+    <section class="also" aria-labelledby="h-also">
+      <h2 id="h-also">Prefer the terminal? <small>Pick servers and skills in the catalog and copy one line. Every agent on your computer gets them, no app needed.</small></h2>
+      <a class="btn big" href="#catalog" data-view="catalog">Open the catalog <span aria-hidden="true">→</span></a>
+    </section>
+    </div>
+
+    <div class="view" id="v-catalog">
     <noscript><p class="lede">This page builds your command from a catalog, so it needs JavaScript. Without it, run <code>curl -fsSL toolup.sh | bash -s -- --list</code> to see every id.</p></noscript>
 
     <div class="layout">
@@ -123,6 +178,11 @@
     <section aria-labelledby="h-packs">
       <h2 id="h-packs"><span class="n">01</span> Start from a pack <small>or pick à la carte below</small></h2>
       <div class="packs" id="packs"></div>
+      <!-- collections: a publisher's own set of skills, as the app shows them. The folder opens its list below; its button adds all of it -->
+      <div class="colls" id="colls-box">
+        <div class="colls-h"><h3 id="h-colls">Collections <small>a publisher's own set of skills: add all of one, or open it and pick</small></h3><button class="btn" id="colls-all" type="button" aria-expanded="false"></button></div>
+        <div class="folders" id="colls" role="group" aria-labelledby="h-colls"></div>
+      </div>
       <div class="pk-tools">
         <button class="clear" id="clear" type="button">Clear selection</button>
       </div>
@@ -167,6 +227,7 @@
               <button class="mi" id="link" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span><b>Copy link</b><small>A link that restores exactly this selection</small></span></button>
               <button class="mi" id="dl" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg><span><b>Download .sh</b><small>A script with your picks built in; works offline</small></span></button>
               <button class="mi" id="view" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg><span><b>Preview script</b><small>Read the exact script before you run it</small></span></button>
+              <button class="mi" id="inapp" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg><span><b>Open in the app</b><small>Sends these picks to Tool up! for Mac, which asks before it installs</small></span></button>
             </div>
           </div>
         </div>
@@ -189,7 +250,9 @@
 <aside class="drawer" id="drawer" aria-label="Your picks" hidden>
   <div class="dr-h"><strong>Your picks</strong><button class="btn" type="button" data-rmall>Clear all</button><button class="dr-x" id="drawer-close" type="button" aria-label="Close the list">×</button></div>
   <p class="count" id="count" aria-live="polite"></p>
-  <div class="dr-ag"><span class="dr-cap">Tool up these agents</span><div class="dr-agents" id="dr-agents" role="group" aria-label="Agents to tool up"></div></div>
+  <div class="dr-ag"><span class="dr-cap" id="dr-cap">Tool up these agents</span>
+    <button class="dd dr-dd" id="dr-dd" type="button" aria-expanded="false" aria-controls="dr-agents" aria-labelledby="dr-cap dr-main"><span class="dd-logos" id="dr-logos"></span><span class="dd-main" id="dr-main">All agents</span><svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="dr-agents" id="dr-agents" role="group" aria-labelledby="dr-cap" hidden></div></div>
   <ul class="chips" id="chips" aria-label="Picked items"></ul>
 </aside>
 

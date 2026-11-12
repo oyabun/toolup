@@ -87,5 +87,183 @@
     "urlKey": "url",
     "skills": "github-copilot",
     "icon": "lu:code-xml#0e7ad3"
+  },
+  {
+    "id": "windsurf",
+    "k": "wi",
+    "name": "Windsurf",
+    "chip": "Windsurf",
+    "by": "Cognition",
+    "ds": "AI editor. Servers merged into its mcp_config.json.",
+    "color": "#0b9e8f",
+    "bin": null,
+    "paths": [
+      "/Applications/Windsurf.app",
+      "$HOME/.codeium/windsurf"
+    ],
+    "method": "json",
+    "config": [
+      "$HOME/.codeium/windsurf/mcp_config.json"
+    ],
+    "serversKey": "mcpServers",
+    "urlKey": "serverUrl",
+    "skills": "windsurf",
+    "skillsDir": "$HOME/.codeium/windsurf/skills",
+    "icon": "lobe:windsurf"
+  },
+  {
+    "id": "cline",
+    "k": "cd",
+    "name": "Cline",
+    "chip": "Cline",
+    "by": "Cline",
+    "ds": "Open-source coding agent, in VS Code and the terminal.",
+    "color": "#2b2b33",
+    "bin": "cline",
+    "paths": [
+      "$HOME/.cline",
+      "$HOME/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev",
+      "$HOME/.config/Code/User/globalStorage/saoudrizwan.claude-dev"
+    ],
+    "method": "json",
+    "config": [
+      "$HOME/.cline/data/settings/cline_mcp_settings.json",
+      "$HOME/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+      "$HOME/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json"
+    ],
+    "serversKey": "mcpServers",
+    "urlKey": "url",
+    "httpExtra": "\"type\":\"streamableHttp\",\"disabled\":false",
+    "skills": "cline",
+    "icon": "lobe:cline"
+  },
+  {
+    "id": "qwen-code",
+    "k": "qw",
+    "name": "Qwen Code",
+    "chip": "Qwen Code",
+    "by": "Alibaba",
+    "ds": "Terminal agent for Qwen models.",
+    "color": "#615ced",
+    "bin": "qwen",
+    "paths": [
+      "$HOME/.qwen"
+    ],
+    "method": "json",
+    "config": [
+      "$HOME/.qwen/settings.json"
+    ],
+    "serversKey": "mcpServers",
+    "urlKey": "httpUrl",
+    "skills": "qwen-code",
+    "skillsDir": "$HOME/.qwen/skills",
+    "icon": "lobe:qwen-color"
+  },
+  {
+    "id": "deepseek-harness",
+    "k": "dh",
+    "name": "DeepSeek Harness",
+    "chip": "DSH",
+    "by": "DeepSeek",
+    "ds": "DeepSeek's open agent harness. Skills only for now.",
+    "color": "#4d6bfe",
+    "bin": "dsh",
+    "paths": [
+      "$HOME/.dsh"
+    ],
+    "method": "skills",
+    "skills": "codex",
+    "icon": "lobe:deepseek-color"
+  },
+  {
+    "id": "openclaw",
+    "k": "oe",
+    "name": "OpenClaw",
+    "chip": "OpenClaw",
+    "by": "OpenClaw",
+    "ds": "Personal AI assistant that runs on your machine. Skills only for now.",
+    "color": "#d93a3a",
+    "bin": "openclaw",
+    "paths": [
+      "$HOME/.openclaw"
+    ],
+    "method": "skills",
+    "skills": "openclaw",
+    "skillsDir": "$HOME/.openclaw/skills",
+    "icon": "lobe:openclaw-color"
+  },
+  {
+    "id": "goose",
+    "k": "ge",
+    "name": "Goose",
+    "chip": "Goose",
+    "by": "Block",
+    "ds": "Open-source agent from Block. Skills only for now.",
+    "color": "#16161a",
+    "bin": "goose",
+    "paths": [
+      "/Applications/Goose.app",
+      "$HOME/.config/goose"
+    ],
+    "method": "skills",
+    "skills": "goose",
+    "skillsDir": "$HOME/.config/goose/skills",
+    "icon": "lobe:goose"
+  },
+  {
+    "id": "kiro",
+    "k": "ki",
+    "name": "Kiro",
+    "chip": "Kiro",
+    "by": "AWS",
+    "ds": "Spec-driven agent, as an IDE and a CLI.",
+    "color": "#8f47ff",
+    "bin": "kiro-cli",
+    "paths": [
+      "/Applications/Kiro.app",
+      "$HOME/.kiro"
+    ],
+    "method": "json",
+    "config": [
+      "$HOME/.kiro/settings/mcp.json"
+    ],
+    "serversKey": "mcpServers",
+    "urlKey": "url",
+    "skills": "kiro-cli",
+    "skillsDir": "$HOME/.kiro/skills",
+    "icon": "lobe:kiro-color"
+  },
+  {
+    "id": "pi",
+    "k": "pm",
+    "name": "Pi",
+    "chip": "Pi",
+    "by": "Mario Zechner",
+    "ds": "Minimal terminal coding agent. Skills only: Pi has no MCP of its own.",
+    "color": "#1d1d22",
+    "bin": "pi",
+    "paths": [
+      "$HOME/.pi/agent"
+    ],
+    "method": "skills",
+    "skills": "pi",
+    "icon": "lobe:pi"
+  },
+  {
+    "id": "hermes",
+    "k": "he",
+    "name": "Hermes Agent",
+    "chip": "Hermes",
+    "by": "Nous Research",
+    "ds": "Self-improving agent from Nous Research. Skills only for now.",
+    "color": "#1b1b20",
+    "bin": "hermes",
+    "paths": [
+      "$HOME/.hermes"
+    ],
+    "method": "skills",
+    "skills": "hermes-agent",
+    "skillsDir": "$HOME/.hermes/skills",
+    "icon": "lobe:hermesagent"
   }
 ]

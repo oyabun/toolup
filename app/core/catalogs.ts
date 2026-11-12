@@ -29,7 +29,6 @@ export interface Source {
   site: string;
   about: string;
   /** Says so when searches are limited without an API key. */
-  keyNote?: string;
   /** The address to ask for a search. */
   url(q: string): string;
   /** Read the answer. Throws when it is not what this catalog normally sends. */
@@ -59,28 +58,6 @@ const skillsSh: Source = {
         source: "skills-sh", kind: "skill", id: str(s.id) || `${repo}/${skill}`, name: str(s.name) || skill, by: repo, description: "",
         popularity: compact(s.installs) && `${compact(s.installs)} installs`, page: `https://skills.sh/${str(s.id)}`,
         install: ok ? { type: "skill", repo, skill, path: "" } : null, blocked: ok ? "" : "Not on GitHub, so it can't be fetched from here.",
-      };
-    });
-  },
-};
-
-const skillsMp: Source = {
-  id: "skillsmp", name: "SkillsMP", kind: "skill", site: "https://skillsmp.com",
-  about: "A large index of skills found on GitHub, ranked by stars.",
-  keyNote: "Without an API key SkillsMP allows about 50 searches a day.",
-  url: (q) => `https://skillsmp.com/api/v1/skills/search?q=${enc(q)}&limit=30&sortBy=stars`,
-  parse(json) {
-    const d = rec(rec(json).data);
-    if (!Array.isArray(d.skills)) throw new Error(str(rec(rec(json).error).message) || str(rec(json).error) || "SkillsMP sent something unexpected.");
-    return d.skills.map(rec).map((s): Found => {
-      // https://github.com/<owner>/<repo>/tree/<branch>/<path to the skill folder>
-      const m = /^https:\/\/github\.com\/([^/]+\/[^/]+)(?:\/tree\/[^/]+\/(.+?))?\/?$/.exec(str(s.githubUrl));
-      const repo = m?.[1] || "", path = m?.[2] || "", skill = path.split("/").pop() || str(s.name);
-      const ok = isRepo(repo) && part.test(skill) && path.split("/").every((x) => !x || (part.test(x) && x !== ".."));
-      return {
-        source: "skillsmp", kind: "skill", id: str(s.id), name: str(s.name) || skill, by: repo || str(s.author), description: str(s.description),
-        popularity: compact(s.stars) && `${compact(s.stars)} stars`, page: str(s.skillUrl),
-        install: ok ? { type: "skill", repo, skill, path } : null, blocked: ok ? "" : "No GitHub folder listed, so it can't be fetched from here.",
       };
     });
   },
@@ -130,7 +107,7 @@ const mcpRegistry: Source = {
   },
 };
 
-export const SOURCES: Source[] = [skillsSh, skillsMp, skillsDirectory, mcpRegistry];
+export const SOURCES: Source[] = [skillsSh, skillsDirectory, mcpRegistry];
 
 /** Catalogs that exist but need an account and a key (or a licence) before they can be asked anything. */
 export const NOT_YET = [

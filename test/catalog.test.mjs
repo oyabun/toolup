@@ -24,15 +24,18 @@ test("every item has a unique two-letter share code", () => {
   assert.ok(!seen.has("zz"), "zz is the Docker switch in share links");
 });
 
-test("the five v1 agents are in the table, each fully described", () => {
-  assert.deepEqual(agents.map((a) => a.id), ["claude-code", "codex", "gemini", "cursor", "vscode"]);
+test("the agents are in the table, each fully described", () => {
+  assert.deepEqual(agents.map((a) => a.id), ["claude-code", "codex", "gemini", "cursor", "vscode", "windsurf", "cline", "qwen-code", "deepseek-harness", "openclaw", "goose", "kiro", "pi", "hermes"]);
   for (const a of agents) {
-    assert.ok(["claude", "codex", "gemini", "vscode", "json"].includes(a.method), a.id);
+    assert.ok(["claude", "codex", "gemini", "vscode", "json", "skills"].includes(a.method), a.id);   // "skills": no servers wired from here, skills only
     assert.ok(a.bin || a.paths.length, `${a.id} needs a way to be detected`);
     assert.ok(a.skills, `${a.id} needs a skills CLI agent name`);
     if (a.method === "json" || a.method === "vscode") assert.ok(a.config?.length && a.serversKey, `${a.id} needs a config file and servers key`);
   }
-  assert.deepEqual(agents.map((a) => a.skills), ["claude-code", "codex", "gemini-cli", "cursor", "github-copilot"]);
+  // the name the open skills CLI knows each agent by. DeepSeek Harness is not one of them: it reads the shared
+  // ~/.agents/skills folder, which is where the CLI's "codex" target installs.
+  assert.deepEqual(agents.map((a) => a.skills), ["claude-code", "codex", "gemini-cli", "cursor", "github-copilot", "windsurf", "cline", "qwen-code", "codex", "openclaw", "goose", "kiro-cli", "pi", "hermes-agent"]);
+  for (const a of agents) if (a.httpExtra) assert.doesNotThrow(() => JSON.parse(`{${a.httpExtra}}`), `${a.id}: httpExtra must be JSON members`);
 });
 
 test("servers: every one is a remote https URL that signs in with the browser or needs nothing", () => {
@@ -53,8 +56,8 @@ test("the brief's remote servers are there, at the URLs it gave", () => {
   assert.equal(by.context7.url, "https://mcp.context7.com/mcp");
 });
 
-test("skills: 153 curated picks, each in a known category and a known repo or a hand-picked one", () => {
-  assert.equal(skills.length, 153);
+test("skills: 176 curated picks, each in a known category and a known repo or a hand-picked one", () => {
+  assert.equal(skills.length, 176);
   for (const s of skills) {
     assert.ok(s.cats && s.cats.length, `${s.id}: needs a category`);
     for (const c of s.cats) assert.ok(categories[c], `${s.id}: category ${c}`);

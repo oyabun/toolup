@@ -15,18 +15,6 @@ test("skills.sh: a repo and a skill id make it installable", () => {
   assert.throws(() => s.parse({ error: "Query must be at least 2 characters" }));
 });
 
-test("SkillsMP: the GitHub link gives the repo and the folder", () => {
-  const s = by("skillsmp");
-  const [a, b] = s.parse({ success: true, data: { skills: [
-    { id: "x", name: "telegram-e2e-userbot", author: "openclaw", description: "Prove it.", githubUrl: "https://github.com/openclaw/openclaw/tree/main/.agents/skills/telegram-e2e-userbot", skillUrl: "https://skillsmp.com/creators/openclaw", stars: 394204 },
-    { id: "y", name: "odd", author: "someone", description: "", githubUrl: "", stars: 3 },
-  ] } });
-  assert.deepEqual(a.install, { type: "skill", repo: "openclaw/openclaw", skill: "telegram-e2e-userbot", path: ".agents/skills/telegram-e2e-userbot" });
-  assert.equal(a.popularity, "394K stars");
-  assert.equal(b.install, null);
-  assert.ok(b.blocked);
-});
-
 test("MCP Registry: only an open HTTP remote can be installed from here", () => {
   const s = by("mcp-registry");
   const found = s.parse({ servers: [

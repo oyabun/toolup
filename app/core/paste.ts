@@ -142,6 +142,17 @@ function readLine(w: string[]): Pasted | null {
 }
 
 /**
+ * A GitHub repository given by its address (and, when `loose`, as plain owner/repo): its skills, to pick from.
+ * An address that points at one skill's folder names that skill.
+ */
+export function githubSkills(text: string, loose = false): Pasted | null {
+  const t = text.trim();
+  if (!t || /\s/.test(t) || (!loose && !/^(?:https?:\/\/)?(?:www\.)?github\.com\//i.test(t))) return null;
+  const r = repoOf(t);
+  return r ? { type: "skill", repo: r.repo, skills: r.skill ? [r.skill] : [] } : null;
+}
+
+/**
  * What a pasted piece of text asks for, or null when it is not an install command (so a normal paste goes ahead).
  * Several lines are read together: a plugin's "marketplace add" line tells where its "install" line's list lives.
  */
@@ -149,6 +160,8 @@ export function parsePaste(text: string): Pasted | null {
   const t = text.trim();
   if (!t || t.length > 20000) return null;
   if (t.startsWith("{")) return fromJson(t);
+  const repo = githubSkills(t);
+  if (repo) return repo;
   const lines = t.replace(/\\\r?\n/g, " ").split(/\r?\n|&&|;/).map((l) => l.trim().replace(/^(?:[$>#]\s+)+/, "")).filter(Boolean).slice(0, 20);
   const got = lines.map((l) => readLine(words(l))).filter((p): p is Pasted => !!p);
   const plugin = got.find((p) => p.type === "plugin"), market = got.find((p) => p.type === "market");

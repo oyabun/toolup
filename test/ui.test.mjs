@@ -6,7 +6,7 @@ import { JSDOM } from "jsdom";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { machine, lines } from "./helpers.mjs";
+import { machine, lines, EVERY_AGENT } from "./helpers.mjs";
 
 const root = fileURLToPath(new URL("../public/", import.meta.url));
 const read = (f) => readFileSync(root + f, "utf8");
@@ -47,7 +47,7 @@ before(() => boot());
 test("the page loads without script errors", () => assert.deepEqual(errors, []));
 
 test("the hero, the wordmark with its beta pill and the logo are there", () => {
-  assert.match($("#v-catalog h1").textContent, /Tool up your agents in one line\./);
+  assert.match($("#h-hero").textContent, /Tool up your agents in one line\./);
   assert.equal($(".logo").getAttribute("aria-label"), "Tool up!");
   assert.equal($(".logo").tagName.toLowerCase(), "svg", "the logo is a vector");
   assert.equal($$(".home .logo path").length, 1, "one path: the official logo");
@@ -76,8 +76,9 @@ test("the page opens on the app; the header's tabs switch to the catalog and bac
   assert.equal(view(), "app");
   assert.deepEqual(current(), ["app"]);
   assert.equal(window.location.hash, "");
-  assert.match($("#v-app h1").textContent, /one window/);
-  assert.ok($("#v-app .app-shot img"), "with a picture of the app");
+  assert.match($("#h-app").textContent, /one window/);
+  assert.ok($(".hero > #h-app") && $(".hero > #h-hero") && $(".hero > #field"), "both views share one hero: the same field, each with its own words");
+  assert.match(read("style.css"), /\[data-view="app"\] \.for-cat,\[data-view="catalog"\] \.for-app\{display:none\}/, "and only the open view's words show");
   click($('.views a[data-view="catalog"]'));
   assert.equal(view(), "catalog");
   assert.deepEqual(current(), ["catalog"]);
@@ -101,8 +102,8 @@ test("sections run 01 to 02 in order, then the FAQ; the list's heading explains 
 
 test("three tabs, All, MCPs and Skills, over one list; cards say which kind they are", () => {
   const tabs = () => $$("#cat .tabs .tab");
-  assert.deepEqual(tabs().map((b) => b.querySelector("span").textContent), ["All", "MCPs", "Skills"]);
-  assert.deepEqual(tabs().map((b) => b.querySelector("small").textContent), ["209", "56", "153"]);
+  assert.deepEqual(tabs().map((b) => b.querySelector("span").textContent), ["All", "MCP servers", "Skills"]);
+  assert.deepEqual(tabs().map((b) => b.querySelector("small").textContent), ["232", "56", "176"]);
   assert.equal($('[data-show="all"]').getAttribute("aria-pressed"), "true");
   assert.equal($$("#cat .grid").length, 1, "All is one mixed list");
   const names = $$("#cat .item .nm").map((n) => n.textContent);
@@ -115,10 +116,10 @@ test("three tabs, All, MCPs and Skills, over one list; cards say which kind they
   assert.ok($$("#cat .item").length === 56 && !$("#cat .item.k-skill"));
   tabTo("skills");
   assert.equal($('[data-show="skills"]').getAttribute("aria-pressed"), "true", "and the tabs follow the dropdown");
-  assert.ok($$("#cat .item").length === 153 && !$("#cat .item.k-mcp"));
+  assert.ok($$("#cat .item").length === 176 && !$("#cat .item.k-mcp"));
   const q = $("#q");
   q.value = "sentry"; q.dispatchEvent(new window.Event("input"));
-  assert.ok(+$('[data-show="mcp"] small').textContent >= 1 && +$('[data-show="all"] small').textContent < 209, "the counts follow the search");
+  assert.ok(+$('[data-show="mcp"] small').textContent >= 1 && +$('[data-show="all"] small').textContent < 232, "the counts follow the search");
   q.value = "linear"; q.dispatchEvent(new window.Event("input"));
   if (!$("#cat .item")) { click($("#cat .empty [data-show]")); assert.ok($("#cat .item.k-mcp"), "an empty tab points at the one that has the match"); }
   q.value = ""; q.dispatchEvent(new window.Event("input"));
@@ -126,9 +127,9 @@ test("three tabs, All, MCPs and Skills, over one list; cards say which kind they
 });
 
 
-test("the agent selector is a dropdown in the header: All agents by default, then the five agents", () => {
+test("the agent selector is a dropdown in the header: All agents by default, then every agent", () => {
   const btn = $("#agent-btn"), opts = $$("#agent-opts [role=option]");
-  assert.deepEqual(opts.map((o) => o.querySelector(".dd-nm").textContent), ["All agents", "Claude Code", "Codex CLI", "Gemini CLI", "Cursor", "VS Code + Copilot"]);
+  assert.deepEqual(opts.map((o) => o.querySelector(".dd-nm").textContent), ["All agents", "Claude Code", "Codex CLI", "Gemini CLI", "Cursor", "VS Code + Copilot", "Windsurf", "Cline", "Qwen Code", "DeepSeek Harness", "OpenClaw", "Goose", "Kiro", "Pi", "Hermes Agent"]);
   assert.equal(opts[0].getAttribute("aria-selected"), "true");
   assert.equal($("#agent-main").textContent, "All agents");
   assert.equal($$("#agent-logos .ico").length, 5, "all five logos show while All is chosen");
@@ -170,21 +171,21 @@ test("the dropdown works from the keyboard: arrows move, Escape closes and gives
   key(opts[0], "ArrowDown");
   assert.equal(window.document.activeElement, opts[1]);
   key(opts[1], "End");
-  assert.equal(window.document.activeElement, opts[5]);
-  key(opts[5], "ArrowDown");
+  assert.equal(window.document.activeElement, opts[opts.length - 1]);
+  key(opts[opts.length - 1], "ArrowDown");
   assert.equal(window.document.activeElement, opts[0], "it wraps");
   key(opts[0], "Escape");
   assert.ok($("#agent-list").hidden);
   assert.equal(window.document.activeElement, btn);
 });
 
-test("six packs, 56 servers and 153 skills are listed from the catalog", () => {
+test("six packs, 56 servers and 176 skills are listed from the catalog", () => {
   assert.equal($$(".pack").length, 6);
   assert.equal($$("#cat .item.k-mcp").length, 56);
   tabTo("skills");
-  assert.equal($$("#cat .item.k-skill").length, 153);
+  assert.equal($$("#cat .item.k-skill").length, 176);
   assert.match($('[data-tab="mcp"]').textContent, /56/);
-  assert.match($('[data-tab="skills"]').textContent, /153/);
+  assert.match($('[data-tab="skills"]').textContent, /176/);
   tabTo("mcp");
 });
 
@@ -276,7 +277,7 @@ test("search finds servers and skills together, and says when nothing matches", 
   q.value = "zzzzqqq"; q.dispatchEvent(new window.Event("input"));
   assert.match($("#cat").textContent, /Nothing matches/);
   q.value = ""; q.dispatchEvent(new window.Event("input"));
-  assert.equal($$(".item").length, 209, "back to the tab view: the All tab shows servers and skills");
+  assert.equal($$(".item").length, 232, "back to the tab view: the All tab shows servers and skills");
   assert.equal($("#show-pick").value, "all");
 });
 
@@ -497,12 +498,14 @@ test("the downloaded script runs offline with no arguments and does what the pag
 
 // What the page shows for a server is what the installer runs. Checked on the real catalog (remote servers) and, because the
 // installer still supports local ones (npx / uvx), on a few of those from the test catalog.
-function wiringMatches(m, items) {
+function wiringMatches(m, items, only = null) {
   const ran = lines(m.run("--dry-run", ...items.map((x) => x.id)).out, "→").map((l) => l.replaceAll(m.home, "$HOME"));
-  for (const a of catalog.agents) {
+  for (const a of catalog.agents.filter((a) => !only || only.includes(a.id))) {
     for (const x of items) {
       const shown = window.ToolUp.wire(a.id, x);
-      if (a.method === "json") {
+      if (a.method === "skills") {   // takes skills only: the page says so, and the installer adds no server to it
+        assert.match(shown, /^# skills only/, a.id);
+      } else if (a.method === "json") {
         const entry = shown.split("\n")[1];
         assert.ok(ran.some((l) => l.startsWith(`add ${x.id} to `) && l.includes(a.config[0].replace("$HOME", m.home).replaceAll(m.home, "$HOME"))), `${a.id}/${x.id}`);
         assert.ok(entry.startsWith(`"${x.id}": {`));
@@ -516,13 +519,14 @@ function wiringMatches(m, items) {
   }
 }
 test("the wiring commands the page shows are the ones the installer runs, for every agent and every server", () => {
-  wiringMatches(machine(undefined, { real: true }), catalog.mcp);
+  wiringMatches(machine(EVERY_AGENT, { real: true }), catalog.mcp);
   const local = [
     { id: "playwright", transport: "stdio", cmd: "npx -y @playwright/mcp@latest", needs: ["node"] },
     { id: "fetch", transport: "stdio", cmd: "uvx mcp-server-fetch", needs: ["uv"] },
     { id: "filesystem", transport: "stdio", cmd: "npx -y @modelcontextprotocol/server-filesystem $HOME", needs: ["node"] },
   ];
-  wiringMatches(machine(), local);
+  // the test catalog (the one with local servers) lists the first five agents only
+  wiringMatches(machine(), local, ["claude-code", "codex", "gemini", "cursor", "vscode"]);
 });
 
 test("every server and agent chip shows an inline logo, not initials", async () => {
@@ -562,7 +566,8 @@ test("logos and providers", () => {
   for (const id of ["claude-code", "codex", "gemini", "cursor"]) assert.ok(agent(id).svg, `${id} should use its Lobe Icons logo`);
   assert.ok(!agent("vscode").svg && agent("vscode").stroke, "VS Code is not a provider");
   assert.ok(catalog.repos.find((r) => r.repo === "anthropics/skills").icon.svg && catalog.repos.find((r) => r.repo === "openai/skills").icon.svg);
-  assert.equal($$("[data-tgt] .ico.brand").length, 4);
+  for (const id of ["windsurf", "cline", "qwen-code", "deepseek-harness", "openclaw", "goose", "kiro", "pi", "hermes"]) assert.ok(agent(id).svg, `${id} should use its Lobe Icons logo`);
+  assert.equal($$("[data-tgt] .ico.brand").length, 13);
   click($('[data-info="github"]'));
   assert.ok($("#sheet .sheet-h .ico svg"));
 });
@@ -620,7 +625,7 @@ test("long lists: the header filters show one list at a time (or all), 24 cards 
   assert.equal($("#show-pick").value, "all", "All is the first option and the default");
   assert.equal($$("#cat .item").length, 24, "All pages as one list");
   assert.match($("[data-more=all]").textContent, /Show 24 more/);
-  assert.match($('[data-tab="all"]').textContent, /209/);
+  assert.match($('[data-tab="all"]').textContent, /232/);
   tabTo("mcp");
   assert.equal($("#show-pick").value, "mcp");
   assert.equal($$("#cat .item.k-mcp").length, 24);
@@ -670,7 +675,7 @@ test("the picks drawer lets you choose the agents, in step with the hero's dropd
   click($("#clear")); click($('[data-all]'));
   pick("github");
   click($("#review"));
-  assert.equal($$("#dr-agents [data-dtgt]").length, 5);
+  assert.equal($$("#dr-agents [data-dtgt]").length, catalog.agents.length);
   assert.equal($("[data-dall]").getAttribute("aria-pressed"), "true", "All by default");
   click($('[data-dtgt="claude-code"]')); click($('[data-dtgt="codex"]'));
   assert.match(cmd(), / --to claude-code,codex$/);
@@ -703,7 +708,7 @@ test("the header's dropdowns have an icon on every option, open on click, pick o
     assert.ok(list.hidden, "Escape closes it");
   }
   assert.equal($('[data-dd="show-pick"] .dd2-lbl').textContent, "All", "the button says it short");
-  assert.match($('[data-dd="show-pick"] .dd2-opt[data-v="all"]').textContent, /All · 209/, "the list has the counts");
+  assert.match($('[data-dd="show-pick"] .dd2-opt[data-v="all"]').textContent, /All · 232/, "the list has the counts");
   click($('[data-dd="show-pick"] .dd2-btn'));
   click($('[data-dd="show-pick"] .dd2-opt[data-v="skills"]'));
   assert.equal($("#show-pick").value, "skills", "picking in the list sets the real value");
@@ -765,7 +770,9 @@ test("Copy command is one split button: its menu holds Copy link, Download and P
   assert.ok(menu.hidden);
   assert.ok(menu.contains($("#dl")) && menu.contains($("#view")), "Download and Preview live in the menu");
   assert.ok($(".split").contains($("#copy")) && menu.contains($("#link")), "Copy link is in the menu too: one button, three ways to get it");
-  assert.ok($(".term .cmd").contains($(".split")), "the button sits inside the terminal, on the command line");
+  assert.ok(menu.contains($("#inapp")) && !$("#inapp").disabled, "and so is Open in the app");
+  assert.equal(window.ToolUp.appLink(), "toolup://install?ids=github,tdd", "a link the desktop app takes: the picked servers and skills, no agents");
+  assert.ok($(".bar .term .cmd").contains($(".split")), "the button sits inside the terminal, on the command line");
   click($("#more"));
   assert.ok(!menu.hidden && $("#more").getAttribute("aria-expanded") === "true");
   assert.equal(window.document.activeElement, $("#link"), "focus goes to the first item");

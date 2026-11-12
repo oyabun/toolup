@@ -46,7 +46,8 @@ const full = () => machine({
 test("finds the harnesses that are installed, by command or by folder", async () => {
   const inv = await scan(full().host, catalog);
   const here = Object.fromEntries(inv.harnesses.map((h) => [h.id, h.present]));
-  assert.deepEqual(here, { "claude-code": true, codex: true, gemini: true, cursor: true, vscode: false });
+  const later = { windsurf: false, cline: false, "qwen-code": false, "deepseek-harness": false, openclaw: false, goose: false, kiro: false, pi: false, hermes: false };
+  assert.deepEqual(here, { "claude-code": true, codex: true, gemini: true, cursor: true, vscode: false, ...later });
 });
 
 test("the same server under different names and formats is one item across harnesses", async () => {
@@ -178,4 +179,35 @@ test("a catalog skill kept in a folder of another name is still recognised, by t
   const item = (await scan(host, catalog)).items.find((i) => i.key === "skill:taste-skill")!;
   assert.equal(item.catalogId, "design-taste-frontend");
   assert.equal(item.name, "Design Taste", "it takes the catalog's name");
+});
+
+test("the later agents: servers are read where each keeps them, skills from its own folder, and skills-only agents list no servers", async () => {
+  const { host } = machine({
+    ".codeium/windsurf/mcp_config.json": JSON.stringify({ mcpServers: { sentry: { serverUrl: "https://mcp.sentry.dev/mcp" } } }),
+    ".cline/data/settings/cline_mcp_settings.json": JSON.stringify({ mcpServers: { sentry: { url: "https://mcp.sentry.dev/mcp", type: "streamableHttp", disabled: false } } }),
+    ".qwen/settings.json": JSON.stringify({ mcpServers: { sentry: { httpUrl: "https://mcp.sentry.dev/mcp" } } }),
+    ".kiro/settings/mcp.json": JSON.stringify({ mcpServers: { sentry: { url: "https://mcp.sentry.dev/mcp" } } }),
+    ".config/goose/config.yaml": "extensions:\n  sentry:\n    type: streamable_http\n    uri: https://mcp.sentry.dev/mcp\n",
+    ".config/goose/skills/tdd/SKILL.md": skill("tdd", "Test first."),
+    ".hermes/skills/own/SKILL.md": skill("own", "Mine."),
+    ".pi/agent/skills/own/SKILL.md": skill("own", "Mine."),
+    ".dsh/skills/own/SKILL.md": skill("own", "Mine."),
+    ".openclaw/skills/own/SKILL.md": skill("own", "Mine."),
+    // each has something of its own besides skills, which is what makes it count as installed
+    ".hermes/config.yaml": "model: x\n", ".pi/agent/settings.json": "{}", ".dsh/cordis.patch.yml": "", ".openclaw/openclaw.json": "{}",
+  }, []);
+  const inv = await scan(host, catalog);
+  const present = inv.harnesses.filter((h) => h.present).map((h) => h.id).sort();
+  assert.deepEqual(present, ["cline", "deepseek-harness", "goose", "hermes", "kiro", "openclaw", "pi", "qwen-code", "windsurf"]);
+  const sentry = inv.items.find((i) => i.catalogId === "sentry")!;
+  assert.deepEqual(Object.keys(sentry.in).sort(), ["cline", "kiro", "qwen-code", "windsurf"], "one server, read from four differently shaped configs; Goose's YAML is not read");
+  assert.deepEqual(inv.harnesses.flatMap((h) => h.problems), [], "and nothing is reported as broken");
+  assert.deepEqual(Object.keys(inv.items.find((i) => i.key === "skill:tdd")!.in), ["goose"]);
+  assert.deepEqual(Object.keys(inv.items.find((i) => i.key === "skill:own")!.in).sort(), ["deepseek-harness", "hermes", "openclaw", "pi"]);
+});
+
+test("a folder that holds only skills does not make an agent installed", async () => {
+  const { host } = machine({ ".kiro/skills/tdd/SKILL.md": skill("tdd", "Test first."), ".cursor/skills/x/SKILL.md": skill("x", "X."), ".qwen/settings.json": "{}" }, []);
+  const here = (await scan(host, catalog)).harnesses.filter((h) => h.present).map((h) => h.id);
+  assert.deepEqual(here, ["qwen-code"], "Kiro and Cursor have a skills folder and nothing else; Qwen Code has its settings");
 });

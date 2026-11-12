@@ -34,6 +34,8 @@ export interface CatalogAgent {
   config?: string[];
   serversKey?: string;
   skillsDir?: string;
+  /** How the installer adds servers to it; "skills" means it takes skills only (its servers are not read or written). */
+  method?: string;
 }
 
 export type Kind = "mcp" | "skill";
