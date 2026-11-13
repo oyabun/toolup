@@ -146,7 +146,9 @@
   }
 
   /* ---------- render ---------- */
-  const tagsHtml = (x) => tagsFor(x).map((t) => `<span class="tag ${tagClass(t)}">${esc(t)}</span>`).join("");
+  // a count of installs carries a small download mark in front of it
+  const DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
+  const tagsHtml = (x) => tagsFor(x).map((t) => `<span class="tag ${tagClass(t)}">${tagClass(t) === "i" ? DOWN : ""}${esc(t)}</span>`).join("");
   const infoBtn = (x) => `<button class="info" type="button" data-info="${x.id}" aria-label="Details for ${esc(x.name)}">details</button>`;
 
   // every card says what it is: a coloured badge (violet MCP, green Skill), and the logo's shape (square server, round skill)
@@ -175,14 +177,30 @@
       <span class="meta">${tagsHtml(x)}</span>${kindBadge(x)}</button>${infoBtn(x)}</div>`;
   }
   // lists are shown by name, A to Z (the command keeps catalog order, so it reads the same however you picked)
+  // where an idea for a new pack goes: a new issue on the project's GitHub page
+  const SUGGEST = "https://github.com/oyabun/toolup/issues/new?title=" + encodeURIComponent("Starter pack idea: ");
   // the packs' cover photos (the app's own, built into app/covers/), in the order the packs are listed
-  const COVERS = ["workflow", "frontend", "designer", "backend", "ship", "docs"];
+  const COVERS = ["workflow.png", "frontend.png", "productdesigner.png", "backend.png"];
   // collections: every repository with three skills or more, the largest first (the same rule and names as the app)
   const OWNER_NAMES = { anthropics: "Anthropic", "vercel-labs": "Vercel", docker: "Docker", obra: "Superpowers", mattpocock: "Matt Pocock", addyosmani: "Addy Osmani", getsentry: "Sentry", cloudflare: "Cloudflare", figma: "Figma", makenotion: "Notion", trailofbits: "Trail of Bits", helmcode: "Helmcode", coreyhaines31: "Marketing", bergside: "Design styles", mengto: "Meng To", arla6ka: "design.how" };
   // the categories' own colours, the same as the app's
   const CAT_HUE = { code: 262, test: 150, design: 330, docs: 32, media: 12, cloud: 205, work: 245, pay: 165, web: 190, ai: 285, biz: 20, util: 220 };
   let catsOpen = false;   // the list's Categories menu
-  let COLLS = [], coll = null;   // coll: the collection whose own page the list is showing, or null
+  let COLLS = [], coll = null, collsPage = false, fitColls = () => {};   // collsPage: the page that shows every collection and nothing else
+  const ROOT = location.pathname.replace(/collections\/?$/, "");   // the site's own path, whatever page of it was opened
+  let packOpen = null;   // the starter pack being looked at: its own page, with what is in it
+  const BANNERS = ["workflow_banner.png", "frontend_banner.png", "productdesigner_banner.png", "backend_banner.png"];
+  const packSlug = (p) => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const routePath = () => (packOpen != null ? `${ROOT}?pack=${packSlug(C.packs[packOpen])}` : coll != null ? `${ROOT}collections?c=${encodeURIComponent(COLLS[coll].repo)}` : collsPage ? `${ROOT}collections` : ROOT);
+  // what the address asks for: nothing, every collection, or one of them
+  function readRoute() {
+    const on = /(^|\/)collections\/?$/.test(location.pathname), repo = new URLSearchParams(location.search).get("c");
+    const i = on && repo ? COLLS.findIndex((c) => c.repo === repo) : -1;
+    coll = i >= 0 ? i : null; collsPage = on && i < 0;
+    const slug = new URLSearchParams(location.search).get("pack"), pi = slug && !on ? C.packs.findIndex((p) => packSlug(p) === slug) : -1;
+    packOpen = pi >= 0 ? pi : null;
+  }
+  function openColls() { collsPage = true; coll = null; packOpen = null; q = $("#q").value = ""; fcat = ""; renderCatalog(); scrollTo({ top: Math.max(0, $("#colls-box").getBoundingClientRect().top + scrollY - 126) }); }   // coll: the collection whose own page the list is showing, or null
   function foldArt(c, front = "") {
     const show = c.items.slice(0, 3), step = show.length === 2 ? 46 : 38, tilt = Math.min(7, 20 / Math.max(1, show.length - 1));
     const papers = show.map((x, n) => { const off = n - (show.length - 1) / 2; return `<span class="paper" style="--x:${(off * step).toFixed(1)}px;--rot:${(off * tilt).toFixed(1)}deg;--sag:${(Math.abs(off) * 1.5).toFixed(1)}px;z-index:${n + 1}">${mark(x)}<span class="paper-name">${esc(x.name)}</span><span class="paper-line"></span><span class="paper-line short"></span></span>`; }).join("");
@@ -213,6 +231,14 @@
       skills: C.skills.filter((x) => matches(x, ql) && (!fcat || x.cats.includes(fcat))).sort(byName),
     };
     const cv = coll == null ? null : COLLS[coll];
+    const pv = packOpen == null || cv ? null : C.packs[packOpen];
+    if (pv) { tab = "all"; items.mcp = pv.ids.map((id) => ALL[id]).filter((x) => x.sec === "mcp"); items.skills = pv.ids.map((id) => ALL[id]).filter((x) => x.sec === "skills"); items.all = [...items.mcp, ...items.skills]; }
+    document.body.classList.toggle("in-coll", !!cv || !!pv);
+    document.body.classList.toggle("in-colls", collsPage && !cv);
+    // one kind, one category or a search: the list alone, without the packs and collections above it (as in the app)
+    document.body.classList.toggle("in-list", !cv && !pv && !collsPage && (tab !== "all" || !!fcat || !!ql));
+    $("#colls-crumbs").hidden = !(collsPage && !cv);
+    fitColls();   // a collection's own page stands alone: no packs or collections shelf above it
     if (cv) { tab = "skills"; items.mcp = []; items.skills = cv.items; }
     items.all = [...items.mcp, ...items.skills].sort(byName);
     // one row of categories for both kinds, with how many servers and skills each holds
@@ -228,13 +254,26 @@
     const empty = !items.all.length && ql ? `<p class="empty">Nothing matches “${esc(q)}”.</p>`
       : `<p class="empty">No ${noun} match.${elsewhere ? ` <button class="btn" type="button" data-show="${other}">See ${items[other].length} in ${other === "mcp" ? "MCPs" : "Skills"}</button>` : ""}</p>`;
     const about = cv && repoMeta(cv.repo).ds;
-    const head = cv ? `<nav class="crumbs" aria-label="Where you are"><button type="button" data-collback>Catalog</button><i aria-hidden="true">›</i><button type="button" data-collback="colls">Collections</button><i aria-hidden="true">›</i><span>${esc(cv.title)}</span></nav>
+    const head = cv ? `<nav class="crumbs" aria-label="Where you are"><a href="${ROOT}#catalog" data-collback>Catalog</a><i aria-hidden="true">›</i><a href="${ROOT}collections" data-collback="colls">Collections</a><i aria-hidden="true">›</i><span aria-current="page">${esc(cv.title)}</span></nav>
       <div class="coll-h"><span class="fold art" aria-hidden="true">${foldArt(cv)}</span><div><h2 id="h-list">${esc(cv.title)}</h2><p><a href="https://github.com/${esc(cv.repo)}" target="_blank" rel="noopener">${esc(cv.repo)}</a>${about ? ` · ${esc(about)}` : ""}</p>
         <p class="coll-n"></p><div class="coll-b"><button class="btn pri" type="button" data-collall="${coll}" id="coll-add">Add all</button><a class="btn" href="https://github.com/${esc(cv.repo)}" target="_blank" rel="noopener">View on GitHub</a></div></div></div>
       <p class="coll-each">Each can also be added on its own.</p>`
-      : `<h2 id="h-list"><span class="n">02</span> Pick your tools <small>${sub}</small></h2><nav class="catnav" aria-label="Filter the list">${tabRow}${chipRow}</nav>`;
-    $("#cat").innerHTML = `<section aria-labelledby="h-list">${head}<div class="grid">${vis.map((x) => (x.sec === "skills" ? skillRow(x) : card(x))).join("") || empty}</div>${more}</section>`;
+      : pv ? `<nav class="crumbs" aria-label="Where you are"><a href="${ROOT}#catalog" data-collback>Catalog</a><i aria-hidden="true">›</i><span>Starter packs</span><i aria-hidden="true">›</i><span aria-current="page">${esc(pv.name)}</span></nav>
+      <div class="pack-h" style="background-image:url(app/covers/${BANNERS[packOpen % BANNERS.length]})"><div class="pack-h-in"><h2 id="h-list">${esc(pv.name)}</h2><p>${esc(pv.ds)}</p>
+        <div class="pk-b"><span class="pk-n">${items.mcp.length ? `${items.mcp.length} server${items.mcp.length === 1 ? "" : "s"} · ` : ""}${items.skills.length} skill${items.skills.length === 1 ? "" : "s"}</span><button class="cta" type="button" data-packadd="${packOpen}" id="pack-add">Add pack</button></div></div></div>
+      <p class="coll-each">Each can also be added on its own.</p>`
+      : `${tab !== "all" || fcat || ql ? `<nav class="crumbs" aria-label="Where you are"><a href="${ROOT}#catalog" data-listback>Catalog</a><i aria-hidden="true">›</i><span aria-current="page">${esc(ql ? "Search" : [fcat ? C.categories[fcat] : "", tab === "skills" ? "Skills" : tab === "mcp" ? "MCP servers" : ""].filter(Boolean).join(" · "))}</span></nav>` : ""}<h2 id="h-list">${tab === "skills" ? "Skills" : tab === "mcp" ? "MCP servers" : "Pick your tools"} <small>${sub}</small></h2><nav class="catnav" aria-label="Filter the list">${tabRow}${chipRow}</nav>`;
+    // everything at once is shown in groups, as the app does: the skills, then the MCP servers, each with its own count and its own "Show more"
+    const rowOf = (x) => (x.sec === "skills" ? skillRow(x) : card(x));
+    const group = (k, title) => {
+      const all = items[k], shown = all.slice(0, pageOf[k]), left = all.length - shown.length;
+      return all.length ? `<section class="grp" aria-labelledby="grp-${k}"><h3 class="grp-h" id="grp-${k}">${svgIcon(k)}<span>${title}</span><small>${all.length}</small></h3><div class="grid">${shown.map(rowOf).join("")}</div>${left > 0 ? `<button class="showmore btn" type="button" data-more="${k}">Show ${Math.min(PAGE, left)} more <small>${left} left</small></button>` : ""}</section>` : "";
+    };
+    const body = tab === "all" ? group("skills", "Skills") + group("mcp", "MCP servers") || `<div class="grid">${empty}</div>` : `<div class="grid">${vis.map(rowOf).join("") || empty}</div>${more}`;
+    $("#cat").innerHTML = `<section aria-labelledby="h-list">${head}${body}</section>`;
     $("#show-pick").value = tab;   // the list filter lives in the header
+    // the bar's own chips: Skills and MCP servers. The one that is on shows an x; clicking it again shows everything
+    $("#hdr-kinds").innerHTML = [["skills", "Skills"], ["mcp", "MCP servers"]].map(([k, label]) => `<button class="sel" type="button" data-show="${k}" aria-pressed="${tab === k}"${tab === k ? ` title="Show everything again"` : ""}>${svgIcon(k)}<span>${label}</span><small>${items[k].length}</small>${tab === k ? '<i class="sel-off" aria-hidden="true">×</i>' : ""}</button>`).join("");
     $("#cat-pick").value = fcat;
     if (refreshDD["show-pick"]) { refreshDD["show-pick"](); refreshDD["cat-pick"](); }
     sync();
@@ -242,7 +281,7 @@
     else if (keep) { const el = $(`[data-${keep[0]}="${keep[1].replace(/["\\]/g, "\\$&")}"]`); if (el) el.focus(); }
   }
   const openTab = (k) => {
-    tab = k; coll = null; renderCatalog();
+    tab = k; coll = null; collsPage = false; packOpen = null; renderCatalog();
     const top = $("#cat").getBoundingClientRect().top;   // filtering from the top of the page: bring the list up
     if (top > innerHeight * 0.55 || top < 0) $("#cat").scrollIntoView({ block: "start" });
   };
@@ -253,9 +292,10 @@
     $$(".pack").forEach((el) => {
       const done = C.packs[+el.dataset.i].ids.every((i) => sel.has(i));
       el.classList.toggle("done", done);
-      el.setAttribute("aria-pressed", done);
+      el.querySelector(".cta").setAttribute("aria-pressed", done);
       el.querySelector(".cta-t").textContent = done ? "Added" : "Add pack";
     });
+    if (packOpen != null && $("#pack-add")) { const p = C.packs[packOpen], done = p.ids.every((i) => sel.has(i)); $("#pack-add").textContent = done ? "Remove pack" : `Add all ${p.ids.length}`; $("#pack-add").setAttribute("aria-pressed", done); }
     const tg = agentsPicked();
     // the agent selector: options keep their own state; the trigger shows what is picked
     $$("[data-tgt]").forEach((b) => b.setAttribute("aria-selected", sel.has(b.dataset.tgt)));
@@ -298,14 +338,18 @@
     $(".fo-sub2").textContent = picked.length ? `${nm} MCP${nm === 1 ? "" : "s"} · ${ns} skill${ns === 1 ? "" : "s"}` : "nothing yet";
     $("#fo-sub").textContent = picked.length ? `${nm} MCP${nm === 1 ? "" : "s"} · ${ns} skill${ns === 1 ? "" : "s"}` : "nothing yet";
     if (!picked.length) closeDrawer();
-    $("#cmd").textContent = $("#hero-cmd").textContent = command();
-    $("#hero-copy").disabled = !(nm + ns);
+    $("#cmd").textContent = command();
     ["copy", "more", "view", "dl", "link", "inapp"].forEach((b) => { $("#" + b).disabled = !(nm + ns); });
     $(".bar").hidden = !(nm + ns);   // nothing picked, nothing to show: no bar, no disabled buttons
     document.body.classList.toggle("has-bar", nm + ns > 0);
     if (!(nm + ns)) closeMore(false);
     $("#dryflag").setAttribute("aria-pressed", dry);
-    try { history.replaceState(null, "", view() === "app" ? location.pathname + location.search : "#" + (sel.size ? code() : "catalog")); } catch (e) { /* sandboxed frames */ }
+    try {
+      // the address already asks for the app and the view has not followed yet (its hashchange is still on its way): leave it be
+      if (view() !== "app" && viewOf(location.hash.slice(1)) === "app") return;
+      const path = view() === "app" ? ROOT : routePath(), moved = path !== location.pathname + location.search;
+      history[moved && view() !== "app" ? "pushState" : "replaceState"](null, "", path + (view() === "app" ? "#app" : sel.size ? "#" + code() : ""));
+    } catch (e) { /* sandboxed frames */ }
   }
   const render = sync;
 
@@ -362,7 +406,7 @@
     s.className = "sheet" + (small ? " small" : ""); delete s.dataset.kind;
     s.innerHTML = html;
     $("#scrim").classList.add("show");
-    if (!keepFocusTarget) (s.querySelector("[data-close]") || s).focus();
+    if (!keepFocusTarget) { (s.querySelector("[data-close]") || s).focus({ preventScroll: true }); s.scrollTop = 0; }   // it opens at its top, however long it is
   }
   // The picks drawer: opens above the folder, lists what the line installs, each with a way to take it out. It stays in step with the selection.
   function openDrawer() {
@@ -405,14 +449,34 @@
     if (members.length < 2) return null;
     return { key, members, ds: (C.repos.find((r) => r.repo === key) || {}).ds || "" };
   }
+  // a big family shows a few of its members at a time (this one first), with pages, and the way to its collection
+  const FAM = 6;
+  let famKey = "", famPage = 0;   // the page of the family being looked at; a different family starts at its first
   function familyHtml(x) {
     const f = family(x);
     if (!f) return "";
-    const every = f.members.every((m) => sel.has(m.id));
-    return `<section class="fam"><div class="fam-h"><div><h4>The ${esc(f.key)} family</h4>${f.ds ? `<p>${esc(f.ds)}</p>` : ""}</div>
-      <button class="btn pri" type="button" data-fall="${x.id}">${every ? "Remove" : "Add"} all ${f.members.length}</button></div>
-      <ul class="fam-list">${f.members.map((m) => `<li class="${m.id === x.id ? "cur" : ""}"><button type="button" class="fam-open" data-info="${m.id}" title="About ${esc(m.name)}">${mark(m)}<span class="fam-t"><b>${esc(m.name)}</b><small>${esc(m.ds)}</small></span></button>
-        <button class="btn fam-add" type="button" data-ftog="${m.id}" data-of="${x.id}" aria-pressed="${sel.has(m.id)}">${sel.has(m.id) ? "✓ Added" : "Add"}</button></li>`).join("")}</ul></section>`;
+    const every = f.members.every((m) => sel.has(m.id)), n = f.members.length;
+    const ci = x.sec === "skills" ? COLLS.findIndex((c) => c.repo === f.key) : -1;
+    const rest = f.members.filter((m) => m.id !== x.id);   // the one being looked at is not listed again
+    const big = rest.length > FAM, pages = Math.ceil(rest.length / FAM);
+    if (famKey !== f.key) { famKey = f.key; famPage = 0; }
+    famPage = Math.max(0, Math.min(pages - 1, famPage));
+    const shown = big ? rest.slice(famPage * FAM, famPage * FAM + FAM) : rest;
+    const more = !big ? "" : `<div class="fam-foot"><div class="fam-pg"><button type="button" data-fampg="-1" data-of="${x.id}" aria-label="Previous members"${famPage ? "" : " disabled"}>‹</button>
+        <span aria-live="polite">${famPage * FAM + 1}–${Math.min(rest.length, famPage * FAM + FAM)} of ${rest.length}</span>
+        <button type="button" data-fampg="1" data-of="${x.id}" aria-label="More members"${famPage < pages - 1 ? "" : " disabled"}>›</button></div>
+        ${ci >= 0 ? `<button class="fam-more" type="button" data-famcoll="${ci}">See all ${n} in the collection <span aria-hidden="true">→</span></button>` : ""}</div>`;
+    return `<section class="fam"><div class="fam-h"><div><h4>More from the ${esc(f.key)} family</h4>${f.ds ? `<p>${esc(f.ds)}</p>` : ""}</div>
+      <button class="btn pri" type="button" data-fall="${x.id}">${every ? "Remove" : "Add"} all ${n}</button></div>
+      <ul class="fam-list">${shown.map((m) => `<li><button type="button" class="fam-open" data-info="${m.id}" title="About ${esc(m.name)}">${mark(m)}<span class="fam-t"><b>${esc(m.name)}</b><small>${esc(m.ds)}</small></span></button>
+        <button class="btn fam-add" type="button" data-ftog="${m.id}" data-of="${x.id}" aria-pressed="${sel.has(m.id)}">${sel.has(m.id) ? "✓ Added" : "Add"}</button></li>`).join("")}</ul>${more}</section>`;
+  }
+  // the details the app shows on an item's page, published beside the catalog; fetched the first time details are opened
+  let MORE = null, moreAsked = false, detailId = "";
+  function loadMore(then) {
+    if (MORE || moreAsked || typeof fetch !== "function") return;
+    moreAsked = true;
+    fetch("details.json").then((r) => (r.ok ? r.json() : {})).then((j) => { MORE = j; then(); }).catch(() => { MORE = {}; });
   }
   function details(id, again) {
     const x = ALL[id], rows = [];
@@ -433,9 +497,26 @@
       <pre tabindex="0">${esc(list.map((a) => `# ${ALL[a].name}\n${wire(a, x)}`).join("\n\n"))}</pre>`;
     }
     const fam = familyHtml(x), top = again ? $("#sheet").scrollTop : 0, focus = again && document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.ftog || (document.activeElement.dataset.fall && "all") : null;
-    openSheet(`<h3 id="sheet-title" class="sheet-h">${mark(x)}${esc(x.name)}</h3><p>${esc(x.ds)}</p>
-      <dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${k === "Repository" ? v : esc(v)}</dd>`).join("")}</dl>${fam}${wiring}
-      <div class="row"><button class="btn" type="button" data-close>Close</button><button class="btn pri" type="button" data-tog="${id}">${sel.has(id) ? "Remove" : "Add"}</button></div>`, !fam, again);
+    // the full page the app shows for it: what it is, its numbers, pictures, the long description and how to start
+    loadMore(() => { if (detailId === id && $("#scrim").classList.contains("show")) details(id, true); });
+    const d = (MORE && MORE[id]) || {}, skill = x.sec === "skills";
+    const gh = skill ? `https://github.com/${x.repo}${d.path ? `/tree/HEAD/${d.path}` : ""}` : d.repo ? `https://github.com/${d.repo}` : "";
+    const when = d.updated ? new Date(`${d.updated}T12:00:00Z`).toLocaleDateString("en", { month: "short", year: "numeric" }) : "";
+    const facts = [["Kind", skill ? "Skill" : "MCP server"], x.installs && ["Installs", fmt(x.installs)], d.stars && ["Stars", fmt(d.stars)], d.license && ["Licence", d.license], when && ["Updated", when], ["Category", x.cats.map((c) => C.categories[c]).join(", ")]].filter(Boolean);
+    const shots = (d.images || []).map((im) => `<img src="app/${esc(im.src)}" alt="${esc(im.alt || "")}" loading="lazy">`).join("");
+    const long = d.about && d.about.trim() !== x.ds.trim() ? `<p class="dt-long">${esc(d.about)}</p>` : "";
+    const start = skill ? `<section class="dt-sec"><h4>Quick start</h4><p class="dt-note">Once it is on, ask your agent in your own words. It reaches for the skill when it fits, or you can name it: “Use ${esc(x.name)} to …”.</p>
+        ${(d.examples || []).map((ex) => `<div class="dt-ex"><code>${esc(ex)}</code><button class="btn" type="button" data-ex="${esc(ex)}" aria-label="Copy this example">Copy</button></div>`).join("")}</section>` : "";
+    detailId = id;
+    openSheet(`<div class="dt-hero">${mark(x)}<div class="dt-t"><h3 id="sheet-title" class="sheet-h">${esc(x.name)}</h3><p class="dt-by">${esc(skill ? x.repo : x.by)}</p>
+        <div class="dt-b"><button class="btn pri" type="button" data-tog="${id}">${sel.has(id) ? "Remove" : "Add"}</button>${gh ? `<a class="btn" href="${esc(gh)}" target="_blank" rel="noopener">View on GitHub</a>` : ""}${d.homepage ? `<a class="btn" href="${esc(d.homepage)}" target="_blank" rel="noopener">Website</a>` : ""}</div></div>
+        <button class="dt-x" type="button" data-close aria-label="Close">×</button></div>
+      <dl class="dt-facts">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+      ${shots ? `<section class="dt-sec"><h4>Pictures</h4><div class="dt-shots">${shots}</div></section>` : ""}
+      <section class="dt-sec"><h4>About</h4><p>${esc(x.ds)}</p>${long}</section>${start}
+      <section class="dt-sec"><h4>${skill ? "Install" : "Connection"}</h4><dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${k === "Repository" ? v : esc(v)}</dd>`).join("")}</dl>${wiring}</section>${fam}
+      <div class="row"><button class="btn" type="button" data-close>Close</button><button class="btn pri" type="button" data-tog="${id}">${sel.has(id) ? "Remove" : "Add"}</button></div>`, false, again);
+    $("#sheet").dataset.kind = "detail";
     if (again) { $("#sheet").scrollTop = top; const f = focus === "all" ? $("#sheet [data-fall]") : focus && $(`#sheet [data-ftog="${focus}"]`); if (f) f.focus(); }
   }
 
@@ -516,16 +597,25 @@
     if (ft) { toggle(ft.dataset.ftog); return details(ft.dataset.of, true); }
     const fa = t.closest("[data-fall]");
     if (fa) { const f = family(ALL[fa.dataset.fall]), every = f.members.every((m) => sel.has(m.id)); f.members.forEach((m) => (every ? sel.delete(m.id) : sel.add(m.id))); render(); return details(fa.dataset.fall, true); }
+    const fc = t.closest("[data-famcoll]");
+    if (fc) { closeSheet(); q = $("#q").value = ""; fcat = ""; resetPages(); coll = +fc.dataset.famcoll; collsPage = false; packOpen = null; renderCatalog(); scrollTo({ top: Math.max(0, $("#cat").getBoundingClientRect().top + scrollY - 126) }); return; }
+    const fp = t.closest("[data-fampg]");
+    if (fp) { famPage += +fp.dataset.fampg; details(fp.dataset.of, true); const b = $(`#sheet [data-fampg="${fp.dataset.fampg}"]:not([disabled])`) || $("#sheet [data-fampg]:not([disabled])"); if (b) b.focus({ preventScroll: true }); return; }
     const ca = t.closest("[data-collall]");
     if (ca) { const c = COLLS[+ca.dataset.collall], every = c.items.every((m) => sel.has(m.id)); c.items.forEach((m) => (every ? sel.delete(m.id) : sel.add(m.id))); render(); return toast(`${c.title} ${every ? "removed" : "added"}`); }
     const co = t.closest(".fold[data-coll]");
-    if (co) { q = $("#q").value = ""; fcat = ""; resetPages(); coll = +co.dataset.coll; renderCatalog(); $("#cat").scrollIntoView({ block: "start" }); return; }
+    if (co) { q = $("#q").value = ""; fcat = ""; resetPages(); coll = +co.dataset.coll; packOpen = null; renderCatalog(); scrollTo({ top: Math.max(0, $("#cat").getBoundingClientRect().top + scrollY - 126) }); return; }
+    if (t.closest("[data-listback]")) { e.preventDefault(); q = $("#q").value = ""; fcat = ""; resetPages(); openTab("all"); return scrollTo({ top: 0 }); }
+    const ex = t.closest("[data-ex]");
+    if (ex) return void copy(ex.dataset.ex, "Example copied");
     const bk = t.closest("[data-collback]");
-    if (bk) { openTab("all"); (bk.dataset.collback ? $("#colls-box") : $("#cat")).scrollIntoView({ block: bk.dataset.collback ? "center" : "start" }); return; }
+    if (bk) { e.preventDefault(); if (bk.dataset.collback) return openColls(); openTab("all"); return scrollTo({ top: Math.max(0, $("#h-packs").getBoundingClientRect().top + scrollY - 126) }); }
     const br = t.closest("[data-browse]");
     if (br) { openTab(br.dataset.browse); $("#cat").scrollIntoView({ block: "start", behavior: "smooth" }); return; }
     const it = t.closest(".item");
-    if (it) { toggle(it.dataset.id); return; }
+    // a card: its Add pill adds or removes it; anywhere else on it opens its details, as a card does in the app.
+    // From the keyboard (Enter or Space on the card, which is a click with no pointer) it adds, as it always has.
+    if (it) { if (e.detail === 0 || t.closest(".check")) toggle(it.dataset.id); else details(it.dataset.id); return; }
     if (t.closest("[data-close]") || t.id === "scrim") return closeSheet();
     if (t.closest("[data-rm]")) { toggle(t.closest("[data-rm]").dataset.rm); return; }
     if (t.closest("[data-rmall]")) { sel.clear(); dock = false; renderCatalog(); closeSheet(); return; }
@@ -537,16 +627,18 @@ if (cb) { fcat = cb.dataset.cat; catsOpen = false; resetPages(); return renderCa
     if (t.closest("[data-cats]")) { catsOpen = !catsOpen; renderCatalog(); const b = $("[data-cats]"); if (b) b.focus(); return; }
     if (catsOpen && !t.closest(".catdd")) { catsOpen = false; const m = $("#cat .cats"), b = $("[data-cats]"); if (m) m.hidden = true; if (b) b.setAttribute("aria-expanded", "false"); }
     const sh = t.closest("[data-show]");
-    if (sh) { tab = sh.dataset.show; resetPages(); return renderCatalog(); }
+    if (sh) { tab = sh.closest("#hdr-kinds") && tab === sh.dataset.show ? "all" : sh.dataset.show; coll = null; collsPage = false; packOpen = null; resetPages(); renderCatalog(); if (sh.closest("#hdr-kinds")) scrollTo({ top: Math.max(0, $("#cat").getBoundingClientRect().top + scrollY - 70) }); return; }
     const mo = t.closest("[data-more]");
-    if (mo) { const k = mo.dataset.more, was = pageOf[k]; pageOf[k] += PAGE; return renderCatalog({ focusItem: was }); }
+    if (mo) { const k = mo.dataset.more, was = pageOf[k], before = tab === "all" && k === "mcp" ? $$("#cat .item.k-skill").length : 0; pageOf[k] += PAGE; return renderCatalog({ focusItem: before + was }); }
     if (t.closest("[data-all], [data-dall]")) { C.agents.forEach((a) => sel.delete(a.id)); return render(); }
     const da = t.closest("[data-dtgt]");
     if (da) { const id = da.dataset.dtgt; sel.has(id) ? sel.delete(id) : sel.add(id); return render(); }
     const ag = t.closest("[data-tgt]");
     if (ag) { const id = ag.dataset.tgt; sel.has(id) ? sel.delete(id) : sel.add(id); return render(); }
-    const pk = t.closest(".pack");
-    if (pk) togglePack(C.packs[+pk.dataset.i]);
+    const pa = t.closest("[data-packadd]");
+    if (pa) return togglePack(C.packs[+pa.dataset.packadd]);
+    const po = t.closest("[data-packopen]");
+    if (po) { packOpen = +po.dataset.packopen; coll = null; collsPage = false; q = $("#q").value = ""; fcat = ""; resetPages(); renderCatalog(); scrollTo({ top: Math.max(0, $("#cat").getBoundingClientRect().top + scrollY - 84) }); return; }
   });
   // a pack toggles: click adds all of it, click again takes it back out
   function togglePack(p) {
@@ -562,7 +654,7 @@ if (cb) { fcat = cb.dataset.cat; catsOpen = false; resetPages(); return renderCa
   });
 
   // the page's two views: the desktop app and the catalog. The address says which: #catalog or a share link is the catalog.
-  const viewOf = (h) => (h === "catalog" || h.startsWith("e-") ? "catalog" : "app");
+  const viewOf = (h) => (h === "app" || h === "try" ? "app" : "catalog");
   const view = () => document.documentElement.dataset.view || viewOf(location.hash.slice(1));
   function setView(v, scroll) {
     document.documentElement.dataset.view = v;
@@ -570,6 +662,8 @@ if (cb) { fcat = cb.dataset.cat; catsOpen = false; resetPages(); return renderCa
     $("header").classList.remove("open");
     if (v === "app") { closeMore(false); closeDrawer(); }
     if (scroll) window.scrollTo(0, 0);
+    // going to the catalog on purpose: the address stops asking for the app, so sync() below writes the catalog's
+    if (v !== "app" && viewOf(location.hash.slice(1)) === "app") { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* sandboxed frames */ } }
     sync();
     window.dispatchEvent(new Event("resize"));   // the hero's canvases were measured while hidden
   }
@@ -645,13 +739,16 @@ if (cb) { fcat = cb.dataset.cat; catsOpen = false; resetPages(); return renderCa
         ${foldArt(c, `<button class="folder-pill" type="button" data-collall="${i}" aria-pressed="false">Add all ${c.items.length}</button>`)}
         <span class="folder-caption"><b class="folder-n">${esc(c.title)}</b><span class="folder-sub"></span></span></div>`).join("");
     $("#colls-box").hidden = !COLLS.length;
-    const fitColls = () => {
-      const all = $("#colls-all").getAttribute("aria-expanded") === "true", w = $("#colls").clientWidth;
+    fitColls = () => {
+      const all = collsPage, w = $("#colls").clientWidth;
       const per = w ? Math.max(2, Math.floor((w + 18) / 186)) : COLLS.length;
       $$("#colls .fold").forEach((el, i) => (el.hidden = !all && i >= per));
-      $("#colls-all").hidden = COLLS.length <= per; $("#colls-all").textContent = all ? "Show fewer" : `See all ${COLLS.length}`;
+      $("#colls-all").hidden = all || COLLS.length <= per; $("#colls-all").textContent = `See all ${COLLS.length}`;
     };
-    $("#colls-all").onclick = () => { $("#colls-all").setAttribute("aria-expanded", $("#colls-all").getAttribute("aria-expanded") !== "true"); fitColls(); };
+    $("#colls-all").onclick = openColls;
+    readRoute();
+    // the browser's own Back and Forward walk through the collections pages too
+    window.addEventListener("popstate", () => { readRoute(); renderCatalog(); });
     window.addEventListener("resize", fitColls); fitColls();
 
     // the phone menu: the button opens the link panel; a link, Escape or a tap elsewhere closes it
@@ -671,21 +768,20 @@ if (cb) { fcat = cb.dataset.cat; catsOpen = false; resetPages(); return renderCa
     // the hero's second step: which kind to look through. Each button opens that list below; the picking happens there
     $("#quick").innerHTML = [["skills", "Skills", C.skills.length], ["mcp", "MCP servers", C.mcp.length], ["all", "All", C.mcp.length + C.skills.length]]
       .map(([k, label, n]) => `<button class="qp-i" type="button" data-browse="${k}">${svgIcon(k)}${label}<small>${n}</small><span aria-hidden="true">↓</span></button>`).join("");
-    $("#hero-copy").onclick = () => copy(command(), "Command copied");
-    // while the hero's own line is on screen the bar at the bottom would say the same thing twice, so it waits
-    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => document.body.classList.toggle("line-seen", e.isIntersecting), { threshold: 0.6 }).observe($("#hero-term"));
+    // the header's small logo and name show once the big ones at the top of the page have scrolled away
+    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => document.body.classList.toggle("past-brand", !e.isIntersecting && e.boundingClientRect.top < 0)).observe($(".hero"));
     if (DOWNLOAD) $$("[data-download]").forEach((el) => { const a = document.createElement("a"); a.className = el.dataset.download; a.href = DOWNLOAD; a.textContent = "Download for Mac"; el.replaceWith(a); });
     // each pack is a tinted card: what's inside as logos, and a block shape of fat gradient pixels, different for each
     $("#packs").innerHTML = C.packs.map((p, i) => {
       const servers = p.ids.filter((id) => ALL[id].sec === "mcp"), n = p.ids.length - servers.length;
       const logos = [...servers, ...p.ids.filter((id) => ALL[id].sec !== "mcp")].slice(0, 6).map((id) => (ALL[id].sec === "mcp" ? ico(ALL[id], "mini") : mark(ALL[id]))).join("");
       const more = [servers.length && `${servers.length} server${servers.length === 1 ? "" : "s"}`, n && `${n} skill${n === 1 ? "" : "s"}`].filter(Boolean).join(" · ");
-      return `<button class="pack" type="button" data-i="${i}" aria-pressed="false" style="background-image:url(app/covers/${COVERS[i % COVERS.length]}.jpg)">
-        <span class="pk-in"><span class="pk-eb">Starter pack</span>
+      return `<div class="pack" data-i="${i}" style="background-image:url(app/covers/${COVERS[i % COVERS.length]})"><button class="pack-open" type="button" data-packopen="${i}" aria-label="See what is in ${esc(p.name)}"></button>
+        <span class="pk-in">
         <b>${esc(p.name)}</b><span class="pk-ds">${esc(p.ds)}</span>
-        <span class="pk-b"><span class="pk-logos">${logos}</span><span class="more pk-n">${more}</span><span class="cta"><span class="cta-t">Add pack</span></span></span></span></button>`;
-    }).join("");
-    $("#q").addEventListener("input", (e) => { q = e.target.value; coll = null; resetPages(); renderCatalog(); if (q && $("#cat").getBoundingClientRect().top > innerHeight * 0.6) $("#cat").scrollIntoView({ block: "start" }); });
+        <span class="pk-b"><span class="pk-logos">${logos}</span><span class="more pk-n">${more}</span><button class="cta" type="button" data-packadd="${i}" aria-pressed="false"><span class="cta-t">Add pack</span></button></span></span></div>`;
+    }).join("") + `<a class="pack-more" href="${SUGGEST}" target="_blank" rel="noopener"><b>More coming soon</b><span>New packs are on the way. Is there one you would use?</span><span class="cta">Suggest a pack <span aria-hidden="true">→</span></span></a>`;
+    $("#q").addEventListener("input", (e) => { q = e.target.value; coll = null; collsPage = false; packOpen = null; resetPages(); renderCatalog(); if (q && $("#cat").getBoundingClientRect().top > innerHeight * 0.6) $("#cat").scrollIntoView({ block: "start" }); });
     $("#more").onclick = () => ($("#more-menu").hidden ? openMore() : closeMore(false));
     $("#more-menu").addEventListener("click", () => closeMore(false));
     $("#more-menu").addEventListener("keydown", (e) => {   // arrows move between the two items

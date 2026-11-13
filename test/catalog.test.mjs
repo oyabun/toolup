@@ -76,8 +76,8 @@ test("Helmcode skills carry the badge", () => {
   assert.deepEqual(skills.filter((s) => s.repo === "helmcode/community-skills").map((s) => s.id).sort(), ["building-a-beatdeck", "finops", "remotion-product-video"]);
 });
 
-test("packs: the six role packs, every id real", () => {
-  assert.deepEqual(packs.map((p) => p.name), ["Superpowered workflow", "Frontend", "Product designer", "Backend", "Ship & monitor", "Docs & ops"]);
+test("packs: the four role packs, every id real", () => {
+  assert.deepEqual(packs.map((p) => p.name), ["Superpowered workflow", "Frontend", "Product designer", "Backend"]);
   const ids = new Set(everything.map((x) => x.id));
   for (const p of packs) for (const id of p.ids) assert.ok(ids.has(id), `${p.name}: ${id}`);
 });

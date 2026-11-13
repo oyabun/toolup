@@ -80,6 +80,8 @@ export async function build() {
 
   const catalog = { site: { url: SITE_URL, host: SITE_HOST }, agents: agentsOut, mcp: mcpOut, categories, repos: reposOut, skills: skillsOut, packs };
   await writeFile(new URL("public/catalog.json", root), JSON.stringify(catalog));
+  // what the app shows on an item's own page (stars, licence, the long description, pictures, examples), for the site's details too
+  await writeFile(new URL("public/details.json", root), JSON.stringify(JSON.parse(await readFile(new URL("catalog/details.json", root), "utf8"))));
   await writeFile(new URL("public/catalog.tsv", root), rows.join("\n") + "\n");
 
   const sh = (await readFile(new URL("src/install.sh", root), "utf8"))

@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
-    // two views share the page: the desktop app (shown first) and the catalog; a share link opens the catalog
-    var h = location.hash.slice(1); document.documentElement.dataset.view = h === "catalog" || h.indexOf("e-") === 0 ? "catalog" : "app";</script>
+    // two views share the page: the catalog (shown first) and the desktop app, which #app opens
+    var h = location.hash.slice(1); document.documentElement.dataset.view = (h === "app" || h === "try") && !/(^|\/)collections\/?$/.test(location.pathname) ? "app" : "catalog";</script>
   <title>Tool up! — every AI agent's tools, in one window or one line</title>
   <meta name="description" content="A desktop app that shows which MCP servers and skills each of your AI agents has, and switches them on or off. Or pick from the catalog and get one line that installs them into Claude Code, Codex, Gemini CLI, Cursor and VS Code.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <meta name="theme-color" content="#7d22d8">
+  <meta name="theme-color" content="#5b5f6b">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Tool up!: tool up your AI agents in one line">
   <meta property="og:description" content="Pick MCP servers and skills, get one line that installs them into every agent on your machine.">
@@ -23,6 +23,49 @@
 </head>
 <body>
 <a class="skip" href="#kit">Skip to the content</a>
+<div class="wrap">
+  <main id="kit">
+    <!-- one hero for both views: the same toolbox and name, with each view's own words -->
+    <section class="hero" aria-labelledby="h-app h-hero">
+      <div class="hero-art" aria-hidden="true"><img class="ha ha-closed" src="images/hero-closed.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-open" src="images/hero-open.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-skills" src="images/hero-skills.webp" alt="" width="380" height="331" decoding="async"></div>
+      <p class="wordmark" aria-hidden="true">Tool up<span class="bang">!</span><span class="wm-beta">beta</span></p>
+      <p class="eyebrow for-app" id="app-meta">Desktop app · Mac</p>
+      <h1 class="for-app" id="h-app">Every agent's tools, in <em>one window</em>.</h1>
+      <p class="lede for-app">See the skills and MCP servers on your computer, and which of your agents has each one. One click turns one on or off.</p>
+      <div class="app-cta for-app">
+        <!-- no build is published yet. When one is, replace this span with: <a class="btn pri big" href="…">Download for Mac</a> -->
+        <span class="soon" data-download="btn pri big">Coming soon for Mac</span>
+        <a class="btn big" href="#try" data-tour="installed">Try it on this page <span aria-hidden="true">↓</span></a>
+      </div>
+      <p class="eyebrow for-cat" id="hero-meta">MCP servers · Skills · One line</p>
+      <h1 class="for-cat" id="h-hero">Tool up your agents in <em>one line</em>.</h1>
+      <p class="lede for-cat">Choose what your AI agents can do. Copy one line. Every agent on your computer gets it.</p>
+      <!-- the catalog's hero starts the line: choose the agents, then what to look through. The line itself is in the bar at the bottom, which shows as soon as something is picked -->
+      <div class="build for-cat" role="group" aria-label="Build your line">
+      <div class="bstep">
+        <span class="bl" aria-hidden="true"><i>01</i> Agents</span>
+      <div class="hero-pick">
+        <div class="dd-wrap" id="targets">
+          <button class="dd" id="agent-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="agent-list" aria-labelledby="agent-lbl agent-main">
+            <span class="dd-logos" id="agent-logos"></span>
+            <span class="dd-main"><span class="vh" id="agent-lbl">Which agents: </span><span id="agent-main">All agents</span></span>
+            <svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="dd-menu" id="agent-list" hidden>
+            <div class="dd-head" id="agent-head"><b>Which agents?</b><span>Leave on “All” to tool up every agent the script finds.</span></div>
+            <div class="dd-opts" role="listbox" aria-multiselectable="true" aria-labelledby="agent-head" id="agent-opts"></div>
+            <div class="dd-foot"><span id="agent-flag"></span></div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="bstep">
+        <span class="bl" id="bl-pick"><i>02</i> Pick from</span>
+        <div class="qp" id="quick" role="group" aria-labelledby="bl-pick"></div>
+      </div>
+      </div>
+    </section>
+
 <header>
   <div class="hdr-in">
     <a class="home" href="./" aria-label="Tool up!, home">
@@ -31,10 +74,11 @@
     </a>
     <span class="beta">beta</span>
     <nav class="views" aria-label="Sections">
-      <a href="#app" data-view="app">App</a>
-      <a href="#catalog" data-view="catalog">Catalog</a>
+      <a href="#catalog" data-view="catalog"><span aria-hidden="true">←</span> Catalog</a>
+      <a href="#app" data-view="app">Mac app</a>
     </nav>
     <div class="hdr-tools" id="site-nav">
+      <div class="hdr-kinds" id="hdr-kinds" role="group" aria-label="Show"></div>
       <label class="tb-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search servers and skills…" aria-label="Search servers and skills" autocomplete="off"></label>
       <div class="tb-sel dd2" data-dd="show-pick">
         <button class="tb-box dd2-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Show"><span class="dd2-ic" aria-hidden="true"></span><span class="dd2-lbl"></span><svg class="dd2-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -59,62 +103,6 @@
   </div>
 </header>
 
-<!-- the catalog's standing pointer to the desktop app: fixed under the header, never dismissed. Its button becomes the download once DOWNLOAD is set in app.js -->
-<aside class="getapp for-cat" aria-label="The desktop app">
-  <div class="getapp-in">
-    <span class="getapp-tag" aria-hidden="true">Mac app</span>
-    <p><b>Tool up! for Mac</b><span class="getapp-more">: see every agent's tools in one window, and switch them with a click.</span></p>
-    <a class="getapp-go" href="#app" data-view="app" data-download="getapp-go">Coming soon · See it <span aria-hidden="true">→</span></a>
-  </div>
-</aside>
-
-<div class="wrap">
-  <main id="kit">
-    <!-- one hero for both views: the same field of cells and the same toolbox, with each view's own words -->
-    <section class="hero" aria-labelledby="h-app h-hero">
-      <canvas id="field" aria-hidden="true"></canvas>
-      <div class="hero-art" aria-hidden="true"><img class="ha ha-closed" src="images/hero-closed.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-open" src="images/hero-open.webp" alt="" width="380" height="331" decoding="async"><img class="ha ha-skills" src="images/hero-skills.webp" alt="" width="380" height="331" decoding="async"></div>
-      <p class="eyebrow for-app" id="app-meta">Desktop app · Mac</p>
-      <h1 class="for-app" id="h-app">Every agent's tools, in <em>one window</em>.</h1>
-      <p class="lede for-app">See the skills and MCP servers on your computer, and which of your agents has each one. One click turns one on or off.</p>
-      <div class="app-cta for-app">
-        <!-- no build is published yet. When one is, replace this span with: <a class="btn pri big" href="…">Download for Mac</a> -->
-        <span class="soon" data-download="btn pri big">Coming soon for Mac</span>
-        <a class="btn big" href="#try" data-tour="installed">Try it on this page <span aria-hidden="true">↓</span></a>
-      </div>
-      <p class="eyebrow for-cat" id="hero-meta">MCP servers · Skills · One line</p>
-      <h1 class="for-cat" id="h-hero">Tool up your agents in <em>one line</em>.</h1>
-      <p class="lede for-cat">Choose what your AI agents can do. Copy one line. Every agent on your computer gets it.</p>
-      <!-- the catalog's hero is the thing itself: choose the agents, pick a few things for them, and the line is written as you go -->
-      <div class="build for-cat" role="group" aria-label="Build your line">
-      <div class="bstep">
-        <span class="bl" aria-hidden="true"><i>01</i> Agents</span>
-      <div class="hero-pick">
-        <div class="dd-wrap" id="targets">
-          <button class="dd" id="agent-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="agent-list" aria-labelledby="agent-lbl agent-main">
-            <span class="dd-logos" id="agent-logos"></span>
-            <span class="dd-main"><span class="vh" id="agent-lbl">Which agents: </span><span id="agent-main">All agents</span></span>
-            <svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-          </button>
-          <div class="dd-menu" id="agent-list" hidden>
-            <div class="dd-head" id="agent-head"><b>Which agents?</b><span>Leave on “All” to tool up every agent the script finds.</span></div>
-            <div class="dd-opts" role="listbox" aria-multiselectable="true" aria-labelledby="agent-head" id="agent-opts"></div>
-            <div class="dd-foot"><span id="agent-flag"></span></div>
-          </div>
-        </div>
-      </div>
-      </div>
-      <div class="bstep">
-        <span class="bl" id="bl-pick"><i>02</i> Pick from</span>
-        <div class="qp" id="quick" role="group" aria-labelledby="bl-pick"></div>
-      </div>
-      <div class="bstep">
-        <span class="bl" id="bl-copy"><i>03</i> Copy</span>
-        <div class="term hero-term" id="hero-term"><div class="cmd"><span class="p" aria-hidden="true">$</span><code id="hero-cmd" tabindex="0" aria-labelledby="bl-copy"></code><button class="btn pri" id="hero-copy" type="button">Copy</button></div></div>
-      </div>
-      </div>
-    </section>
-
     <div class="view" id="v-app">
     <!-- the app itself, not a picture of it: the desktop app's own interface (built into app/ by npm run build), on sample data -->
     <section class="try" id="try" aria-labelledby="h-try">
@@ -122,8 +110,6 @@
       <div class="tour" role="group" aria-label="Show me">
         <span class="tour-l" aria-hidden="true">Show me</span>
         <button type="button" data-tour="installed" aria-pressed="true">What's installed</button>
-        <button type="button" data-tour="switch">A switch</button>
-        <button type="button" data-tour="paste">Adding one</button>
         <button type="button" data-tour="catalog">The catalog</button>
         <button type="button" data-tour="collection">A collection</button>
         <button type="button" data-tour="detail">A skill's page</button>
@@ -176,11 +162,12 @@
     <div class="layout">
     <div class="lmain">
     <section aria-labelledby="h-packs">
-      <h2 id="h-packs"><span class="n">01</span> Start from a pack <small>or pick à la carte below</small></h2>
+      <h2 id="h-packs">Starter packs <small>Skills and servers picked for one kind of work. Add a whole pack, or pick one by one below.</small></h2>
       <div class="packs" id="packs"></div>
       <!-- collections: a publisher's own set of skills, as the app shows them. The folder opens its list below; its button adds all of it -->
       <div class="colls" id="colls-box">
-        <div class="colls-h"><h3 id="h-colls">Collections <small>a publisher's own set of skills: add all of one, or open it and pick</small></h3><button class="btn" id="colls-all" type="button" aria-expanded="false"></button></div>
+        <nav class="crumbs" id="colls-crumbs" aria-label="Where you are" hidden><a href="./#catalog" data-collback>Catalog</a><i aria-hidden="true">›</i><span aria-current="page">Collections</span></nav>
+        <div class="colls-h"><h3 id="h-colls">Collections <small>Each publisher's own set of skills. Add all of one, or open it and pick only the ones you want.</small></h3><button class="btn" id="colls-all" type="button" aria-expanded="false"></button></div>
         <div class="folders" id="colls" role="group" aria-labelledby="h-colls"></div>
       </div>
       <div class="pk-tools">
@@ -259,6 +246,5 @@
 <div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="app.js"></script>
-<script src="field.js"></script>
 </body>
 </html>

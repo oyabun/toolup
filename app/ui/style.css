@@ -655,7 +655,7 @@ h3{margin:22px 0 4px;font-size:15px;letter-spacing:-.01em}
 .feat::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0b0b1000 20%,#0b0b10b3 62%,#0b0b10f2 100%)}
 .feat-in{position:relative;width:100%;padding:18px 20px;color:#fff}
 .eyebrow{font:600 11px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:#ffffffb8}
-.feat h2{margin:4px 0 4px;font-size:26px;font-weight:700;letter-spacing:-.035em;line-height:1.08}
+.feat h3{margin:0 0 4px;font-size:26px;font-weight:700;letter-spacing:-.035em;line-height:1.08}
 .feat p{margin:0;color:#ffffffc7;font-size:13.5px}
 .feat-b{display:flex;align-items:center;gap:10px;margin-top:14px}
 .feat-logos{display:flex}
@@ -970,3 +970,51 @@ span.app-main{cursor:default}
 .ghost{background:#e9e6dc;border-color:#00000024}
 /* in the dark the paper is a soft grey-white, not a glare, and the folder a deeper, quieter tone of the accent */
 @media (prefers-color-scheme:dark){.paper{background:#d8d5cb;border-color:#00000038;box-shadow:0 4px 10px #00000080}.ghost{background:#b4b0a5;border-color:#00000038}.paper-line{background:#00000026}.fold{--fo:color-mix(in srgb,var(--accent-strong) 66%,#15151b);--fo-deep:color-mix(in srgb,var(--accent-strong) 40%,#131318);--fo-dark:color-mix(in srgb,var(--accent-strong) 24%,#0d0d11)}.folder-front{border-color:rgb(255 255 255 / .16);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--fo) 78%,transparent));box-shadow:inset 0 1px 0 rgb(255 255 255 / .22),inset 0 -10px 18px color-mix(in srgb,var(--fo-dark) 40%,transparent),0 -6px 14px #00000059}}
+/* the whole name and description of a card whose text is cut short, shown while the pointer rests on it */
+.tip{position:fixed;z-index:80;display:flex;flex-direction:column;gap:3px;max-width:min(360px,calc(100vw - 16px));padding:10px 12px;border-radius:12px;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.45;box-shadow:0 12px 30px #00000059;pointer-events:none}
+.tip[hidden]{display:none}
+.tip b{font-size:13.5px;font-weight:650;letter-spacing:-.01em}
+.tip span{opacity:.86}
+/* a project's "Run /init": one button that opens the list of agents that can write the instructions */
+.initmenu .btn{display:inline-flex;align-items:center;gap:6px}
+.initmenu .btn svg{width:14px;height:14px;color:var(--mute)}
+.initmenu .catdd-list{width:250px}
+.initmenu .with-mark{font-weight:600}
+.initmenu .with-mark .ico,.initmenu .with-mark svg{width:18px;height:18px;flex:none}
+/* a Catalog card with air: the logo beside the name and its maker, the description under them across the whole card,
+   and Install at the bottom right, so nothing is squeezed beside the button */
+.apps:not(.list){grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.apps:not(.list) .app{flex-direction:column;align-items:stretch;gap:14px;padding:16px 16px 14px}
+.apps:not(.list) .app-main{display:grid;grid-template-columns:44px minmax(0,1fr);grid-template-areas:"logo name" "logo meta" "desc desc";column-gap:13px;row-gap:0;align-items:center;align-content:start;flex:0 0 auto}
+.apps:not(.list) .app-main .ico{grid-area:logo;width:44px;height:44px}
+.apps:not(.list) .app-t{display:contents}
+.apps:not(.list) .app-t b{grid-area:name;align-self:end;font-size:15px}
+.apps:not(.list) .app-t .app-m{grid-area:meta;align-self:start;margin-top:2px;font-size:12.5px}
+.apps:not(.list) .app-t small{grid-area:desc;margin-top:13px;font-size:13px;line-height:1.45;min-height:2.9em}
+.apps:not(.list) .app > .get-split,.apps:not(.list) .app > .get{align-self:flex-end;margin-top:auto}
+/* the starter packs' own heading sits close over the row of cards */
+.packs-shelf .carousel{margin-top:-10px}
+/* installs: a tiny download mark before the number */
+.app-m .inst-n{display:inline-flex;align-items:center;gap:4px}
+.app-m .inst-n svg{width:12px;height:12px;flex:none;opacity:.8}
+/* after the packs: more are coming, and a way to suggest one */
+.feat.feat-more{background:var(--wash);border:1.5px dashed color-mix(in srgb,var(--ink) 22%,var(--line));box-shadow:none}
+.carousel .feat.feat-more{box-shadow:none}
+.feat.feat-more::before{content:none}
+.feat.feat-more .feat-in{color:var(--ink);pointer-events:auto}
+.feat.feat-more p{color:var(--mute)}
+.feat.feat-more:hover{transform:none}
+/* a project's page: a big folder beside its name, and the sections across the whole window */
+.proj{max-width:none}
+.proj-head{align-items:center;gap:16px;margin-bottom:22px}
+.proj-ico{display:grid;place-items:center;flex:none;width:68px;height:68px;border-radius:18px;color:var(--accent-text);background:color-mix(in srgb,var(--accent-strong) 13%,var(--wash));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-strong) 18%,transparent)}
+.proj-ico svg{width:34px;height:34px}
+.proj-name{flex:1;min-width:0}
+.proj-name h1{margin:0;font-size:30px;letter-spacing:-.035em;line-height:1.1}
+.proj-name p{margin:4px 0 0;font:12.5px var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* an installed item's window shows what its Catalog page shows: numbers, pictures, about, quick start */
+.detail-body .facts{margin-top:0}
+.detail-body .shelf{margin:22px 0 0}
+.detail-body .shelf h2,.detail-here{margin:0 0 8px;font-size:17px;font-weight:650;letter-spacing:-.02em}
+.detail-here{margin-top:24px}
+.detail-body .shots img{max-height:190px}

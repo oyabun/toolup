@@ -400,7 +400,8 @@ let instLayout = saved("toolup.layout.installed") === "grid" ? "grid" : "list";
 const rowsCls = () => (instLayout === "grid" ? "rows cards" : "rows");
 const layToggle = (which = "catalog") => `<div class="lay" role="group" aria-label="Layout">${([["grid", "Grid", `<rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.2"/>`], ["list", "List", `<path d="M4 6h16M4 12h16M4 18h16"/>`]] as const)
   .map(([k, label, d]) => `<button type="button" data-lay="${k}" data-lay-for="${which}" aria-pressed="${(which === "installed" ? instLayout : layout) === k}" title="${label}" aria-label="${label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg></button>`).join("")}</div>`;
-const appMeta = (parts: string[]) => (parts.length ? `<span class="app-m">${parts.map((t) => `<span>${esc(t)}</span>`).join("")}</span>` : "");
+// a count of installs carries a small download mark in front of it
+const appMeta = (parts: string[]) => (parts.length ? `<span class="app-m">${parts.map((t) => (/ installs$/.test(t) ? `<span class="inst-n">${glyph("down")}${esc(t)}</span>` : `<span>${esc(t)}</span>`)).join("")}</span>` : "");
 function appRow(x: Listed) {
   // name, then who makes it and how many installed it, then what it does
   const who = x.sec === "skill" ? (x.repo || "").split("/")[0] : x.by || "";
@@ -483,28 +484,26 @@ function customShelf(ql: string, page: boolean) {
     ${list.length ? `<div class="${appsCls()}">${list.map(customRow).join("")}</div>` : (page ? emptyState(all.length ? "None of this kind" : "Nothing of your own yet", all.length ? "Your own items are of the other kind." : "Paste an install command anywhere in this window, or drop a .skill file on it, and it shows up here.", { clear: "catalog" }) : `<p class="none">Nothing of yours matches.</p>`)}</section>`;
 }
 
+/** Where an idea for a new pack goes: a new issue on the project's GitHub page. */
+const SUGGEST_PACK = `https://github.com/oyabun/toolup/issues/new?title=${encodeURIComponent("Starter pack idea: ")}`;
 function discover() {
   if (!enabled.has("toolup")) return emptyState(`Search ${[...enabled].map((id) => sourceOf(id)?.name).filter(Boolean).join(", ") || "a catalog"}`, enabled.size ? "Type at least two letters in the search box above." : "Switch on a source in the Sources menu.");
   const feat = raw.packs.map((p, i) => {
     const c = COVERS[i % COVERS.length], items = p.ids.map((id) => listed.get(id)).filter((x): x is Listed => !!x);
     return `<article class="feat" style="background-image:url(${c.file})"><button class="feat-open" type="button" data-pack="${i}" aria-label="See what is in ${esc(p.name)}"></button><div class="feat-in">
-      <span class="eyebrow">Starter pack</span><h2>${esc(p.name)}</h2><p>${esc(p.ds)}</p>
+      <h3>${esc(p.name)}</h3><p>${esc(p.ds)}</p>
       <div class="feat-b"><span class="feat-logos">${items.slice(0, 6).map((x) => cardLogo(x, "mini")).join("")}</span><span class="feat-n">${plural(items.length, "item")}</span><button class="get light" type="button" data-pack="${i}" aria-label="View ${esc(p.name)}">View</button></div></div></article>`;
-  }).join("");
+  }).join("") + `<article class="feat feat-more"><div class="feat-in"><h3>More coming soon</h3><p>New packs are on the way. Is there one you would use?</p>
+      <div class="feat-b"><button class="get" type="button" data-url="${SUGGEST_PACK}">Suggest a pack</button></div></div></article>`;
   const top = [...raw.skills].sort((a, b) => (b.installs || 0) - (a.installs || 0)).slice(0, SHELF).map((x) => listed.get(x.id)!);
   const servers = raw.mcp.slice(0, SHELF).map((x) => listed.get(x.id)!);
-  const cats = Object.entries(raw.categories).map(([c, label]) => {
-    const n = cards.filter((x) => (x.cats || []).includes(c)).length;
-    return `<button class="tile" type="button" data-cat="${c}">${catIcon(c)}<b>${esc(label)}</b><small>${n}</small></button>`;
-  }).join("") + `<button class="tile" type="button" data-list="custom">${catIcon("custom")}<b>Custom</b><small>${customItems().length}</small></button>`;
   const arrow = (dir: number, label: string, d: string) => `<button class="car-arrow ${dir < 0 ? "prev" : "next"}" type="button" data-car="${dir}" aria-label="${label}" title="${label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg></button>`;
-  return `<section class="shelf"><div class="carousel at-start"><div class="feats">${feat}</div>${arrow(-1, "Earlier packs", "m15 6-6 6 6 6")}${arrow(1, "More packs", "m9 6 6 6-6 6")}<div class="car-dots" role="group" aria-label="Starter packs"></div></div></section>
+  return `<section class="shelf packs-shelf"><div class="shelf-h"><h2>Starter packs</h2></div><p>Skills and servers picked for one kind of work. Open a pack to see what is in it, then install all of it or only parts.</p><div class="carousel at-start"><div class="feats">${feat}</div>${arrow(-1, "Earlier packs", "m15 6-6 6 6 6")}${arrow(1, "More packs", "m9 6 6 6-6 6")}<div class="car-dots" role="group" aria-label="Starter packs"></div></div></section>
     ${presetShelf()}
     ${collShelf()}
     ${shelf("Popular skills", "The skills people install most.", top, "skills", raw.skills.length)}
     ${shelf("Connect your tools", "MCP servers from the tools' own makers. You sign in the first time an agent uses one.", servers, "mcp", raw.mcp.length)}
-    ${pluginShelf()}
-    <section class="shelf"><h2>Browse by category</h2><div class="tiles">${cats}</div></section>`;
+    ${pluginShelf()}`;
 }
 
 function results() {
@@ -540,9 +539,9 @@ function foundCard(f: Found, source: string, i: number) {
 }
 
 /** The page for one Tool up! item. */
-function detailView() {
-  const x = listed.get(shop.detail)!, skill = x.sec === "skill", n = cols().length, have = haveIt(x.id);
-  const d = more[x.id], repo = d?.repo || (skill ? x.repo : "") || "";
+/** What the catalog knows about an item: its numbers, its pictures and how to start with it. Its page in the Catalog and its window on Installed both show these. */
+function catalogParts(x: Listed) {
+  const skill = x.sec === "skill", d = more[x.id], repo = d?.repo || (skill ? x.repo : "") || "";
   const when = d?.updated ? new Date(d.updated).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "—";
   const facts: [string, string][] = [
     ["Kind", skill ? "Skill" : "MCP server"],
@@ -551,11 +550,17 @@ function detailView() {
     ["Licence", d?.license || "—"],
     ["Updated", when],
     ["Category", (x.cats || []).map((c) => raw.categories[c]).join(", ") || "—"],
-    ["On this computer", have.length ? `${have.length} of ${plural(n, "agent")}` : "Not installed"],
   ];
   const shots = d?.images?.length ? `<section class="shelf"><h2>Pictures</h2><div class="shots">${d.images.map((im, i) => `<button type="button" data-shot="${esc(im.src)}" aria-label="Enlarge picture ${i + 1}"><img src="${esc(im.src)}" alt="${esc(im.alt)}" loading="eager" decoding="async"></button>`).join("")}</div></section>` : "";
   const start = `<section class="shelf"><h2>Quick start</h2><p>${skill ? `Once it is on, ask your agent in your own words. It reaches for the skill when it fits, or you can name it: “Use ${esc(x.name)} to …”.` : `Once it is added, ask your agent for something that needs ${esc(x.name)}.${x.auth === "oauth" ? " The first time, a sign-in page opens in your browser." : ""}`}</p>
     ${d?.examples?.length ? `<ul class="tries">${d.examples.map((e) => `<li class="say"><span>${esc(e)}</span><button class="copy" type="button" data-copy="${esc(e)}" title="Copy" aria-label="Copy">${glyph("copy")}</button></li>`).join("")}</ul><p class="src-note">Examples from ${repo ? esc(repo) : "its page"} on GitHub.</p>` : ""}</section>`;
+  return { facts, shots, start, d, repo };
+}
+function detailView() {
+  const x = listed.get(shop.detail)!, skill = x.sec === "skill", n = cols().length, have = haveIt(x.id);
+  const d = more[x.id], repo = d?.repo || (skill ? x.repo : "") || "";
+  const { facts, shots, start } = catalogParts(x);
+  facts.push(["On this computer", have.length ? `${have.length} of ${plural(n, "agent")}` : "Not installed"]);
   const packs = raw.packs.filter((p) => p.ids.includes(x.id)).map((p) => p.name);
   const family = cards.filter((y) => y.id !== x.id && y.sec === x.sec && cardBy(y) && cardBy(y) === cardBy(x)).sort(byName).slice(0, 9);
   const url = !skill ? (raw.mcp.find((m) => m.id === x.id) as unknown as { url?: string })?.url : "";
@@ -595,7 +600,7 @@ function packView() {
   const items = p.ids.map((id) => listed.get(id)).filter((x): x is Listed => !!x);
   const missing = items.filter((x) => haveIt(x.id).length < cols().length).length;
   return `<div class="crumb-row">${crumbs(p.name)}${layToggle()}</div>
-    <div class="pack-hero" style="background-image:url(${c.file})"><div class="feat-in">
+    <div class="pack-hero" style="background-image:url(${c.banner || c.file})"><div class="feat-in">
       <span class="eyebrow">Starter pack</span><h1>${esc(p.name)}</h1><p>${esc(p.ds)}</p>
       <div class="feat-b"><span class="feat-n">${plural(items.length, "item")}${missing ? "" : " · all installed"}</span>${missing ? `<button class="get light" type="button" data-getpack="${shop.pack}">Install all ${items.length}</button>` : ""}</div></div></div>
     ${shelf("Skills in this pack", "", items.filter((x) => x.sec === "skill"))}
@@ -1219,12 +1224,15 @@ function detailHtml() {
     o ? tool(`data-version="${k}"`, "refresh", "Check version") : "",
     skill && off > 1 ? tool(`data-enable-all="${k}"`, "plus", "On for all") : "",
   ].join("");
+  const cat = known ? catalogParts(known) : null;   // listed in the catalog: its full details are shown here too
   const tabs: [string, string][] = skill ? [["about", "Overview"], ["doc", "Instructions"], ["where", "Location"]] : [["about", "Overview"], ["where", "Location"]];
   const want = detail.tab, tab = tabs.some(([t]) => t === want) ? want : "about";
   const pane = tab === "doc"
     ? (detail.doc === null ? `<p class="none">Reading it…</p>` : detail.doc ? `<div class="doc md">${mdDoc(detail.doc)}</div>` : `<p class="none">Its instructions could not be read.</p>`)
     : tab === "where" ? `<div class="doc where">${esc(where.join("\n"))}</div>`
-    : `${about ? `<p class="about">${mdLine(about, true)}</p>` : ""}
+    : `${cat ? `<dl class="facts">${cat.facts.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>${cat.shots}
+        <section class="shelf"><h2>About</h2><p class="about">${mdLine(known!.ds || about || "", true)}</p>${cat.d?.about && clean(cat.d.about) !== clean(known!.ds || "") ? `<p class="about">${mdLine(cat.d.about, true)}</p>` : ""}</section>${cat.start}<h2 class="detail-here">On this computer</h2>`
+        : about ? `<p class="about">${mdLine(about, true)}</p>` : ""}
       ${skill ? "" : `<p class="how-c">${host ? `Your agents talk to <b>${esc(host)}</b>.` : "It runs as a program on this computer."} ${item.hasSecrets ? "It uses private keys or passwords. They stay on this computer and are never shown here." : ""}</p>`}
       <dl class="facts2">${facts.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>`;
   return `<div class="scrim dscrim"><div class="detail" role="dialog" aria-modal="true" aria-labelledby="detail-t">
@@ -1562,7 +1570,7 @@ async function submitAsk() {
 }
 
 /* ---------- Add…: the ways to add something ---------- */
-let addOpen = false;
+let addOpen = false, initOpen = false;   // the Add menu, and a project's "Run /init" menu of agents
 const addMenu = () => `<div class="catdd addmenu"><button class="btn pri" type="button" data-add-menu aria-haspopup="menu" aria-expanded="${addOpen}">${glyph("plus")}Add…</button>
   ${addOpen ? `<div class="catdd-list filt-cats" role="menu" aria-label="Add">
     <button type="button" role="menuitem" data-screen="catalog"><span>Browse the catalog</span></button>
@@ -2029,7 +2037,9 @@ function projectsView() {
   if (!info) return `${crumb}<p class="boot">Reading ${esc(name)}…</p>`;
   const none = !CONTEXT.some(([f]) => info.files[f]), writers = INIT.filter(([a]) => cols().some((h) => h.id === a));
   const start = none ? `<li class="start"><span class="set-t"><b>No instructions yet</b><small>That is a fine way to start: work without them and notice what you keep correcting. When you are ready, let an agent read the project and write them. It opens a terminal here, where you see and approve what it does.</small></span>
-      <span class="start-b">${writers.map(([a, f]) => `<button class="btn" type="button" data-init="${a}" title="Opens a terminal in this project and runs ${esc(chipOf(a))}'s /init, which writes ${f}">Run /init in ${esc(chipOf(a))}</button>`).join("")}<button class="link" type="button" data-ctx="AGENTS.md">Write AGENTS.md myself</button></span></li>` : "";
+      <span class="start-b">${writers.length === 1 ? writers.map(([a, f]) => `<button class="btn" type="button" data-init="${a}" title="Opens a terminal in this project and runs ${esc(chipOf(a))}'s /init, which writes ${f}">Run /init in ${esc(chipOf(a))}</button>`).join("")
+        : writers.length ? `<div class="catdd initmenu"><button class="btn" type="button" data-init-menu aria-haspopup="menu" aria-expanded="${initOpen}" title="Opens a terminal in this project and runs the agent's /init, which writes its instructions file">Run /init${glyph("chev")}</button>
+          ${initOpen ? `<div class="catdd-list filt-cats" role="menu" aria-label="Run /init in">${writers.map(([a, f]) => `<button type="button" role="menuitem" data-init="${a}"><span class="with-mark">${agents.get(a) ? logo(agents.get(a)!.icon) : ""}${esc(chipOf(a))}</span><small>${esc(f)}</small></button>`).join("")}</div>` : ""}</div>` : ""}<button class="link" type="button" data-ctx="AGENTS.md">Write AGENTS.md myself</button></span></li>` : "";
   const ctx = start || CONTEXT.filter(([f]) => f === "AGENTS.md" || info.files[f]).map(([f, about]) => `<li class="look"><span class="set-t"><b>${f}</b><small>${about}${info.files[f] ? "" : " Not in this project yet."}</small></span><button class="btn" type="button" data-ctx="${f}">${info.files[f] ? "Edit" : "Create"}</button></li>`).join("");
   const missing = POINTERS.filter((f) => !info.files[f]);
   const link = info.files["AGENTS.md"] && missing.length && cols().some((h) => h.id === "gemini") ? `<li class="look"><span class="set-t"><b>Gemini CLI</b><small>It looks for a GEMINI.md by default. This creates one with a single line that points at AGENTS.md, so it reads the same instructions as the rest.</small></span><button class="btn" type="button" data-ctx-link>Create it</button></li>` : "";
@@ -2045,7 +2055,7 @@ function projectsView() {
     : `<p class="none">None yet. A project's skills are copies kept in the project, so they can be committed with it.</p>`;
   const broken = info.broken.length ? `<p class="note bad">${glyph("warn")}<span>${esc(info.broken.join(", "))} could not be read: not valid JSON.</span></p>` : "";
   const sect = (title: string, hint: string, add: string, body: string) => `<div class="sect-h"><div><h3>${title}</h3><p class="hint">${hint}</p></div>${add}</div>${body}`;
-  return `${crumb}<div class="head"><div><h1>${esc(name)}</h1><p>${esc(tilde(projectOpen))}</p></div>${liveHost ? `<button class="btn" type="button" data-reveal-path="${esc(projectOpen)}">${glyph("folder")}Show in Finder</button>` : ""}</div>
+  return `${crumb}<div class="head proj-head"><span class="proj-ico" aria-hidden="true">${glyph("folder")}</span><div class="proj-name"><h1>${esc(name)}</h1><p>${esc(tilde(projectOpen))}</p></div>${liveHost ? `<button class="btn" type="button" data-reveal-path="${esc(projectOpen)}">${glyph("folder")}Show in Finder</button>` : ""}</div>
     <div class="proj">
     ${sect("Instructions for agents", "What your agents are told every time they work in this project.", "", `${alone}<ul class="sets">${ctx}${link}</ul>`)}
     ${sect("MCP servers in this project", "Only for agents working in this folder. One switch for each agent that keeps servers in a project: Claude Code, Cursor, VS Code.", `<button class="btn" type="button" data-padd="servers">${glyph("plus")}Add servers…</button>`, broken + servers)}
@@ -2215,6 +2225,8 @@ app.addEventListener("click", (e) => {
     instAgent = instAgent === el.dataset.meadow ? "" : el.dataset.meadow!; return paint();
   }
   if (hit("[data-clear-inst]")) { instFilter = "all"; instAgent = ""; q = ""; document.querySelector<HTMLInputElement>("#q")!.value = ""; return paint(); }
+  if (hit("[data-init-menu]")) { initOpen = !initOpen; return paint(); }
+  if (initOpen) { initOpen = false; if (!hit("[data-init]")) paint(); }
   if (hit("[data-add-menu]")) { addOpen = !addOpen; return paint(); }
   if (addOpen) { addOpen = false; if (!hit("[data-screen], [data-add-github]")) paint(); }
   if (hit("[data-add-github]")) return askGithub();
@@ -2376,6 +2388,7 @@ document.addEventListener("keydown", (e) => {
   else if (ask) { if (!ask.busy) { ask = null; paint(); } }
   else if (editor) { if (!editor.busy) { editor = null; paint(); } }
   else if (addOpen) { addOpen = false; paint(); }
+  else if (initOpen) { initOpen = false; paint(); }
   else if (detail && !menu) { detail = null; paint(); }
 });
 // pasting an install command anywhere in the window installs what it names; any other paste goes where it was going
@@ -2409,3 +2422,33 @@ document.addEventListener("keydown", (e) => {
 });
 document.addEventListener("mouseup", (e) => { if (e.button === 3 || e.button === 4) { e.preventDefault(); goPlace(e.button === 3 ? -1 : 1); } });
 document.addEventListener("scroll", (e) => { const b = e.target as HTMLElement; if (b.id === "body" && places[placeAt]) places[placeAt].top = b.scrollTop; }, true);
+
+/* ---------- a card's full text: when its name or description is cut short, pointing at the card shows all of it ---------- */
+const tip = document.createElement("div");
+tip.className = "tip"; tip.hidden = true; tip.setAttribute("role", "tooltip");
+document.body.appendChild(tip);
+let tipTimer = 0, tipFor: Element | null = null;
+const cutShort = (el: Element | null) => !!el && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
+const hideTip = () => { clearTimeout(tipTimer); tipFor = null; tip.hidden = true; };
+document.addEventListener("mouseover", (e) => {
+  const main = (e.target as HTMLElement).closest?.(".app-main, .row-main") || null;
+  if (main === tipFor) return;
+  hideTip();
+  if (!main) return;
+  tipFor = main;
+  const name = main.querySelector("b"), about = main.querySelector(".app-t > small, .row-t > small");
+  if (!cutShort(name) && !cutShort(about)) return;
+  tipTimer = window.setTimeout(() => {
+    if (!main.isConnected || tipFor !== main) return;
+    tip.innerHTML = `<b>${esc(name?.textContent || "")}</b>${about?.textContent ? `<span>${esc(about.textContent)}</span>` : ""}`;
+    tip.hidden = false;
+    // under the card, in line with its text; above it when there is no room below
+    const box = main.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = `${Math.max(8, Math.min(box.left, innerWidth - w - 8))}px`;
+    tip.style.top = `${box.bottom + 10 + h > innerHeight - 8 ? Math.max(8, box.top - h - 10) : box.bottom + 10}px`;
+  }, 450);
+});
+document.addEventListener("scroll", hideTip, true);
+document.addEventListener("mousedown", hideTip);
+document.addEventListener("keydown", hideTip);
+document.addEventListener("mouseleave", hideTip);

@@ -2,7 +2,5 @@
   {"name":"Superpowered workflow","ds":"Grill → plan → TDD → verify → review","ids":["grill-me","brainstorming","writing-plans","tdd","systematic-debugging","verification-before-completion","code-review","handoff","find-skills"]},
   {"name":"Frontend","ds":"GitHub · Figma · Vercel · Context7 · Frontend Design","ids":["github","figma","vercel","context7","frontend-design","impeccable","web-design-guidelines","vercel-react-best-practices","agent-browser"]},
   {"name":"Product designer","ds":"Figma · Notion · taste & motion skills","ids":["figma","notion","linear","frontend-design","emil-design-eng","review-animations","design-taste-frontend","impeccable","ui-ux-pro-max","prototype","building-a-beatdeck"]},
-  {"name":"Backend","ds":"GitHub · Sentry · Supabase · Postgres skills","ids":["github","sentry","supabase","context7","supabase-postgres-best-practices","systematic-debugging","tdd","gh-fix-ci","finops"]},
-  {"name":"Ship & monitor","ds":"GitHub · Vercel · CircleCI · Sentry · PostHog","ids":["github","vercel","circleci","sentry","posthog","pagerduty","gh-fix-ci","deploy-to-vercel"]},
-  {"name":"Docs & ops","ds":"Notion · Linear · Office & video skills","ids":["notion","linear","docx","xlsx","pptx","pdf","building-a-beatdeck","remotion-product-video"]}
+  {"name":"Backend","ds":"GitHub · Sentry · Supabase · Postgres skills","ids":["github","sentry","supabase","context7","supabase-postgres-best-practices","systematic-debugging","tdd","gh-fix-ci","finops"]}
 ]

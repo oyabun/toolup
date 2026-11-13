@@ -14,6 +14,7 @@ const types = {
 createServer(async (req, res) => {
   let file = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
   if (file === "/" && /^(curl|wget)\//i.test(req.headers["user-agent"] || "")) file = "/install.sh";
+  if (file === "/collections") file = "/index.html";   // the collections' own page is the same page at another address
   if (file.endsWith("/")) file += "index.html";
   try {
     let body = await readFile(root + file);

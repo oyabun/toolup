@@ -60,40 +60,43 @@ test("the hero, the wordmark with its beta pill and the logo are there", () => {
   assert.ok($("header #q") && $("header #cat-pick") && $("header #theme"), "search, categories and theme share the header's one line");
   assert.equal($("#toolbar"), null, "there is no second toolbar");
   assert.equal($("header a.ext"), null, "Get'Em! is a different use case, not in the header");
-  assert.match(read("style.css"), /header\{position:fixed;top:0;left:0;right:0;z-index:50/, "the header is fixed, not sticky");
+  assert.match(read("style.css"), /header\{position:sticky;top:0;/, "the bar sticks to the top once the hero has scrolled away");
+  assert.ok($("main > .hero + header"), "and it sits right under the hero");
   assert.ok($(".hero #agent-btn"), "the agent selector lives in the hero");
   assert.ok(!$("header #agent-btn"), "and not in the header");
   assert.ok($("header .theme"), "the theme button is in the header, with the rest of the tools");
   assert.equal($(".beta").textContent, "beta");
-  assert.match($(".brand").textContent, /Tool up!/);
+  assert.match($("header .brand").textContent, /Tool up!/);
 });
 
-test("the page opens on the app; the header's tabs switch to the catalog and back", () => {
+test("the page opens on the catalog; the header's tabs switch to the app and back", () => {
   const view = () => window.document.documentElement.dataset.view;
   const current = () => $$(".views a[aria-current]").map((a) => a.dataset.view);
   assert.equal(view(), "catalog", "#catalog opens the catalog");
+  assert.deepEqual($$(".views a").map((a) => a.dataset.view), ["catalog", "app"], "the catalog is the first tab");
   click($('.views a[data-view="app"]'));
   assert.equal(view(), "app");
   assert.deepEqual(current(), ["app"]);
-  assert.equal(window.location.hash, "");
+  assert.equal(window.location.hash, "#app", "the address says which view, so a reload stays there");
   assert.match($("#h-app").textContent, /one window/);
-  assert.ok($(".hero > #h-app") && $(".hero > #h-hero") && $(".hero > #field"), "both views share one hero: the same field, each with its own words");
+  assert.ok($(".hero > #h-app") && $(".hero > #h-hero") && $(".hero > .hero-art"), "both views share one hero: the same toolbox, each with its own words");
+  assert.equal($("#field"), null, "no animated field of cells behind it");
   assert.match(read("style.css"), /\[data-view="app"\] \.for-cat,\[data-view="catalog"\] \.for-app\{display:none\}/, "and only the open view's words show");
   click($('.views a[data-view="catalog"]'));
   assert.equal(view(), "catalog");
   assert.deepEqual(current(), ["catalog"]);
-  assert.equal(window.location.hash, "#catalog", "the address says which view, so a reload stays there");
+  assert.equal(window.location.hash, "", "the catalog is the page itself: no hash until something is picked");
   click($('#v-app a[data-view="catalog"]'));
   assert.equal(view(), "catalog", "the app page's own links to the catalog go there too");
-  assert.match(read("app.js"), /viewOf = \(h\) => \(h === "catalog" \|\| h\.startsWith\("e-"\) \? "catalog" : "app"\)/, "no hash: the app comes first");
+  assert.match(read("app.js"), /viewOf = \(h\) => \(h === "app" \|\| h === "try" \? "app" : "catalog"\)/, "no hash: the catalog comes first");
   assert.match(read("style.css"), /\[data-view="app"\] #v-catalog,\[data-view="catalog"\] #v-app\{display:none\}/, "only one view shows");
-  assert.match(read("index.html"), /dataset\.view = h === "catalog" \|\| h\.indexOf\("e-"\) === 0 \? "catalog" : "app"/, "set before the first paint: #catalog or a share link opens the catalog");
+  assert.match(read("index.html"), /dataset\.view = \(h === "app" \|\| h === "try"\) && .*collections.*\.test\(location\.pathname\) \? "app" : "catalog"/, "set before the first paint: only #app opens the app");
 });
 
-test("sections run 01 to 02 in order, then the FAQ; the list's heading explains the open tab", () => {
+test("sections: the starter packs, then the list, then the FAQ; the list's heading explains the open tab", () => {
   const heads = $$("#v-catalog h2").map((h) => h.textContent.replace(/\s+/g, " ").trim());
-  assert.match(heads[0], /^01 Start from a pack/);
-  assert.match(heads[1], /^02 Pick your tools/, "one list, not a section per kind");
+  assert.match(heads[0], /^Starter packs/);
+  assert.match(heads[1], /^Pick your tools/, "one list, not a section per kind");
   assert.equal(heads[2], "Questions, answered");
   tabTo("skills");
   assert.match($$("#v-catalog h2")[1].textContent, /Skills teach your agents/);
@@ -105,9 +108,13 @@ test("three tabs, All, MCPs and Skills, over one list; cards say which kind they
   assert.deepEqual(tabs().map((b) => b.querySelector("span").textContent), ["All", "MCP servers", "Skills"]);
   assert.deepEqual(tabs().map((b) => b.querySelector("small").textContent), ["232", "56", "176"]);
   assert.equal($('[data-show="all"]').getAttribute("aria-pressed"), "true");
-  assert.equal($$("#cat .grid").length, 1, "All is one mixed list");
-  const names = $$("#cat .item .nm").map((n) => n.textContent);
-  assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base", numeric: true })), "by name, servers and skills together");
+  assert.deepEqual($$("#cat .grp-h span").map((h) => h.textContent), ["Skills", "MCP servers"], "All is shown in groups, as the app has them");
+  assert.equal($$("#cat .grid").length, 2, "one grid for each group");
+  for (const g of $$("#cat .grp")) {
+    const names = [...g.querySelectorAll(".item .nm")].map((n) => n.textContent);
+    assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base", numeric: true })), "each group by name");
+  }
+  assert.ok($$("#cat .grp")[0].querySelectorAll(".item.k-mcp").length === 0 && $$("#cat .grp")[1].querySelectorAll(".item.k-skill").length === 0, "and nothing in the wrong group");
   assert.ok($$("#cat .item.k-mcp").every((i) => i.querySelector(".kind").textContent === "MCP"));
   assert.ok($$("#cat .item.k-skill").every((i) => i.querySelector(".kind").textContent === "Skill"));
   click($('[data-show="mcp"]'));
@@ -179,8 +186,9 @@ test("the dropdown works from the keyboard: arrows move, Escape closes and gives
   assert.equal(window.document.activeElement, btn);
 });
 
-test("six packs, 56 servers and 176 skills are listed from the catalog", () => {
-  assert.equal($$(".pack").length, 6);
+test("four packs, 56 servers and 176 skills are listed from the catalog", () => {
+  assert.equal($$(".pack").length, 4);
+  assert.match($("#packs .pack-more").textContent, /More coming soon/, "and after them a card that says more are coming and takes suggestions");
   assert.equal($$("#cat .item.k-mcp").length, 56);
   tabTo("skills");
   assert.equal($$("#cat .item.k-skill").length, 176);
@@ -262,11 +270,14 @@ test("the share link restores the selection", async () => {
 
 test("a pack pre-selects its servers and skills", async () => {
   await boot();
-  click($$(".pack")[0]);
+  click($$(".pack .cta")[0]);
   assert.match(cmd(), /grill-me .*tdd/);
   await boot();
-  click($$(".pack").find((p) => p.querySelector("b").textContent === "Ship & monitor"));
-  assert.match(cmd(), /github sentry vercel posthog pagerduty circleci gh-fix-ci deploy-to-vercel$/, "catalog order, whatever order the pack lists them in");
+  click($$(".pack").find((p) => p.querySelector("b").textContent === "Backend").querySelector(".cta"));
+  const backend = catalog.packs.find((p) => p.name === "Backend").ids;
+  const inOrder = [...catalog.mcp, ...catalog.skills].map((x) => x.id).filter((id) => backend.includes(id)).join(" ");
+  assert.notEqual(inOrder, backend.join(" "), "the pack lists them in another order than the catalog");
+  assert.ok(cmd().endsWith(inOrder), "catalog order, whatever order the pack lists them in");
 });
 
 test("search finds servers and skills together, and says when nothing matches", () => {
@@ -305,21 +316,33 @@ test("a skill's details show its whole family, each addable, plus Add all", asyn
   assert.equal($$(".repo, .repos").length, 0, "no repo strip above the skills");
   click($('[data-info="tdd"]'));
   assert.match($("#sheet .fam h4").textContent, /mattpocock\/skills family/);
-  const ids = $$("#sheet .fam [data-ftog]").map((b) => b.dataset.ftog);
+  const shown = $$("#sheet .fam [data-ftog]").map((b) => b.dataset.ftog);
+  assert.equal(shown.length, 6, "a big family shows six of its members");
+  assert.ok(!shown.includes("tdd"), "the one being looked at is not listed again");
+  const one = shown[0];
+  assert.match($("#sheet .fam-more").textContent, /^See all \d+ in the collection/, "and the way to the rest");
+  assert.match($("#sheet .fam-pg span").textContent, /^1–6 of \d+$/);
+  assert.ok($('#sheet [data-fampg="-1"]').disabled, "nothing before the first page");
+  click($('#sheet [data-fampg="1"]'));
+  assert.match($("#sheet .fam-pg span").textContent, /^7–\d+ of \d+$/, "the next page of members");
+  assert.ok(!$$("#sheet .fam [data-ftog]").some((b) => shown.includes(b.dataset.ftog)), "none of them shown before");
+  click($('#sheet [data-fampg="-1"]'));
+  const ids = $$('.item[data-id]').filter((c) => c.querySelector(".by")?.textContent.includes("mattpocock/skills")).map((c) => c.dataset.id);
   assert.ok(ids.length >= 11 && ids.includes("tdd") && ids.includes("grill-me"));
-  assert.ok($("#sheet .fam li.cur .fam-open").dataset.info === "tdd", "the current one is marked");
-  click($('#sheet [data-ftog="grill-me"]'));
+  click($(`#sheet [data-ftog="${one}"]`));
   assert.ok($("#scrim").classList.contains("show"), "the sheet stays open");
-  assert.equal(card("grill-me").getAttribute("aria-pressed"), "true");
-  assert.equal($('#sheet [data-ftog="grill-me"]').textContent, "✓ Added");
+  assert.equal(card(one).getAttribute("aria-pressed"), "true");
+  assert.equal($(`#sheet [data-ftog="${one}"]`).textContent, "✓ Added");
   click($("#sheet [data-fall]"));
   assert.ok(ids.every((i) => card(i).getAttribute("aria-pressed") === "true"));
   assert.match($("#sheet [data-fall]").textContent, /^Remove all/);
   click($("#sheet [data-fall]"));
   assert.ok(ids.every((i) => card(i).getAttribute("aria-pressed") === "false"));
-  click($('#sheet .fam-open[data-info="grill-me"]'));
-  assert.match($("#sheet-title").textContent, /Grill Me/);
-  click($("[data-close]"));
+  click($(`#sheet .fam-open[data-info="${one}"]`));
+  assert.ok(!$$("#sheet .fam [data-ftog]").some((b) => b.dataset.ftog === one), "a member opens its own details");
+  click($("#sheet .fam-more"));
+  assert.ok(!$("#scrim").classList.contains("show"), "See all closes the details");
+  assert.ok(window.document.body.classList.contains("in-coll"), "and opens the family's collection");
 });
 
 test("servers from one publisher show a family too; a lone one doesn't", () => {
@@ -569,35 +592,52 @@ test("logos and providers", () => {
   for (const id of ["windsurf", "cline", "qwen-code", "deepseek-harness", "openclaw", "goose", "kiro", "pi", "hermes"]) assert.ok(agent(id).svg, `${id} should use its Lobe Icons logo`);
   assert.equal($$("[data-tgt] .ico.brand").length, 13);
   click($('[data-info="github"]'));
-  assert.ok($("#sheet .sheet-h .ico svg"));
+  assert.ok($("#sheet .dt-hero .ico svg"), "the details open with the item's logo");
+  assert.deepEqual($$("#sheet .dt-facts dt").map((d) => d.textContent).slice(0, 1), ["Kind"], "and its facts in a row");
 });
 
 test("an added pack is marked as added, and clicking it again takes it back out", async () => {
   await boot();
   const kit = (name) => $$(".pack").find((p) => p.querySelector("b").textContent === name);
   const frontend = kit("Frontend");
-  assert.equal(frontend.getAttribute("aria-pressed"), "false");
+  const add = frontend.querySelector(".cta");
+  assert.equal(add.getAttribute("aria-pressed"), "false");
   assert.equal(frontend.querySelector(".cta-t").textContent, "Add pack");
-  click(frontend);
-  assert.equal(frontend.getAttribute("aria-pressed"), "true");
+  click(add);
+  assert.equal(add.getAttribute("aria-pressed"), "true");
   assert.ok(frontend.classList.contains("done"));
   assert.equal(frontend.querySelector(".cta-t").textContent, "Added");
   assert.ok(!kit("Backend").classList.contains("done"), "other packs are untouched");
   assert.match(cmd(), /github context7 figma vercel .*frontend-design/);
-  click(frontend);
-  assert.equal(frontend.getAttribute("aria-pressed"), "false");
+  click(add);
+  assert.equal(add.getAttribute("aria-pressed"), "false");
   assert.ok(!frontend.classList.contains("done"));
   assert.match(cmd(), /^Pick servers or skills/, "the pack's picks are gone again");
+});
+
+test("a pack's picture opens the pack to look inside, without adding anything; its page has one button for all of it", async () => {
+  await boot();
+  const frontend = $$(".pack").find((p) => p.querySelector("b").textContent === "Frontend");
+  click(frontend.querySelector(".pack-open"));
+  assert.match(cmd(), /^Pick servers or skills/, "looking is not adding");
+  assert.equal($("#cat #h-list").textContent, "Frontend");
+  const want = catalog.packs.find((p) => p.name === "Frontend").ids;
+  assert.deepEqual($$("#cat .item").map((i) => i.dataset.id).sort(), [...want].sort(), "its page lists exactly what is in it");
+  assert.ok(window.document.body.classList.contains("in-coll"), "and nothing else of the catalog");
+  click($("#pack-add"));
+  assert.ok(want.every((id) => card(id).getAttribute("aria-pressed") === "true"), "Add all adds every one");
+  click($("#cat .crumbs [data-collback]"));
+  assert.ok(!window.document.body.classList.contains("in-coll") && $$("#cat .item").length > want.length, "the breadcrumb leads back to the catalog");
 });
 
 test("a pack stops looking added as soon as one of its picks is removed by hand", async () => {
   await boot();
   const frontend = $$(".pack").find((p) => p.querySelector("b").textContent === "Frontend");
-  click(frontend);
+  click(frontend.querySelector(".cta"));
   assert.ok(frontend.classList.contains("done"));
   click(card("impeccable"));
   assert.ok(!frontend.classList.contains("done"));
-  assert.equal(frontend.getAttribute("aria-pressed"), "false");
+  assert.equal(frontend.querySelector(".cta").getAttribute("aria-pressed"), "false");
 });
 
 test("on a phone the menu button opens the links, and a link, Escape or a tap elsewhere closes it", async () => {
@@ -623,8 +663,9 @@ test("long lists: the header filters show one list at a time (or all), 24 cards 
   await boot("", 24);
   assert.equal($$("#show-pick option").length, 3);
   assert.equal($("#show-pick").value, "all", "All is the first option and the default");
-  assert.equal($$("#cat .item").length, 24, "All pages as one list");
-  assert.match($("[data-more=all]").textContent, /Show 24 more/);
+  assert.equal($$("#cat .item").length, 48, "All shows a page of each group");
+  assert.match($("[data-more=skills]").textContent, /Show 24 more/);
+  assert.match($("[data-more=mcp]").textContent, /Show 24 more/);
   assert.match($('[data-tab="all"]').textContent, /232/);
   tabTo("mcp");
   assert.equal($("#show-pick").value, "mcp");
@@ -693,7 +734,8 @@ test("the picks drawer lets you choose the agents, in step with the hero's dropd
 
 test("the header's dropdowns have an icon on every option, open on click, pick on click and close with Escape or a click outside", () => {
   const order = $$("#site-nav > *").map((e) => e.id || e.dataset.dd || e.className);
-  assert.deepEqual([order[0], order[1], order[2]], ["tb-search", "show-pick", "cat-pick"], "search first, then All, then Categories");
+  assert.deepEqual(order.slice(0, 4), ["hdr-kinds", "tb-search", "show-pick", "cat-pick"], "the kinds as chips, then search, then the menus");
+  assert.deepEqual($$("#hdr-kinds [data-show]").map((b) => b.querySelector("span").textContent), ["Skills", "MCP servers"], "the bar's filters are the app's chips");
   for (const id of ["show-pick", "cat-pick"]) {
     const root = $(`[data-dd="${id}"]`), btn = root.querySelector(".dd2-btn"), list = root.querySelector(".dd2-list");
     assert.ok(list.hidden);

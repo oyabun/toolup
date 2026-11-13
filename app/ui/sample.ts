@@ -15,7 +15,7 @@ export const sample: Inventory = {
   harnesses: [
     { id: "claude-code", name: "Claude Code", present: true, mcpFile: "~/.claude.json", problems: [] },
     { id: "codex", name: "Codex CLI", present: true, mcpFile: "~/.codex/config.toml", problems: [] },
-    { id: "gemini", name: "Gemini CLI", present: true, mcpFile: "~/.gemini/settings.json", problems: ["Could not read ~/.gemini/settings.json: it is not valid JSON."] },
+    { id: "gemini", name: "Gemini CLI", present: true, mcpFile: "~/.gemini/settings.json", problems: [] },
     { id: "cursor", name: "Cursor", present: true, mcpFile: "~/.cursor/mcp.json", problems: [] },
     { id: "vscode", name: "VS Code + Copilot", present: false, mcpFile: null, problems: [] },
   ],
